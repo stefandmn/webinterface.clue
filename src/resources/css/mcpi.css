@@ -1,0 +1,85 @@
+/**
+ * CSS component for MCPi
+ * Custom styles for custom objects
+ */
+
+#remoteContainer
+{
+	width: 240px;
+}
+
+#remoteContainer #remoteHome
+{
+	border-top-left-radius: 2.5em;
+}
+
+#remoteContainer #remoteInfo
+{
+	border-top-right-radius: 2.5em;
+}
+
+#remoteContainer #remoteBack
+{
+	border-bottom-left-radius: 2.5em;
+}
+
+#remoteContainer #remoteContext
+{
+	border-bottom-right-radius: 2.5em;
+}
+
+#volumeContainer
+{
+	width: 180px;
+}
+
+#nowPlayingContent
+{
+	margin-top: 2em;
+}
+
+.jumbotron .panel p
+{
+	font-size: 14px;
+}
+
+.jumbotron .panel .panel-body
+{
+	max-height: 30em;
+	overflow-y: scroll;
+}
+
+#modal-simple .modal-content
+{
+	padding: 15px;
+}
+
+#spinnerOverlay
+{
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0,0,0,0.7);
+}
+
+#spinnerOverlay i
+{
+	position: relative;
+	top: 50%;
+}
+
+
+#yuilist li
+{
+    list-style-type: none;
+    cursor: move;
+}
+
+#yuilist ul
+{
+	list-style-position: inside;
+    padding-left:0;
+}

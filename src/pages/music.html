@@ -1,0 +1,80 @@
+<div class="container">
+	<div class="row">
+		<div class="col-md-5">
+			<div class="row">
+				<center>
+					<div class="btn-group" role="group">
+						<div id="musicPlaylists" class="btn btn-primary active" type="button" scope="music-data" title="Playlists"><span class="fa fa-list fa-2x" aria-hidden="true"></span></div>
+						<div id="musicSongs" class="btn btn-default" type="button" scope="music-data" title="Songs"><span class="fa fa-music fa-2x" aria-hidden="true"></span></div>
+						<div id="musicArtists" class="btn btn-default" type="button" scope="music-data" title="Artists"><span class="fa fa-user fa-2x" aria-hidden="true"></span></div>
+						<div id="musicAlbums" class="btn btn-default" type="button" scope="music-data" title="Albums"><span class="fa fa-archive fa-2x" aria-hidden="true"></span></div>
+						<div id="musicFiles" class="btn btn-default" type="button" scope="music-data" title="Files"><span class="fa fa-folder-open fa-2x" aria-hidden="true"></span></div>
+					</div>
+				</center>
+			</div>
+			<div class="row">&nbsp;</div>
+			<div class="row">
+				<div id="musicFiltersPanel" class="panel-collapse collapse">
+					<hr/><br/>
+					<div class="btn-toolbar" role="toolbar">
+						<div class="btn-group btn-group-xs btn-group-justified" role="group">
+							<div id="musicFilterA" class="btn btn-info" type="button" scope="music-filter">A</div>
+							<div id="musicFilterB" class="btn btn-default" type="button" scope="music-filter">B</div>
+							<div id="musicFilterC" class="btn btn-default" type="button" scope="music-filter">C</div>
+							<div id="musicFilterD" class="btn btn-default" type="button" scope="music-filter">D</div>
+							<div id="musicFilterE" class="btn btn-default" type="button" scope="music-filter">E</div>
+							<div id="musicFilterF" class="btn btn-default" type="button" scope="music-filter">F</div>
+							<div id="musicFilterG" class="btn btn-default" type="button" scope="music-filter">G</div>
+							<div id="musicFilterH" class="btn btn-default" type="button" scope="music-filter">H</div>
+							<div id="musicFilterI" class="btn btn-default" type="button" scope="music-filter">I</div>
+							<div id="musicFilterJ" class="btn btn-default" type="button" scope="music-filter">J</div>
+							<div id="musicFilterK" class="btn btn-default" type="button" scope="music-filter">K</div>
+							<div id="musicFilterL" class="btn btn-default" type="button" scope="music-filter">L</div>
+							<div id="musicFilterM" class="btn btn-default" type="button" scope="music-filter">M</div>
+						</div>
+						<div class="btn-group btn-group-xs btn-group-justified" role="group">
+							<div id="musicFilterN" class="btn btn-default" type="button" scope="music-filter">N</div>
+							<div id="musicFilterO" class="btn btn-default" type="button" scope="music-filter">O</div>
+							<div id="musicFilterP" class="btn btn-default" type="button" scope="music-filter">P</div>
+							<div id="musicFilterQ" class="btn btn-default" type="button" scope="music-filter">Q</div>
+							<div id="musicFilterR" class="btn btn-default" type="button" scope="music-filter">R</div>
+							<div id="musicFilterS" class="btn btn-default" type="button" scope="music-filter">S</div>
+							<div id="musicFilterT" class="btn btn-default" type="button" scope="music-filter">T</div>
+							<div id="musicFilterU" class="btn btn-default" type="button" scope="music-filter">U</div>
+							<div id="musicFilterV" class="btn btn-default" type="button" scope="music-filter">V</div>
+							<div id="musicFilterW" class="btn btn-default" type="button" scope="music-filter">W</div>
+							<div id="musicFilterX" class="btn btn-default" type="button" scope="music-filter">X</div>
+							<div id="musicFilterY" class="btn btn-default" type="button" scope="music-filter">Y</div>
+							<div id="musicFilterZ" class="btn btn-default" type="button" scope="music-filter">Z</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-7">
+			<div class="panel-group" id="musicList">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 id="musicListTitle" class="panel-title">Now playing</h4>
+					</div>
+					<div class="panel-collapse collapse in">
+						<div id="musicListItems" class="panel-body">
+							<i class="fa fa-spinner fa-spin fa-2x"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+	//initialize screen
+	MCPi.music.init();
+
+	$(document).on('click', '[scope=music-data]', MCPi.music.onDataClick);
+
+	$(document).on('click', '[scope=music-filter]', MCPi.music.onFilterClick);
+//]]>
+</script>

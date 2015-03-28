@@ -1,0 +1,269 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+	<title>Clue MCPi</title>
+
+	<!-- Bootstrap -->
+	<link href="resources/css/bootstrap.min.css" rel="stylesheet">
+	<!-- Fontawesome -->
+	<link href="resources/css/font-awesome.min.css" rel="stylesheet">
+	<!-- Clue MCPi -->
+	<link href="resources/css/mcpi.css" rel="stylesheet">
+	<link href="resources/css/nestable.css" rel="stylesheet">
+
+	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+
+	<!-- Main page navigation bar with all controls and option for the entire application lifecycle -->
+	<nav id="mainNavbar" class="navbar navbar-inverse">
+		<div class="container-fluid">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#mainNavbarControls">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">
+					<img alt="Clue MCPi" src="icon.png" width="20px" height="20px">
+				</a>
+			</div>
+
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse" id="mainNavbarControls">
+				<ul class="nav navbar-nav">
+					<li><a href="#home"><span class="fa fa-home fa-lg" aria-hidden="true"></span> Home</a></li>
+					<li class="dropdown">
+						<a href="#media" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-th fa-lg" aria-hidden="true"></span> Media <span class="caret"></span></a>
+						<ul class="dropdown-menu" role="menu">
+							<li><a href="#music"><span class="fa fa-music" aria-hidden="true"></span> Music</a></li>
+							<li class="divider"></li>
+							<li><a href="#movies"><span class="fa fa-film" aria-hidden="true"></span> Movies</a></li>
+							<li class="divider"></li>
+							<li><a href="#photos"><span class="fa fa-photo" aria-hidden="true"></span> Photos</a></li>
+						</ul>
+					</li>
+					<li><a id="nowPlayingButton" data-toggle="collapse" href="#nowPlayingContainer" aria-expanded="false" aria-controls="nowPlayingContainer"><span class="fa fa-play-circle-o fa-lg" aria-hidden="true"></span> Now playing</a></li>
+				</ul>
+				<form class="navbar-form navbar-left" role="search">
+					<div class="form-group">
+						<input type="text" class="form-control" placeholder="Search">
+					</div>
+					<button type="submit" class="btn btn-default">Search</button>
+				</form>
+				<ul class="nav navbar-nav navbar-right">
+					<li><a data-toggle="modal" href="#remoteModal" data-target="#remoteModal"><span class="fa fa-building-o fa-rotate-180 fa-lg" aria-hidden="true"></span> Remote</a></li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-user fa-lg" aria-hidden="true"></span></a>
+						<ul class="dropdown-menu" role="menu">
+							<li class="text-right"><a id="videoLibraryUpdate" href="#" data-clickthrough="false">Video Update</a></li>
+							<li class="text-right"><a id="videoLibraryClean" href="#" data-clickthrough="false">Video Clean</a></li>
+							<li class="divider"></li>
+							<li class="text-right"><a id="audioLibraryUpdate" href="#" data-clickthrough="false">Music Update</a></li>
+							<li class="text-right"><a id="audioLibraryClean" href="#" data-clickthrough="false">Music Clean</a></li>
+							<li class="divider"></li>
+							<li class="text-right"><a data-toggle="modal" href="#notificationModal" data-target="#notificationModal">Notification <span class="fa fa-comments-o fa-lg" aria-hidden="true"></span></a></li>
+							<li class="divider"></li>
+							<li class="text-right"><a id="systemPowerOff" href="#" data-clickthrough="false">Power off <span class="fa fa-fw fa-power-off" aria-hidden="true"></span></a></li>
+							<li class="text-right"><a id="systemReboot" href="#" data-clickthrough="false">Reboot <span class="fa fa-fw fa-rotate-left" aria-hidden="true"></span></a></li>
+							<li class="text-right"><a id="systemExit" href="#" data-clickthrough="false">Exit <span class="fa fa-fw fa-sign-out" aria-hidden="true"></span></a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<!-- /.navbar-collapse -->
+		</div>
+		<!-- /.container-fluid -->
+	</nav>
+
+
+	<!-- Now Playing panel -->
+	<div id="nowPlayingContainer" class="container collapse">
+		<div class="row">
+			<div class="col-md-3">
+				<h2><span class="fa fa-play-circle-o"></span> Now Playing</h2>
+				<div id="playerItemNone" class="label label-warning hidden">Nothing is playing</div>
+			</div>
+			<div class="col-md-9">
+				<div id="playItemContent" class="media show">
+					<div class="pull-left">
+						<img id="playItemFanart" src="#" style="height:8em;"/>
+					</div>
+					<div class="media-body">
+						<h3 id="playItemTitle" class="media-heading text-primary">Name</h3>
+						<div id="playItemDetails">Details</div>
+						<div id="playItemYear">Year</div>
+						<br/>
+						<div class="row">
+							<div class="col-xs-8">
+								<div class="progress">
+									<div id="playItemProgress" class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+										<span class="sr-only">40% Complete (success)</span>
+									</div>
+								</div>
+							</div>
+							<div class="col-xs-1">
+								<span id="playItemTotalTime" class="label label-primary">Time</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Main Content-->
+	<hr>
+	<div id="mainContent"></div>
+	<div id="spinnerOverlay" class="text-center"><i class="fa fa-spinner fa-spin fa-5x"></i></div>
+
+
+	<!-- Notification modal dialog -->
+	<div class="modal fade" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="notificationModalLabel">Notification message</h4>
+				</div>
+				<div class="modal-body">
+					<form>
+						<div class="form-group">
+							<div class="row">
+								<div class="col-xs-9">
+									<label for="notification-title" class="control-label">Title:</label>
+									<input type="text" class="form-control" id="notification-title" value="Information">
+								</div>
+								<div class="col-xs-3">
+									<label for="notification-time" class="control-label">Display time:</label>
+									<input type="text" class="form-control" id="notification-time" value="5000">
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="notification-text" class="control-label">Message:</label>
+							<textarea class="form-control" id="notification-text"></textarea>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button id="sendMessage" type="button" class="btn btn-primary">Send</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Remote control modal dialog -->
+	<div class="modal fade" id="remoteModal" tabindex="-1" role="dialog" aria-labelledby="remoteModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-body">
+					<div id="remoteContainer" class="container text-center">
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="btn-group btn-group-justified btn-group-sm">
+									<a id="remotePartyMode" class="btn btn-default" data-toggle="button" data-clickthrough="false" title="Party mode"><span class="fa fa-flash fa-lg" aria-hidden="true"></span></a>
+									<a id="remotePlaylist" class="btn btn-default" data-clickthrough="false" title="Show current playlist"><span class="fa fa-list-alt fa-lg" aria-hidden="true"></span></a>
+									<a id="remoteFullscreen" class="btn btn-default" data-clickthrough="false" title="Display in fullscreen"><span class="fa fa-external-link fa-lg" aria-hidden="true"></span></a>
+								</div>
+							</div>
+						</div>
+						<br/>
+						<!-- /.header controls (screen actions)-->
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="btn-group btn-group-justified btn-group-sm">
+									<a id="remoteFastRewind" class="btn btn-default" data-clickthrough="false"><span class="fa fa-step-backward" aria-hidden="true"></span></a>
+									<a id="remoteRewind" class="btn btn-default" data-clickthrough="false"><span class="fa fa-backward" aria-hidden="true"></span></a>
+									<a id="remoteStop" class="btn btn-default" data-clickthrough="false"><span class="fa fa-stop" aria-hidden="true"></span></a>
+									<a id="remotePlay" class="btn btn-default" data-clickthrough="false"><span class="fa fa-play" aria-hidden="true"></span></a>
+									<a id="remoteForward" class="btn btn-default" data-clickthrough="false"><span class="fa fa-forward" aria-hidden="true"></span></a>
+									<a id="remoteFastForward" class="btn btn-default" data-clickthrough="false"><span class="fa fa-step-forward" aria-hidden="true"></span></a>
+								</div>
+							</div>
+						</div>
+						<br/>
+						<!-- /.player controls -->
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="btn-group btn-group-justified btn-group-lg">
+									<a id="remoteHome" class="btn btn-default" data-clickthrough="false" title="Go to Home screen"><span class="fa fa-home fa-2x" aria-hidden="true"></span></a>
+									<a id="remoteUp" class="btn btn-default" data-clickthrough="false"><span class="fa fa-caret-up fa-2x" aria-hidden="true"></span></a>
+									<a id="remoteInfo" class="btn btn-default" data-clickthrough="false"  title="Display info"><span class="fa fa-info fa-2x" aria-hidden="true"></span></a>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="btn-group btn-group-justified btn-group-lg">
+									<a id="remoteLeft" class="btn btn-default" data-clickthrough="false"><span class="fa fa-caret-left fa-2x" aria-hidden="true"></span></a>
+									<a id="remoteSelect" class="btn btn-default" data-clickthrough="false"><span class="fa fa-circle fa-2x" aria-hidden="true"></span></a>
+									<a id="remoteRight" class="btn btn-default" data-clickthrough="false"><span class="fa fa-caret-right fa-2x" aria-hidden="true"></span></a>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="btn-group btn-group-justified btn-group-lg">
+									<a id="remoteBack" class="btn btn-default" data-clickthrough="false"  title="Go back"><span class="fa fa-rotate-left fa-2x" aria-hidden="true"></span></a>
+									<a id="remoteDown" class="btn btn-default" data-clickthrough="false"><span class="fa fa-caret-down fa-2x" aria-hidden="true"></span></a>
+									<a id="remoteContext" class="btn btn-default" data-clickthrough="false" title="Context menu"><span class="fa fa-bars fa-2x" aria-hidden="true"></span></a>
+								</div>
+							</div>
+						</div>
+						<br/>
+						<!-- /.navigation controls -->
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="btn-group btn-group-sm btn-group-justified btn-group-lg">
+									<a id="remoteVolumeMute" class="btn btn-default" data-clickthrough="false" title="Mute and unmute"><span class="fa fa-volume-off fa-lg" aria-hidden="true"></span> <span class="badge">100</span></a>
+									<a id="remoteVolumeUp" class="btn btn-default" data-clickthrough="false" title="Increase volume"><span class="fa fa-plus fa-lg" aria-hidden="true"></span></a>
+									<a id="remoteVolumeDown" class="btn btn-default" data-clickthrough="false" title="Decrease volume"><span class="fa fa-minus fa-lg" aria-hidden="true"></span></a>
+								</div>
+							</div>
+						</div>
+						<br/>
+						<!-- /.volume controls -->
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="btn-group btn-group-sm btn-group-justified btn-group-lg">
+									<a id="remoteMusic" class="btn btn-default" data-clickthrough="false" title="Open Music screen"><span class="fa fa-music fa-lg" aria-hidden="true"></span></a>
+									<a id="remoteVideo" class="btn btn-default" data-clickthrough="false" title="Open Video screen"><span class="fa fa-video-camera fa-lg" aria-hidden="true"></span></a>
+									<a id="remotePictures" class="btn btn-default" data-clickthrough="false" title="Open Photo screen"><span class="fa fa-camera fa-lg" aria-hidden="true"></span></a>
+									<a id="remoteSettings" class="btn btn-default" data-clickthrough="false" title="Open Settings screen"><span class="fa fa-cog fa-lg" aria-hidden="true"></span></a>
+								</div>
+							</div>
+						</div>
+						<!-- /.footer controls (navigation screens) -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Footer content -->
+	<hr>
+	<footer class="container" style="text-align:right; font-size:10px">
+		<p>&copy; 2014-2015 AMSD</p>
+	</footer>
+
+
+	<!-- Include all javascripts -->
+	<script src="resources/js/launcher.js?1.0"></script>
+</body>
+</html>

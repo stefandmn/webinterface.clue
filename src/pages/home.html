@@ -1,0 +1,73 @@
+<div class="jumbotron">
+	<div class="container" id="homeContainer">
+		<div class="row">
+			<div class="col-md-4">
+				<div class="panel-group" id="recentsongs">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title"><a data-toggle="collapse" data-parent="#recentsongs" href="#rads-panel">Recently added songs</a></h4>
+						</div>
+						<div id="rads-panel" class="panel-collapse collapse in">
+							<div id="rads" class="panel-body">
+								<i class="fa fa-spinner fa-spin fa-2x"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4 col-sm-6">
+				<div class="panel-group" id="recentmovies">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title"><a data-toggle="collapse" data-parent="#recentmovies" href="#radm-panel">Recently added movies</a></h4>
+						</div>
+						<div id="radm-panel" class="panel-collapse collapse">
+							<div id="radm" class="panel-body">
+								<i class="fa fa-spinner fa-spin fa-2x"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4 col-sm-6">
+				<div class="panel-group" id="recentepisodes">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title"><a data-toggle="collapse" data-parent="#recentepisodes" href="#rade-panel">Recently added episodes</a></h4>
+						</div>
+						<div id="rade-panel" class="panel-collapse collapse">
+							<div id="rade" class="panel-body">
+								<i class="fa fa-spinner fa-spin fa-2x"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+//<![CDATA[
+	//initialize screen
+	MCPi.home.init();
+
+	$('#recentsongs').on('show.bs.collapse',function (e)
+	{
+		MCPi.home.getLatestSongs();
+	});
+
+	$('#recentmovies').on('show.bs.collapse',function (e)
+	{
+		MCPi.home.getLatestMovies();
+	});
+
+	$('#recentepisodes').on('show.bs.collapse',function (e)
+	{
+		MCPi.home.getLatestEpisodes();
+	});
+
+	$(document).on('click', '[data-menu=home]', MCPi.home.onMenuClick);
+//]]>
+</script>

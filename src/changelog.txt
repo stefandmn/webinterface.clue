@@ -1,0 +1,6 @@
+v1.0
+- Implementation of Music screen
+- Implement the Home page and Now Playing controls
+- Redesign the whole design and concept. Use the latest Bootstrap version
+- Adapted for Kodi v14
+- Reuse and optimize components from other webinterface add-ons (default and flecks)
