@@ -17,13 +17,13 @@
 			"resources/js/bootstrap.min.js",
 			"resources/js/json2.js",
 			"resources/js/mcpi.js",
-			"resources/js/pages/player.js",
-			"resources/js/pages/remote.js",
-			"resources/js/pages/system.js",
-			"resources/js/pages/home.js",
-			"resources/js/pages/music.js",
-			"resources/js/pages/movies.js",
-			"resources/js/pages/photos.js"
+			"resources/js/areas/player.js",
+			"resources/js/areas/remote.js",
+			"resources/js/areas/system.js",
+			"resources/js/areas/home.js",
+			"resources/js/areas/music.js",
+			"resources/js/areas/movies.js",
+			"resources/js/areas/photos.js"
 		];
 
 	for (i = 0; i < scripts.length; i += 1)

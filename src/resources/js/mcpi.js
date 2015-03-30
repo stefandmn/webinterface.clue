@@ -121,39 +121,14 @@
 		{
 			vars:
 			{
-				hash: '',
+				currentScreen: "#home",
 				keyText: ''
 			},
 
-			hashChange: function (e)
+			init: function()
 			{
-				// e = n.Event, this = Window
-				var hash = window.location.hash || '#home';
-
-				if (hash == MCPi.main.vars.hash) return;
-
-				MCPi.main.vars.hash = hash;
-				MCPi.main.fadeOut();
-
-				$.get('pages/' + hash.substr(1) + '.html', function (d)
-				{
-					$('#mainContent').html(d);
-					MCPi.main.fadeIn(hash);
-				})
-			},
-
-			fadeOut: function ()
-			{
-				$('#spinnerOverlay').fadeIn('fast');
-				$('#mainContent').fadeOut('fast');
-				$('*.active').removeClass('active');
-			},
-
-			fadeIn: function (hash)
-			{
-				$('*[href=' + hash + ']').parent().addClass('active');
-				$('#mainContent').fadeIn('fast');
-				$('#spinnerOverlay').fadeOut('fast');
+				MCPi.player.getPlayerId();
+				MCPi.main.showContent(MCPi.main.vars.currentScreen);
 			},
 
 			onClick: function (event)
@@ -164,6 +139,28 @@
 				var id = obj.attr('id');
 
 				return MCPi.main.run(id);
+			},
+
+			onClickContent: function (event)
+			{
+				event.preventDefault();
+
+				var obj = $(this);
+				var id = obj.attr('id');
+				var name = id.slice(6).toLowerCase();
+
+				MCPi.main.showContent("#" + name);
+			},
+
+			showContent: function(name)
+			{
+				if(MCPi.main.vars.currentScreen != name)
+				{
+					$(MCPi.main.vars.currentScreen).collapse('hide');
+				}
+
+				MCPi.main.vars.currentScreen = name;
+				$(MCPi.main.vars.currentScreen).collapse('show');
 			},
 
 			sendText: function(text, done)
@@ -354,11 +351,22 @@
 
 	$(function ()
 	{
-		$(window).hashchange(MCPi.main.hashChange);
-		$(window).trigger('hashchange');
-
 		$(document).on('click', '[data-clickthrough=false]', MCPi.main.onClick);
 		$(document).on('keydown', '[id=remoteModal]', jQuery.proxy(MCPi.main.handleKeyPress, this));
+		$(document).on('click', '[data-content=true]', MCPi.main.onClickContent);
+
+		$('#home').on('show.bs.collapse',function (e)
+		{
+			MCPi.home.init();
+		});
+
+		$('#music').on('show.bs.collapse', function(e)
+		{
+			MCPi.music.init();
+		});
+
+		//$('#movies').on('show', MCPi.home.init());
+		//$('#photos').on('show', MCPi.home.init());
 
 		$('#sendMessage').bind('click', MCPi.system.notify);
 
@@ -378,7 +386,7 @@
 		});
 
 		//dedicated code for mobile to collapse navigation bar when click event has been performed
-		$(document).on('click','.navbar-collapse.in',function(e)
+		$(document).on('click','.navbar-collapse.in', function(e)
 		{
 			if( $(e.target).is('a') && ( $(e.target).attr('class') != 'dropdown-toggle' ) )
 			{
@@ -386,93 +394,31 @@
 			}
 		});
 
-		MCPi.player.getPlayerId();
+		$('#recentsongs').on('show.bs.collapse',function (e)
+		{
+			MCPi.home.getLatestSongs();
+		});
+
+		$('#recentmovies').on('show.bs.collapse',function (e)
+		{
+			MCPi.home.getLatestMovies();
+		});
+
+		$('#recentepisodes').on('show.bs.collapse',function (e)
+		{
+			MCPi.home.getLatestEpisodes();
+		});
+
+		$(document).on('click', '[scope=home-actions]', MCPi.home.onMenuClick);
+
+		$('#musicListItems').sortable({items:'div.item', handle:'.media-object'});
+		$('#musicListItems').on('sortable:update', MCPi.music.onChangeNowPlaying);
+
+		$(document).on('click', '[scope=music-data]', MCPi.music.onDataClick);
+		$(document).on('click', '[scope=music-filter]', MCPi.music.onFilterClick);
+		$(document).on('click', '[scope=music-actions]', MCPi.music.onMusicMenuClick);
+
+		MCPi.main.init();
 	})
 
 }(window, jQuery));
-
-
-
-/**
- * jQuery hashchange event
- */
-(function ($, e, b)
-{
-	var c = "hashchange", h = document, f, g = $.event.special, i = h.documentMode, d = "on" + c in e && (i === b || i > 7);
-
-
-	function a(j)
-	{
-		j = j || location.href;
-		return"#" + j.replace(/^[^#]*#?(.*)$/, "$1")
-	}
-
-
-	$.fn[c] = function (j)
-	{
-		return j ? this.bind(c, j) : this.trigger(c)
-	};
-
-
-	$.fn[c].delay = 50;
-
-
-	g[c] = $.extend(g[c], {setup: function ()
-	{
-		if (d)
-		{
-			return false
-		}
-		$(f.start)
-	},
-
-	teardown: function ()
-	{
-		if (d)
-		{
-			return false
-		}
-		$(f.stop)
-	}});
-
-
-	f = (function ()
-	{
-		var j = {}, p, m = a(), k = function (q)
-		{
-			return q
-		}, l = k, o = k;
-
-		j.start = function ()
-		{
-			p || n()
-		};
-
-		j.stop = function ()
-		{
-			p && clearTimeout(p);
-			p = b
-		};
-
-		function n()
-		{
-			var r = a(), q = o(m);
-			if (r !== m)
-			{
-				l(m = r, q);
-				$(e).trigger(c)
-			}
-			else
-			{
-				if (q !== m)
-				{
-					location.href = location.href.replace(/#.*/, "") + q
-				}
-			}
-			p = setTimeout(n, $.fn[c].delay)
-		}
-
-		return j
-	})()
-
-})(jQuery, this);
