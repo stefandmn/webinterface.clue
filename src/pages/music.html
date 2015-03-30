@@ -48,6 +48,7 @@
 							<div id="musicFilterZ" class="btn btn-default" type="button" scope="music-filter">Z</div>
 						</div>
 					</div>
+					<br/>
 				</div>
 			</div>
 		</div>
@@ -58,7 +59,7 @@
 						<h4 id="musicListTitle" class="panel-title">Now playing</h4>
 					</div>
 					<div class="panel-collapse collapse in">
-						<div id="musicListItems" class="panel-body">
+						<div id="musicListItems" class="panel-body list">
 							<i class="fa fa-spinner fa-spin fa-2x"></i>
 						</div>
 					</div>
@@ -73,8 +74,13 @@
 	//initialize screen
 	MCPi.music.init();
 
+	$('#musicListItems').sortable({items:'div.item', handle:'.media-object'});
+	$('#musicListItems').on('sortable:update', MCPi.music.onChangeNowPlaying);
+
 	$(document).on('click', '[scope=music-data]', MCPi.music.onDataClick);
 
 	$(document).on('click', '[scope=music-filter]', MCPi.music.onFilterClick);
+
+	$(document).on('click', '[scope=music-actions]', MCPi.music.onMusicMenuClick);
 //]]>
 </script>

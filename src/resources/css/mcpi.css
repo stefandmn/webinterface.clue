@@ -71,15 +71,24 @@
 	top: 50%;
 }
 
-
-#yuilist li
+.list
 {
-    list-style-type: none;
-    cursor: move;
+	border: 0;
+	background: transparent;
+	line-height: 1;
 }
 
-#yuilist ul
+.item
 {
-	list-style-position: inside;
-    padding-left:0;
+	cursor: default;
+	box-sizing: border-box;
+	vertical-align: top;
+	z-index: 9999;
+}
+
+
+.placeholder
+{
+	border: 1px solid #000;
+	background-color: transparent;
 }

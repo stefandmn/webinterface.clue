@@ -13,7 +13,7 @@
 		version = (debug ? Math.random() : '1.0'),
 		scripts = [
 			"resources/js/jquery.min.js",
-			"resources/js/jquery-dragdrop.min.js",
+			"resources/js/jquery.dnd.js",
 			"resources/js/bootstrap.min.js",
 			"resources/js/json2.js",
 			"resources/js/mcpi.js",

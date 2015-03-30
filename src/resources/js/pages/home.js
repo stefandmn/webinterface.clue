@@ -41,7 +41,7 @@
 			if(data.genre && data.genre.length > 0) details[details.length] = data.genre.join(",");
 			if(data.year) details[details.length] = data.year;
 
-			return MCPi.home.getNowPlayingTemplate(data.songid, "song", image, titles.join(" - "), details.join(" &bull; "));
+			return MCPi.home.getTemplate(data.songid, "song", image, titles.join(" - "), details.join(" &bull; "));
 		},
 
 		getLatestMovies: function()
@@ -75,7 +75,7 @@
 			if(data.rating) details[details.length] = data.rating.toFixed(1);
 			if(data.year) details[details.length] = data.year;
 
-			return MCPi.home.getNowPlayingTemplate(data.movieid, "movie", image, titles.join(" - "), details.join(" &bull; "));
+			return MCPi.home.getTemplate(data.movieid, "movie", image, titles.join(" - "), details.join(" &bull; "));
 		},
 
 		getLatestEpisodes: function()
@@ -110,10 +110,10 @@
 			if(data.episode) details[details.length] = "Episode " + data.episode;
 			if(data.rating) details[details.length] = data.rating.toFixed(1);
 
-			return MCPi.home.getNowPlayingTemplate(data.episodeid, "episode", image, titles.join(" - "), details.join(" &bull; "));
+			return MCPi.home.getTemplate(data.episodeid, "episode", image, titles.join(" - "), details.join(" &bull; "));
 		},
 
-		getNowPlayingTemplate: function(id, type, image, title, details)
+		getTemplate: function(id, type, image, title, details)
 		{
 			if(image == null || image == "")
 			{
@@ -131,12 +131,12 @@
 				'					<img src="' + image + '" style="height:2.9em;"/>' +
 				'				</a>' +
 				'				<div class="media-body">' +
-				'					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><h5 class="media-heading"> ' + title + '</h5></a>' +
+				'					<a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><h5 class="media-heading" style="cursor:default;"> ' + title + '</h5></a>' +
 				'					<ul class="dropdown-menu" role="menu">' +
-				'						<li><a href="#" data-menu="home" data-exec="now" data-type="'+ type + '" data-refid="' + id + '">Play now</a></li>' +
+				'						<li><a scope="home-actions" data-exec="playnow" data-type="' + type + '" data-refid="' + id + '" style="cursor:default;"><span class="fa fa-play-circle text-primary"></span> Play now</a></li>' +
 				'						<li class="divider"></li>' +
-				'						<li><a href="#" data-menu="home" data-exec="next" data-type="'+ type + '" data-refid="' + id + '">Add next item</a></li>' +
-				'						<li><a href="#" data-menu="home" data-exec="queue" data-type="'+ type + '" data-refid="' + id + '">Append to playlist</a></li>' +
+				'						<li><a scope="home-actions" data-exec="playnext" data-type="' + type + '" data-refid="' + id + '" style="cursor:default;">Add next item</a></li>' +
+				'						<li><a scope="home-actions" data-exec="enqueue" data-type="' + type + '" data-refid="' + id + '" style="cursor:default;">Append to playlist</a></li>' +
 				'					</ul>' +
 				'					<small> ' + details + ' </small>' +
 				'				</div>' +
@@ -147,9 +147,11 @@
 				].join("\n"));
 		},
 
-
-		onMenuClick: function()
+		onMenuClick: function(e)
 		{
+			e.preventDefault();
+			console.log("exec: home.onMenuClick");
+
 			var obj = $(this);
 			var exec = obj.attr("data-exec");
 			var type = obj.attr("data-type");
@@ -159,7 +161,7 @@
 
 			switch (exec)
 			{
-				case "now":
+				case "playnow":
 					switch (type)
 					{
 						case "song":
@@ -174,7 +176,7 @@
 					}
 					break;
 
-				case "next":
+				case "playnext":
 					switch (type)
 					{
 						case "song":
@@ -189,7 +191,7 @@
 					}
 					break;
 
-				case "queue":
+				case "enqueue":
 					switch (type)
 					{
 						case "song":
@@ -208,7 +210,9 @@
 
 		onMenuClickCallback: function(data)
 		{
-			if(data.result =="OK")
+			console.log("exec: home.onMenuClickCallback");
+
+			if(data && data.result == "OK")
 			{
 				MCPi.player.getPlayerId();
 			}
