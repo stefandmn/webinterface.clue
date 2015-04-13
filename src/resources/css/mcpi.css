@@ -54,7 +54,21 @@
 	padding: 15px;
 }
 
-#spinnerOverlay
+.modal-header-primary
+{
+	padding:9px 15px;
+	border-bottom:1px solid #eee;
+	background-color: #337AB7;
+	color: #FFF;
+	-webkit-border-top-left-radius: 5px;
+	-webkit-border-top-right-radius: 5px;
+	-moz-border-radius-topleft: 5px;
+	-moz-border-radius-topright: 5px;
+	 border-top-left-radius: 5px;
+	 border-top-right-radius: 5px;
+ }
+
+.wait-overlay
 {
 	display: none;
 	position: absolute;
@@ -65,7 +79,7 @@
 	background: rgba(0,0,0,0.7);
 }
 
-#spinnerOverlay i
+.wait-overlay i
 {
 	position: relative;
 	top: 50%;
@@ -91,4 +105,14 @@
 {
 	border: 1px solid #000;
 	background-color: transparent;
+}
+
+.error-message
+{
+	position: fixed;
+	top: 45%;
+	left: 50%;
+	margin-left: -150px;
+	width: 300px;
+	z-index: 9999;
 }

@@ -42,15 +42,15 @@
 			<!-- Collect the nav links, forms, and other content for toggling -->
 			<div class="collapse navbar-collapse" id="mainNavbarControls">
 				<ul class="nav navbar-nav">
-					<li><a href="#home" id="screenHome" data-content="true"><span class="fa fa-home fa-lg" aria-hidden="true"></span> Home</a></li>
+					<li><a href="#home" id="screenHome" data-clickthrough="main"><span class="fa fa-home fa-lg" aria-hidden="true"></span> Home</a></li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-th fa-lg" aria-hidden="true"></span> Media <span class="caret"></span></a>
 						<ul class="dropdown-menu" role="menu">
-							<li><a href="#music" id="screenMusic" data-content="true"><span class="fa fa-music" aria-hidden="true"></span> Music</a></li>
+							<li><a href="#music" id="screenMusic" data-clickthrough="main"><span class="fa fa-music" aria-hidden="true"></span> Music</a></li>
 							<li class="divider"></li>
-							<li><a href="#movies" id="screenMovies" data-content="true"><span class="fa fa-film" aria-hidden="true"></span> Movies</a></li>
+							<li><a href="#movies" id="screenMovies" data-clickthrough="main"><span class="fa fa-film" aria-hidden="true"></span> Movies</a></li>
 							<li class="divider"></li>
-							<li><a href="#photos" id="screenPhotos" data-content="true"><span class="fa fa-photo" aria-hidden="true"></span> Photos</a></li>
+							<li><a href="#photos" id="screenPhotos" data-clickthrough="main"><span class="fa fa-photo" aria-hidden="true"></span> Photos</a></li>
 						</ul>
 					</li>
 					<li><a id="nowPlayingButton" data-toggle="collapse" href="#nowPlayingContainer" aria-expanded="false" aria-controls="nowPlayingContainer"><span class="fa fa-play-circle-o fa-lg text-primary" aria-hidden="true"></span> Now playing</a></li>
@@ -62,21 +62,21 @@
 					<button type="submit" class="btn btn-default">Search</button>
 				</form>
 				<ul class="nav navbar-nav navbar-right">
-					<li><a href="#remoteModal" data-toggle="modal" data-target="#remoteModal"><span class="fa fa-building-o fa-rotate-180 fa-lg" aria-hidden="true"></span> Remote</a></li>
+					<li><a href="#remoteControlModal" data-toggle="modal" data-target="#remoteControlModal"><span class="fa fa-building-o fa-rotate-180 fa-lg" aria-hidden="true"></span> Remote</a></li>
 					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-user fa-lg text-danger" aria-hidden="true"></span></a>
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-user fa-lg" aria-hidden="true"></span></a>
 						<ul class="dropdown-menu" role="menu">
-							<li class="text-right"><a href="#" id="videoLibraryUpdate" data-clickthrough="false">Video Update</a></li>
-							<li class="text-right"><a href="#" id="videoLibraryClean" data-clickthrough="false">Video Clean</a></li>
+							<li class="text-right"><a href="#" id="videoLibraryUpdate" data-clickthrough="system">Video Update</a></li>
+							<li class="text-right"><a href="#" id="videoLibraryClean" data-clickthrough="system">Video Clean</a></li>
 							<li class="divider"></li>
-							<li class="text-right"><a href="#" id="audioLibraryUpdate" data-clickthrough="false">Music Update</a></li>
-							<li class="text-right"><a href="#" id="audioLibraryClean" data-clickthrough="false">Music Clean</a></li>
+							<li class="text-right"><a href="#" id="audioLibraryUpdate" data-clickthrough="system">Music Update</a></li>
+							<li class="text-right"><a href="#" id="audioLibraryClean" data-clickthrough="system">Music Clean</a></li>
 							<li class="divider"></li>
 							<li class="text-right"><a href="#notificationModal" data-toggle="modal" data-target="#notificationModal">Notification <span class="fa fa-comments-o fa-lg" aria-hidden="true"></span></a></li>
 							<li class="divider"></li>
-							<li class="text-right"><a href="#" id="systemPowerOff" data-clickthrough="false">Power off <span class="fa fa-fw fa-power-off" aria-hidden="true"></span></a></li>
-							<li class="text-right"><a href="#" id="systemReboot" data-clickthrough="false">Reboot <span class="fa fa-fw fa-rotate-left" aria-hidden="true"></span></a></li>
-							<li class="text-right"><a href="#" id="systemExit" data-clickthrough="false">Exit <span class="fa fa-fw fa-sign-out" aria-hidden="true"></span></a></li>
+							<li class="text-right"><a href="#" id="systemPowerOff" data-clickthrough="system">Power off <span class="fa fa-fw fa-power-off" aria-hidden="true"></span></a></li>
+							<li class="text-right"><a href="#" id="systemReboot" data-clickthrough="system">Reboot <span class="fa fa-fw fa-rotate-left" aria-hidden="true"></span></a></li>
+							<li class="text-right"><a href="#" id="systemExit" data-clickthrough="system">Exit <span class="fa fa-fw fa-sign-out" aria-hidden="true"></span></a></li>
 						</ul>
 					</li>
 				</ul>
@@ -92,10 +92,10 @@
 		<div class="row">
 			<div class="col-md-3">
 				<h2><span class="fa fa-play-circle-o"></span> Now Playing</h2>
-				<div id="playerItemNone" class="label label-warning hidden">Nothing is playing</div>
+				<div id="playerItemNone" class="label label-primary center-block">Nothing is playing</div>
 			</div>
 			<div class="col-md-9">
-				<div id="playItemContent" class="media show">
+				<div id="playItemContent" class="media hide">
 					<div class="pull-left">
 						<img id="playItemFanart" src="#" style="height:8em;"/>
 					</div>
@@ -129,48 +129,34 @@
 			<!-- Home -->
 			<div id="home" class="container collapse">
 				<div class="jumbotron">
-					<div class="container" id="homeContainer">
-						<div class="row">
-							<div class="col-md-4">
-								<div class="panel-group" id="recentsongs">
-									<div class="panel panel-default">
-										<div class="panel-heading">
-											<h4 class="panel-title"><a data-toggle="collapse" data-parent="#recentsongs" href="#rads-panel">Recently added songs</a></h4>
-										</div>
-										<div id="rads-panel" class="panel-collapse collapse in">
-											<div id="rads" class="panel-body">
-												<i class="fa fa-spinner fa-spin fa-2x"></i>
-											</div>
-										</div>
-									</div>
+					<div class="row">
+						<div class="col-md-4">
+							<div class="panel panel-primary" id="recentsongs">
+								<div class="panel-heading">
+									<h4 class="panel-title"><a data-toggle="collapse" data-parent="#recentsongs" href="#rads" aria-expanded="true" aria-controls="rads">Recently added songs</a></h4>
+								</div>
+								<div id="rads" class="panel-body panel-collapse collapse">
+									<i class="fa fa-spinner fa-spin fa-2x"></i>
 								</div>
 							</div>
-							<div class="col-md-4 col-sm-6">
-								<div class="panel-group" id="recentmovies">
-									<div class="panel panel-default">
-										<div class="panel-heading">
-											<h4 class="panel-title"><a data-toggle="collapse" data-parent="#recentmovies" href="#radm-panel">Recently added movies</a></h4>
-										</div>
-										<div id="radm-panel" class="panel-collapse collapse">
-											<div id="radm" class="panel-body">
-												<i class="fa fa-spinner fa-spin fa-2x"></i>
-											</div>
-										</div>
-									</div>
+						</div>
+						<div class="col-md-4 col-sm-6">
+							<div class="panel panel-primary" id="recentmovies">
+								<div class="panel-heading">
+									<h4 class="panel-title"><a data-toggle="collapse" data-parent="#recentmovies" href="#radm" aria-expanded="true" aria-controls="radm">Recently added movies</a></h4>
+								</div>
+								<div id="radm" class="panel-body panel-collapse collapse">
+									<i class="fa fa-spinner fa-spin fa-2x"></i>
 								</div>
 							</div>
-							<div class="col-md-4 col-sm-6">
-								<div class="panel-group" id="recentepisodes">
-									<div class="panel panel-default">
-										<div class="panel-heading">
-											<h4 class="panel-title"><a data-toggle="collapse" data-parent="#recentepisodes" href="#rade-panel">Recently added episodes</a></h4>
-										</div>
-										<div id="rade-panel" class="panel-collapse collapse">
-											<div id="rade" class="panel-body">
-												<i class="fa fa-spinner fa-spin fa-2x"></i>
-											</div>
-										</div>
-									</div>
+						</div>
+						<div class="col-md-4 col-sm-6">
+							<div class="panel panel-primary" id="recentepisodes">
+								<div class="panel-heading">
+									<h4 class="panel-title"><a data-toggle="collapse" data-parent="#recentepisodes" href="#rade" aria-expanded="true" aria-controls="rade">Recently added episodes</a></h4>
+								</div>
+								<div id="rade" class="panel-body panel-collapse collapse">
+									<i class="fa fa-spinner fa-spin fa-2x"></i>
 								</div>
 							</div>
 						</div>
@@ -186,11 +172,11 @@
 							<div class="row">
 								<center>
 									<div class="btn-group" role="group">
-										<div id="musicPlaylists" class="btn btn-primary active" type="button" scope="music-data" title="Playlists"><span class="fa fa-list fa-2x" aria-hidden="true"></span></div>
-										<div id="musicSongs" class="btn btn-default" type="button" scope="music-data" title="Songs"><span class="fa fa-music fa-2x" aria-hidden="true"></span></div>
-										<div id="musicArtists" class="btn btn-default" type="button" scope="music-data" title="Artists"><span class="fa fa-user fa-2x" aria-hidden="true"></span></div>
-										<div id="musicAlbums" class="btn btn-default" type="button" scope="music-data" title="Albums"><span class="fa fa-archive fa-2x" aria-hidden="true"></span></div>
-										<div id="musicFiles" class="btn btn-default" type="button" scope="music-data" title="Files"><span class="fa fa-folder-open fa-2x" aria-hidden="true"></span></div>
+										<div id="musicPlaylists" class="btn btn-default" type="button" data-clickthrough="music" data-type="area" title="Playlists"><span class="fa fa-list fa-2x" aria-hidden="true"></span></div>
+										<div id="musicSongs" class="btn btn-default" type="button" data-clickthrough="music" data-type="area" title="Songs"><span class="fa fa-music fa-2x" aria-hidden="true"></span></div>
+										<div id="musicArtists" class="btn btn-default" type="button" data-clickthrough="music" data-type="area" title="Artists"><span class="fa fa-user fa-2x" aria-hidden="true"></span></div>
+										<div id="musicAlbums" class="btn btn-default" type="button" data-clickthrough="music" data-type="area" title="Albums"><span class="fa fa-archive fa-2x" aria-hidden="true"></span></div>
+										<div id="musicFiles" class="btn btn-default" type="button" data-clickthrough="music" data-type="area" title="Files"><span class="fa fa-folder-open fa-2x" aria-hidden="true"></span></div>
 									</div>
 								</center>
 							</div>
@@ -200,34 +186,34 @@
 									<hr/><br/>
 									<div class="btn-toolbar" role="toolbar">
 										<div class="btn-group btn-group-xs btn-group-justified" role="group">
-											<div id="musicFilterA" class="btn btn-info" type="button" scope="music-filter">A</div>
-											<div id="musicFilterB" class="btn btn-default" type="button" scope="music-filter">B</div>
-											<div id="musicFilterC" class="btn btn-default" type="button" scope="music-filter">C</div>
-											<div id="musicFilterD" class="btn btn-default" type="button" scope="music-filter">D</div>
-											<div id="musicFilterE" class="btn btn-default" type="button" scope="music-filter">E</div>
-											<div id="musicFilterF" class="btn btn-default" type="button" scope="music-filter">F</div>
-											<div id="musicFilterG" class="btn btn-default" type="button" scope="music-filter">G</div>
-											<div id="musicFilterH" class="btn btn-default" type="button" scope="music-filter">H</div>
-											<div id="musicFilterI" class="btn btn-default" type="button" scope="music-filter">I</div>
-											<div id="musicFilterJ" class="btn btn-default" type="button" scope="music-filter">J</div>
-											<div id="musicFilterK" class="btn btn-default" type="button" scope="music-filter">K</div>
-											<div id="musicFilterL" class="btn btn-default" type="button" scope="music-filter">L</div>
-											<div id="musicFilterM" class="btn btn-default" type="button" scope="music-filter">M</div>
+											<div id="musicFilterA" class="btn btn-info" type="button" data-clickthrough="music" data-type="filter">A</div>
+											<div id="musicFilterB" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">B</div>
+											<div id="musicFilterC" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">C</div>
+											<div id="musicFilterD" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">D</div>
+											<div id="musicFilterE" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">E</div>
+											<div id="musicFilterF" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">F</div>
+											<div id="musicFilterG" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">G</div>
+											<div id="musicFilterH" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">H</div>
+											<div id="musicFilterI" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">I</div>
+											<div id="musicFilterJ" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">J</div>
+											<div id="musicFilterK" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">K</div>
+											<div id="musicFilterL" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">L</div>
+											<div id="musicFilterM" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">M</div>
 										</div>
 										<div class="btn-group btn-group-xs btn-group-justified" role="group">
-											<div id="musicFilterN" class="btn btn-default" type="button" scope="music-filter">N</div>
-											<div id="musicFilterO" class="btn btn-default" type="button" scope="music-filter">O</div>
-											<div id="musicFilterP" class="btn btn-default" type="button" scope="music-filter">P</div>
-											<div id="musicFilterQ" class="btn btn-default" type="button" scope="music-filter">Q</div>
-											<div id="musicFilterR" class="btn btn-default" type="button" scope="music-filter">R</div>
-											<div id="musicFilterS" class="btn btn-default" type="button" scope="music-filter">S</div>
-											<div id="musicFilterT" class="btn btn-default" type="button" scope="music-filter">T</div>
-											<div id="musicFilterU" class="btn btn-default" type="button" scope="music-filter">U</div>
-											<div id="musicFilterV" class="btn btn-default" type="button" scope="music-filter">V</div>
-											<div id="musicFilterW" class="btn btn-default" type="button" scope="music-filter">W</div>
-											<div id="musicFilterX" class="btn btn-default" type="button" scope="music-filter">X</div>
-											<div id="musicFilterY" class="btn btn-default" type="button" scope="music-filter">Y</div>
-											<div id="musicFilterZ" class="btn btn-default" type="button" scope="music-filter">Z</div>
+											<div id="musicFilterN" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">N</div>
+											<div id="musicFilterO" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">O</div>
+											<div id="musicFilterP" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">P</div>
+											<div id="musicFilterQ" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">Q</div>
+											<div id="musicFilterR" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">R</div>
+											<div id="musicFilterS" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">S</div>
+											<div id="musicFilterT" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">T</div>
+											<div id="musicFilterU" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">U</div>
+											<div id="musicFilterV" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">V</div>
+											<div id="musicFilterW" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">W</div>
+											<div id="musicFilterX" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">X</div>
+											<div id="musicFilterY" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">Y</div>
+											<div id="musicFilterZ" class="btn btn-default" type="button" data-clickthrough="music" data-type="filter">Z</div>
 										</div>
 									</div>
 									<br/>
@@ -268,7 +254,7 @@
 	<div class="modal fade" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
-				<div class="modal-header">
+				<div class="modal-header modal-header-primary">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<h4 class="modal-title" id="notificationModalLabel">Notification message</h4>
 				</div>
@@ -293,8 +279,8 @@
 					</form>
 				</div>
 				<div class="modal-footer">
-					<button id="sendMessage" type="button" class="btn btn-primary">Send</button>
-					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button id="sendNotifyMessage" data-clickthrough="system" type="button" class="btn btn-primary"><span class="fa fa-paper-plane" aria-hidden="true"></span> Send</button>
+					<button id="cancelNotifyDialog"  data-clickthrough="system" type="button" class="btn btn-default">Cancel</button>
 				</div>
 			</div>
 		</div>
@@ -302,7 +288,7 @@
 
 
 	<!-- Remote control modal dialog -->
-	<div class="modal fade" id="remoteModal" tabindex="-1" role="dialog" aria-labelledby="remoteModalLabel" aria-hidden="true">
+	<div class="modal fade" id="remoteControlModal" tabindex="-1" role="dialog" aria-labelledby="remoteControlModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-sm">
 			<div class="modal-content">
 				<div class="modal-body">
@@ -310,9 +296,9 @@
 						<div class="row">
 							<div class="col-xs-12">
 								<div class="btn-group btn-group-justified btn-group-sm">
-									<a id="remotePartyMode" class="btn btn-default" data-toggle="button" data-clickthrough="false" title="Party mode"><span class="fa fa-flash fa-lg" aria-hidden="true"></span></a>
-									<a id="remotePlaylist" class="btn btn-default" data-clickthrough="false" title="Show current playlist"><span class="fa fa-list-alt fa-lg" aria-hidden="true"></span></a>
-									<a id="remoteFullscreen" class="btn btn-default" data-clickthrough="false" title="Display in fullscreen"><span class="fa fa-external-link fa-lg" aria-hidden="true"></span></a>
+									<a id="remotePartyMode" class="btn btn-default" data-toggle="button" data-clickthrough="remote" title="Party mode"><span class="fa fa-flash fa-lg" aria-hidden="true"></span></a>
+									<a id="remotePlaylist" class="btn btn-default" data-clickthrough="remote" title="Show current playlist"><span class="fa fa-list-alt fa-lg" aria-hidden="true"></span></a>
+									<a id="remoteFullscreen" class="btn btn-default" data-clickthrough="remote" title="Display in fullscreen"><span class="fa fa-external-link fa-lg" aria-hidden="true"></span></a>
 								</div>
 							</div>
 						</div>
@@ -321,12 +307,12 @@
 						<div class="row">
 							<div class="col-xs-12">
 								<div class="btn-group btn-group-justified btn-group-sm">
-									<a id="remoteFastRewind" class="btn btn-default" data-clickthrough="false"><span class="fa fa-step-backward" aria-hidden="true"></span></a>
-									<a id="remoteRewind" class="btn btn-default" data-clickthrough="false"><span class="fa fa-backward" aria-hidden="true"></span></a>
-									<a id="remoteStop" class="btn btn-default" data-clickthrough="false"><span class="fa fa-stop" aria-hidden="true"></span></a>
-									<a id="remotePlay" class="btn btn-default" data-clickthrough="false"><span class="fa fa-play" aria-hidden="true"></span></a>
-									<a id="remoteForward" class="btn btn-default" data-clickthrough="false"><span class="fa fa-forward" aria-hidden="true"></span></a>
-									<a id="remoteFastForward" class="btn btn-default" data-clickthrough="false"><span class="fa fa-step-forward" aria-hidden="true"></span></a>
+									<a id="remoteFastRewind" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-step-backward" aria-hidden="true"></span></a>
+									<a id="remoteRewind" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-backward" aria-hidden="true"></span></a>
+									<a id="remoteStop" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-stop" aria-hidden="true"></span></a>
+									<a id="remotePlay" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-play" aria-hidden="true"></span></a>
+									<a id="remoteForward" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-forward" aria-hidden="true"></span></a>
+									<a id="remoteFastForward" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-step-forward" aria-hidden="true"></span></a>
 								</div>
 							</div>
 						</div>
@@ -335,27 +321,27 @@
 						<div class="row">
 							<div class="col-xs-12">
 								<div class="btn-group btn-group-justified btn-group-lg">
-									<a id="remoteHome" class="btn btn-default" data-clickthrough="false" title="Go to Home screen"><span class="fa fa-home fa-2x" aria-hidden="true"></span></a>
-									<a id="remoteUp" class="btn btn-default" data-clickthrough="false"><span class="fa fa-caret-up fa-2x" aria-hidden="true"></span></a>
-									<a id="remoteInfo" class="btn btn-default" data-clickthrough="false"  title="Display info"><span class="fa fa-info fa-2x" aria-hidden="true"></span></a>
+									<a id="remoteHome" class="btn btn-default" data-clickthrough="remote" title="Go to Home screen"><span class="fa fa-home fa-2x" aria-hidden="true"></span></a>
+									<a id="remoteUp" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-caret-up fa-2x" aria-hidden="true"></span></a>
+									<a id="remoteInfo" class="btn btn-default" data-clickthrough="remote"  title="Display info"><span class="fa fa-info fa-2x" aria-hidden="true"></span></a>
 								</div>
 							</div>
 						</div>
 						<div class="row">
 							<div class="col-xs-12">
 								<div class="btn-group btn-group-justified btn-group-lg">
-									<a id="remoteLeft" class="btn btn-default" data-clickthrough="false"><span class="fa fa-caret-left fa-2x" aria-hidden="true"></span></a>
-									<a id="remoteSelect" class="btn btn-default" data-clickthrough="false"><span class="fa fa-circle fa-2x" aria-hidden="true"></span></a>
-									<a id="remoteRight" class="btn btn-default" data-clickthrough="false"><span class="fa fa-caret-right fa-2x" aria-hidden="true"></span></a>
+									<a id="remoteLeft" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-caret-left fa-2x" aria-hidden="true"></span></a>
+									<a id="remoteSelect" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-circle fa-2x text-primary" aria-hidden="true"></span></a>
+									<a id="remoteRight" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-caret-right fa-2x" aria-hidden="true"></span></a>
 								</div>
 							</div>
 						</div>
 						<div class="row">
 							<div class="col-xs-12">
 								<div class="btn-group btn-group-justified btn-group-lg">
-									<a id="remoteBack" class="btn btn-default" data-clickthrough="false"  title="Go back"><span class="fa fa-rotate-left fa-2x" aria-hidden="true"></span></a>
-									<a id="remoteDown" class="btn btn-default" data-clickthrough="false"><span class="fa fa-caret-down fa-2x" aria-hidden="true"></span></a>
-									<a id="remoteContext" class="btn btn-default" data-clickthrough="false" title="Context menu"><span class="fa fa-bars fa-2x" aria-hidden="true"></span></a>
+									<a id="remoteBack" class="btn btn-default" data-clickthrough="remote"  title="Go back"><span class="fa fa-rotate-left fa-2x" aria-hidden="true"></span></a>
+									<a id="remoteDown" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-caret-down fa-2x" aria-hidden="true"></span></a>
+									<a id="remoteContext" class="btn btn-default" data-clickthrough="remote" title="Context menu"><span class="fa fa-bars fa-2x" aria-hidden="true"></span></a>
 								</div>
 							</div>
 						</div>
@@ -364,9 +350,9 @@
 						<div class="row">
 							<div class="col-xs-12">
 								<div class="btn-group btn-group-sm btn-group-justified btn-group-lg">
-									<a id="remoteVolumeMute" class="btn btn-default" data-clickthrough="false" title="Mute and unmute"><span class="fa fa-volume-off fa-lg" aria-hidden="true"></span> <span class="badge">100</span></a>
-									<a id="remoteVolumeDown" class="btn btn-default" data-clickthrough="false" title="Decrease volume"><span class="fa fa-minus fa-lg" aria-hidden="true"></span></a>
-									<a id="remoteVolumeUp" class="btn btn-default" data-clickthrough="false" title="Increase volume"><span class="fa fa-plus fa-lg" aria-hidden="true"></span></a>
+									<a id="remoteVolumeMute" class="btn btn-default" data-clickthrough="remote" title="Mute and unmute"><span class="fa fa-volume-off fa-lg" aria-hidden="true"></span> <span class="badge">100</span></a>
+									<a id="remoteVolumeDown" class="btn btn-default" data-clickthrough="remote" title="Decrease volume"><span class="fa fa-minus fa-lg" aria-hidden="true"></span></a>
+									<a id="remoteVolumeUp" class="btn btn-default" data-clickthrough="remote" title="Increase volume"><span class="fa fa-plus fa-lg" aria-hidden="true"></span></a>
 								</div>
 							</div>
 						</div>
@@ -375,10 +361,10 @@
 						<div class="row">
 							<div class="col-xs-12">
 								<div class="btn-group btn-group-sm btn-group-justified btn-group-lg">
-									<a id="remoteMusic" class="btn btn-default" data-clickthrough="false" title="Open Music screen"><span class="fa fa-music fa-lg" aria-hidden="true"></span></a>
-									<a id="remoteVideo" class="btn btn-default" data-clickthrough="false" title="Open Video screen"><span class="fa fa-video-camera fa-lg" aria-hidden="true"></span></a>
-									<a id="remotePictures" class="btn btn-default" data-clickthrough="false" title="Open Photo screen"><span class="fa fa-camera fa-lg" aria-hidden="true"></span></a>
-									<a id="remoteSettings" class="btn btn-default" data-clickthrough="false" title="Open Settings screen"><span class="fa fa-cog fa-lg" aria-hidden="true"></span></a>
+									<a id="remoteMusic" class="btn btn-primary" data-clickthrough="remote" title="Open Music screen"><span class="fa fa-music fa-lg" aria-hidden="true"></span></a>
+									<a id="remoteVideo" class="btn btn-primary" data-clickthrough="remote" title="Open Video screen"><span class="fa fa-video-camera fa-lg" aria-hidden="true"></span></a>
+									<a id="remotePictures" class="btn btn-primary" data-clickthrough="remote" title="Open Photo screen"><span class="fa fa-camera fa-lg" aria-hidden="true"></span></a>
+									<a id="remoteSettings" class="btn btn-primary" data-clickthrough="remote" title="Open Settings screen"><span class="fa fa-cog fa-lg" aria-hidden="true"></span></a>
 								</div>
 							</div>
 						</div>
@@ -390,6 +376,19 @@
 	</div>
 
 
+	<div class="modal" id="errorMessageDialog" tabindex="-1" role="dialog"  aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header bg-danger">
+						<button type="button" class="close" style="color:#A94442" data-dismiss="modal" aria-label="Close">
+							<span class="fa fa-times-circle-o" aria-hidden="true"></span>
+						</button>
+						<p class="text-center text-danger">&nbsp;</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<!-- Footer content -->
 	<hr>
 	<footer class="container" style="text-align:right; font-size:10px">
@@ -398,6 +397,6 @@
 
 
 	<!-- Include all javascripts -->
-	<script src="resources/js/launcher.js?1.0"></script>
+	<script src="resources/js/mcpi.js?1.0"></script>
 </body>
 </html>
