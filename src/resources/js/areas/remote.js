@@ -242,7 +242,7 @@
 					if(MCPi.player.scope.props.partyMode) hash = MCPi.player.vars.playerHashcode;
 						else hash = MCPi.remote.vars.partyModeInitialHash;
 
-					if(MCPi.remote.vars.partyModeIndexLoop < 10 && hash == MCPi.remote.vars.partyModeInitialHash)
+					if(MCPi.remote.vars.partyModeIndexLoop < 60 && hash == MCPi.remote.vars.partyModeInitialHash)
 					{
 						MCPi.player.scope.setId( {source: MCPi.player.model.setContent, params: {source: MCPi.remote.model.setContent}} );
 

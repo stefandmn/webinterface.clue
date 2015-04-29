@@ -15,6 +15,7 @@
 			"resources/js/jquery.min.js",
 			"resources/js/jquery.dnd.js",
 			"resources/js/bootstrap.min.js",
+			"resources/js/bootstrap.rating.js",
 			"resources/js/json2.js",
 			"resources/js/areas/global.js",
 			"resources/js/areas/player.js",

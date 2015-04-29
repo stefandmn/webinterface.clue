@@ -222,6 +222,7 @@
 						if(reference != null) MCPi.player.scope.setPlayingItem(reference);
 							else MCPi.player.scope.setPlayingItem();
 					}
+					else chain = false;
 				}
 
 				// call references if the execution chain is interrupted here
@@ -434,14 +435,11 @@
 			{
 				console.log("player.model.show");
 
-				if(!MCPi.player.vars.visible)
-				{
-					MCPi.player.vars.visible = true;
-					MCPi.player.vars.isInitialCall = true;
+				MCPi.player.vars.visible = true;
+				MCPi.player.vars.isInitialCall = true;
 
-					MCPi.player.scope.setId(MCPi.player.model.setContent);
-					MCPi.player.scope.setRefresh();
-				}
+				MCPi.player.scope.setId(MCPi.player.model.setContent);
+				MCPi.player.scope.setRefresh();
 
 				if(MCPi.music.model.isNowPlayingVisible())
 				{
@@ -457,17 +455,13 @@
 			{
 				console.log("player.model.hide");
 
-				if(MCPi.player.vars.visible)
-				{
-					MCPi.player.vars.visible = false;
+				MCPi.player.vars.visible = false;
+				$('#nowPlayingButton').removeClass('active');
 
-					$('#nowPlayingButton').removeClass('active');
+				MCPi.player.scope.delRefresh();
+				MCPi.player.scope.delPersistentReference();
 
-					MCPi.player.scope.delRefresh();
-					MCPi.player.scope.delPersistentReference();
-
-					if(MCPi.music.model.isNowPlayingVisible()) MCPi.music.scope.setRefresh();
-				}
+				if(MCPi.music.model.isNowPlayingVisible()) MCPi.music.scope.setRefresh();
 			},
 
 			/**
