@@ -14,7 +14,12 @@
 			currentData: null,
 			currentFilter: "#musicFilterA",
 			refreshProcessId: null,
-			nowPlayingProperties: ['title', 'album', 'artist', 'genre', 'thumbnail', 'duration']
+			nowPlayingProperties: ['title', 'album', 'artist', 'genre', 'thumbnail', 'duration'],
+			genres: null,
+			albums: null,
+			artists: null,
+			songs: null,
+			files: null
 		},
 
 		scope:
@@ -196,112 +201,137 @@
 				}
 			},
 
+			setGenres: function()
+			{
+				console.log("music.scope.setGenres");
+
+				if(MCPi.music.vars.genres == null)
+				{
+					MCPi.json.call("AudioLibrary.GetGenres", {}, MCPi.music.scope.setGenresCallback);
+				}
+			},
+
+			setGenresCallback: function(data)
+			{
+				console.log("music.scope.setGenresCallback");
+
+				if(data && data.result) MCPi.music.vars.genres = data.result.genres;
+			},
+
 			setSongDetails: function(refid)
 			{
-				var properties = ["comment", "albumid", "albumartist", "albumartistid"];
+				var properties = ["comment", "albumid", "artistid"];
 				console.log("music.scope.runShowSongDetails(" + refid + ")");
 
 				if(refid != null)
 				{
 					properties = properties.concat(MCPi.json.props.audio);
-					MCPi.json.call("AudioLibrary.GetSongDetails", {"songid": parseInt(refid), "properties":properties}, MCPi.music.scope.setSongDetailsCallback);
+					MCPi.json.call("AudioLibrary.GetSongDetails", {"songid":parseInt(refid), "properties":properties}, MCPi.music.scope.setSongDetailsCallback);
 				}
 			},
 
 			setSongDetailsCallback: function(data)
 			{
-				var output = {title:null, artist:null, album:null, albumid:null, albumartist:null, albumartistid:null, year:null, comment:null, genre:null, rating: null};
+				var output = {title:null, artist:null, album:null, albumid:null, year:null, comment:null, genre:null, rating: null};
 				console.log("music.scope.runShowSongDetailsCallback");
 
 				if(data != null && data.result != null && data.result.songdetails != null)
 				{
 					output.title = data.result.songdetails.title;
-					output.artist = data.result.songdetails.artist;
+					output.artist = data.result.songdetails.artist != null ? data.result.songdetails.artist[0] : null;
+					output.artistid = data.result.songdetails.artistid != null ? data.result.songdetails.artistid[0] : null;
 					output.album = data.result.songdetails.album;
 					output.albumid = data.result.songdetails.albumid;
 					output.year= data.result.songdetails.year;
 					output.comment = data.result.songdetails.comment;
-					output.albumartist = data.result.songdetails.albumartist != null ? data.result.songdetails.albumartist.join(",") : null;
-					output.albumartistid = data.result.songdetails.albumartistid != null ? data.result.songdetails.albumartistid.join(","): null;
-					output.genre = data.result.songdetails.genre != null ? data.result.songdetails.genre.join(",") : null;
+					output.genre = data.result.songdetails.genre != null ? data.result.songdetails.genre[0] : null;
 					output.rating = data.result.songdetails.rating != null ? data.result.songdetails.rating : 0;
 
 					MCPi.music.model.openShowDetailsModalDialogCallback(output);
 				}
 			},
 
-			saveSongWorkflow: function(input)
+			saveSongRelatedData: function(input)
 			{
-				console.log("music.scope.saveSongWorkflow");
+				console.log("music.scope.saveSongRelatedData");
 
 				if(input != null)
 				{
-console.log("TEST save workflow = " + JSON.stringify(input));
-
-					MCPi.music.scope.saveSongAlbum(input);
+					MCPi.music.scope.saveSongArtist(input);
 				}
+			},
 
-				//properties = {"songid":parseInt(refid), "title":data.title, "artist":[data.artist], "album":data.album, "albumid":data.albumid, "year":data.year, "comment":data.comment, "rating":data.rating};
-				//.json.call("AudioLibrary.SetSongDetails", properties, MCPi.music.scope.saveSongDetailsCallback, refid);
+			saveSongArtist: function(input)
+			{
+				var properties = null, refid = (input != null && input.artistid != null ? input.artistid : null);
+				console.log("music.scope.saveSongArtist");
+
+				if(input != null && refid != null && input.artist != null && input.artistall)
+				{
+					properties = {"artistid":parseInt(refid), "artist":input.artist};
+					MCPi.json.call("AudioLibrary.SetArtistDetails", properties, MCPi.music.scope.saveSongArtistCallback, {params:input});
+				}
+				else MCPi.music.scope.saveSongAlbum(input);
+			},
+
+			saveSongArtistCallback: function(data, reference)
+			{
+				console.log("music.scope.saveSongArtistCallback");
+
+				if(data && data.result)
+				{
+					MCPi.music.scope.saveSongAlbum(reference.params);
+				}
 			},
 
 			saveSongAlbum: function(input)
 			{
-				var method, properties = null;
-				console.log("music.scope.saveSongAlbum");
+				var properties = null, refid = (input != null && input.albumid != null ? input.albumid : null);
+				console.log("music.scope.saveSongAlbum(" + refid + ")");
 
-				if(input != null && input.albumid != null)
+				if(input != null && refid != null && input.album != null && input.albumall)
 				{
-					properties = {"albumid": input.albumid, "title": input.album};
+					properties = {"albumid":parseInt(refid), "title":input.album};
 					MCPi.json.call("AudioLibrary.SetAlbumDetails", properties, MCPi.music.scope.saveSongAlbumCallback, {params:input});
 				}
-				else MCPi.music.scope.saveSongAlbumArtist(input);
+				else MCPi.music.scope.saveSongDetails(input);
 			},
 
 			saveSongAlbumCallback: function(data, reference)
 			{
 				console.log("music.scope.saveSongAlbumCallback");
 
-console.log("TEST save album result = " + JSON.stringify(data));
 				if(data && data.result)
 				{
-					MCPi.music.scope.saveSongAlbumArtist(reference.params);
+					MCPi.music.scope.saveSongDetails(reference.params);
 				}
 			},
 
-			saveSongAlbumArtist: function(input)
+			saveSongDetails: function(input)
 			{
-				var method, properties = null;
-				console.log("music.scope.saveSongAlbumArtist");
+				var properties = null, refid = (input != null && input.songid != null ? input.songid : null);
+				console.log("music.scope.saveSongDetails(" + refid + ")");
 
-				if(input != null && input.albumid != null)
+				if(input != null && input.songid != null)
 				{
-					properties = {"albumid": input.albumid, "title": input.album};
-					MCPi.json.call("AudioLibrary.SetAlbumDetails", properties, MCPi.music.scope.saveSongAlbumArtistCallback, {params:input});
-				}
-				else MCPi.music.scope.saveSongAlbumArtist(input);
-			},
+					properties = {"songid":parseInt(refid), "title":input.title,
+						"year":input.year, "comment":input.comment, "rating":input.rating,
+						"album":input.album, "artist":[input.artist], "genre":[input.genre]};
 
-			saveSongAlbumArtistCallback: function(data, reference)
-			{
-				console.log("music.scope.saveSongAlbumArtistCallback");
-
-console.log("TEST save album artist result = " + JSON.stringify(data));
-				if(data && data.result)
-				{
-					//MCPi.music.scope.saveSongDetails(reference.params);
+					MCPi.json.call("AudioLibrary.SetSongDetails", properties, MCPi.music.scope.saveSongDetailsCallback, {params:input});
 				}
 			},
 
-			saveSongDetailsCallback: function(data, refid)
+			saveSongDetailsCallback: function(data, reference)
 			{
+				var refid = reference != null && reference.params != null && reference.params.songid != null ? reference.params.songid : null;
 				console.log("music.scope.saveSongDetailsCallback(" + refid + ") - " + JSON.stringify(data));
 
 				if(data && data.result && refid != null)
 				{
 					if($('#musicListItems').children('div [data-refid=' +refid + "]").length > 0)
 					{
-						var elem = $('#musicListItems [data-refid=' +refid + ']');
+						var elem = $('#musicListItems [data-refid=' + refid + ']');
 						var index = parseInt(elem.attr("id").substring("listitem-".length));
 
 						MCPi.music.scope.runDeleteNowPlayingQueue(index + ":" + index + ":" + refid);
@@ -463,16 +493,13 @@ console.log("TEST save album artist result = " + JSON.stringify(data));
 				MCPi.music.vars.showNowPlaying = false;
 				MCPi.music.vars.currentData = "#" + obj.attr('id');
 
-console.log("TEST: currentData = " + MCPi.music.vars.currentData + ", type = " + type);
 				if(type.indexOf("albums") >=0 || type.indexOf("artists") >= 0 || type.indexOf("songs") >=0 )
 				{
 					$('#musicFiltersPanel').collapse('show');
-console.log("TEST: expand filters");
 				}
 				else
 				{
 					$('#musicFiltersPanel').collapse('hide');
-console.log("TEST: collapse filters");
 				}
 			},
 
@@ -536,16 +563,15 @@ console.log("TEST: collapse filters");
 
 			openShowDetailsModalDialogCallback: function(data)
 			{
-				console.log("music.model.openShowDetailsModalDialogCallback");
+				console.log("music.model.openShowDetailsModalDialogCallback " + data.artistid);
 
 				if(data)
 				{
 					$('#musicTitle').val(data.title);
 					$('#musicArtist').val(data.artist);
+					$('#musicArtistId').val(data.artistid);
 					$('#musicAlbum').val(data.album);
 					$('#musicAlbumId').val(data.albumid);
-					$('#musicAlbumArtist').val(data.albumartist);
-					$('#musicAlbumArtistId').val(data.albumartistid);
 					$('#musicYear').val(data.year);
 					$('#musicGenre').val(data.genre);
 
@@ -562,22 +588,24 @@ console.log("TEST: collapse filters");
 
 			saveShowDetailsModalDialog: function()
 			{
-				var output = {songid:null, title:null, artist:null, albumid:null, album:null, albumartistId:null, albumartist:null, year:null, comment:null, genre:null, rating: null};
+				var output = {songid:null, title:null, artistid:null, artist:null, albumid:null, album:null, year:null, comment:null, genre:null, rating: null};
 				console.log("music.model.saveShowDetailsModalDialog");
 
-				output.songid = parseInt($('#showDetailsReferenceId').val());
+				output.songid = $('#showDetailsReferenceId').val();
 				output.title = $('#musicTitle').val();
 				output.artist = $('#musicArtist').val();
+				output.artistid = $('#musicArtistId').val();
 				output.album = $('#musicAlbum').val();
-				output.albumid =  parseInt($('#musicAlbumId').val());
-				output.albumartist = $('#musicAlbumArtist').val();
-				output.albumartistId =  parseInt($('#musicAlbumArtistId').val());
+				output.albumid = $('#musicAlbumId').val();
 				output.genre = $('#musicGenre').val();
 				output.comment = $('#musicComment').val();
 				output.year = $('#musicYear').val() != null ? parseInt($('#musicYear').val()) : null;
 				output.rating = $('#musicRating').val() != null ? parseInt($('#musicRating').val()) : 0;
 
-				MCPi.music.scope.saveSongWorkflow(output);
+				output.artistall = $("#musicArtistAll").is(":checked") ? true : false;
+				output.albumall = $("#musicAlbumAll").is(":checked") ? true : false;
+
+				MCPi.music.scope.saveSongRelatedData(output);
 
 				$('#showDetailsModal').modal('hide');
 			}

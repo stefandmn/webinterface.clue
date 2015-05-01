@@ -5,6 +5,11 @@
 
 	MCPi.home =
 	{
+		vars:
+		{
+			currentPanel: null
+		},
+
 		scope:
 		{
 			/**
@@ -14,6 +19,7 @@
 			{
 				console.log("home.scope.setLatestSongs");
 
+				MCPi.home.vars.currentPanel = "#rads";
 				MCPi.json.call('AudioLibrary.GetRecentlyAddedSongs', {properties: MCPi.json.props.audio, sort: {method: 'dateadded', order: 'ascending'}, limits: {end: 5} }, MCPi.home.scope.setLatestSongsCallback, '#rads');
 			},
 
@@ -67,6 +73,7 @@
 			{
 				console.log("home.scope.setLatestMovies");
 
+				MCPi.home.vars.currentPanel = "#radm";
 				MCPi.json.call('VideoLibrary.GetRecentlyAddedMovies', {properties: MCPi.json.props.movie, sort: {method: 'dateadded', order: 'descending'}, limits: {end: 5} }, MCPi.home.scope.setLatestMoviesCallback, '#radm');
 			},
 
@@ -120,6 +127,7 @@
 			{
 				console.log("home.scope.setLatestEpisodes");
 
+				MCPi.home.vars.currentPanel = "#rade";
 				MCPi.json.call('VideoLibrary.GetRecentlyAddedEpisodes', {properties: MCPi.json.props.episode, sort: {method: 'dateadded', order: 'descending'}, limits: {end: 5} }, MCPi.home.scope.setLatestEpisodesCallback, '#rade');
 			},
 
@@ -177,14 +185,19 @@
 			{
 				console.log("home.model.show");
 
-				if (!$('#rads').hasClass('in'))
+				if(!MCPi.home.vars.currentPanel)
 				{
-					$('#rads').collapse('show');
+					if (!$('#rads').hasClass('in'))
+					{
+						$('#rads').collapse('show');
+					}
 				}
 			},
 
 			setContent: function()
 			{
+				console.log("home.model.setContent");
+
 				if (!$('#rads').hasClass('in'))
 				{
 					MCPi.home.scope.setLatestSongs();

@@ -346,7 +346,6 @@
 		//expand home screen panel
 		$('#home').on('shown.bs.collapse', function(e)
 		{
-			//nothing here
 			MCPi.home.model.show();
 		});
 
