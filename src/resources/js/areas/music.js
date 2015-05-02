@@ -9,6 +9,7 @@
 		{
 			visible: false,
 			showNowPlaying: true,
+			showFilterPanel: false,
 			fillInNowPlayingQueue: false,
 			hashcodeNowPlayingQueue: null,
 			currentData: null,
@@ -186,6 +187,11 @@
 				}
 			},
 
+			/**
+			 * Select and Play an entry from now playing queue
+			 *
+			 * @param ref selected reference
+			 */
 			runPlayEntryNowPlayingQueue: function(ref)
 			{
 				console.log("music.scope.runPlayEntryNowPlayingQueue");
@@ -201,6 +207,9 @@
 				}
 			},
 
+			/**
+			 * Read all genres and put them in library cache
+			 */
 			setGenres: function()
 			{
 				console.log("music.scope.setGenres");
@@ -211,6 +220,11 @@
 				}
 			},
 
+			/**
+			 * Callback method of reading genres
+			 *
+			 * @param data data structure received from server
+			 */
 			setGenresCallback: function(data)
 			{
 				console.log("music.scope.setGenresCallback");
@@ -218,6 +232,11 @@
 				if(data && data.result) MCPi.music.vars.genres = data.result.genres;
 			},
 
+			/**
+			 * Read selected song details to display them on a properties dialog
+			 *
+			 * @param refid song reference
+			 */
 			setSongDetails: function(refid)
 			{
 				var properties = ["comment", "albumid", "artistid"];
@@ -230,6 +249,11 @@
 				}
 			},
 
+			/**
+			 * Callback method or reading song details to be displayed on the screen.
+			 *
+			 * @param data data structure received from server
+			 */
 			setSongDetailsCallback: function(data)
 			{
 				var output = {title:null, artist:null, album:null, albumid:null, year:null, comment:null, genre:null, rating: null};
@@ -251,6 +275,12 @@
 				}
 			},
 
+			/**
+			 * Thes is the main method triggered by the end-user when a song profile has be updated. This business method is called by
+			 * <code>saveShowDetailsModalDialog</code> model method to start the data saving process in music library.
+			 * The workflow starts updating the artist details.
+			 * @param input
+			 */
 			saveSongRelatedData: function(input)
 			{
 				console.log("music.scope.saveSongRelatedData");
@@ -261,6 +291,15 @@
 				}
 			},
 
+			/**
+			 * Save song artist using a JSON input structure. This method is update the artist record from music library and all song
+			 * that refers the current artist name will take the new value of the of the specified artist name. This bulk update function is
+			 * applicable only if artistall flag is true in the input structure. This flag corresponds in the GUI with a radio-button
+			 * by default checked. The next step in song profile update workflow is to call the method that is saving the album
+			 * (called here or in the callback method of this function)
+			 * .
+			 * @param input JSON structure where two attributes are mandatory: artistid and artist (which is the artist name)
+			 */
 			saveSongArtist: function(input)
 			{
 				var properties = null, refid = (input != null && input.artistid != null ? input.artistid : null);
@@ -274,6 +313,13 @@
 				else MCPi.music.scope.saveSongAlbum(input);
 			},
 
+			/**
+			 * This is the callback function of saving artist routine and in case of successful execution of this operation will trigger
+			 * next workflow step.
+			 *
+			 * @param data data structure received from server
+			 * @param reference input parameters that have to be passed to the next workflow step
+			 */
 			saveSongArtistCallback: function(data, reference)
 			{
 				console.log("music.scope.saveSongArtistCallback");
@@ -284,6 +330,15 @@
 				}
 			},
 
+			/**
+			 * Save song album using a JSON input structure. This method is update the album record from music library and all song
+			 * that refers the current album name will take the new value of the of the specified album name. This bulk update function is
+			 * applicable only if albumall flag is true in the input structure. This flag corresponds in the GUI with a checkbox-button
+			 * by default checked. The next step in song profile update workflow is to call the method that is saving the other song details
+			 * (called here or in the callback method of this function)
+			 * .
+			 * @param input JSON structure where two attributes are mandatory: albumid and album (which is the album name)
+			 */
 			saveSongAlbum: function(input)
 			{
 				var properties = null, refid = (input != null && input.albumid != null ? input.albumid : null);
@@ -297,6 +352,13 @@
 				else MCPi.music.scope.saveSongDetails(input);
 			},
 
+			/**
+			 * This is the callback function of saving album routine and in case of successful execution of this operation will trigger
+			 * next workflow step.
+			 *
+			 * @param data data structure received from server
+			 * @param reference input parameters that have to be passed to the next workflow step
+			 */
 			saveSongAlbumCallback: function(data, reference)
 			{
 				console.log("music.scope.saveSongAlbumCallback");
@@ -307,6 +369,12 @@
 				}
 			},
 
+			/**
+			 * This method will save song direct tags (the properties that are attached directly and not referred). The action is
+			 * executed based on a JSON input structure that will specify all song tag values and song library reference.
+			 *
+			 * @param input JSON input structure containing: title (song title), year, comment, rating, album, artist and genre
+			 */
 			saveSongDetails: function(input)
 			{
 				var properties = null, refid = (input != null && input.songid != null ? input.songid : null);
@@ -322,6 +390,13 @@
 				}
 			},
 
+			/**
+			 * This is the callback method is direct saving step from song profile updating workflow which should trigger
+			 * GUI actions (refresh the list,enable/disable buttons, etc.) - depending by the execution status of this method.
+			 *
+			 * @param data data structure received from server
+			 * @param reference input parameters that have to be passed to the next workflow step
+			 */
 			saveSongDetailsCallback: function(data, reference)
 			{
 				var refid = reference != null && reference.params != null && reference.params.songid != null ? reference.params.songid : null;
@@ -342,6 +417,9 @@
 
 		model:
 		{
+			/**
+			 * Prepare controls and GUI details when the screen is open or shown
+			 */
 			show: function()
 			{
 				console.log("music.model.show");
@@ -364,11 +442,21 @@
 				MCPi.music.vars.visible = false;
 			},
 
+			/**
+			 * Check if screen panel is visible
+			 *
+			 * @returns true if screen panel is visible
+			 */
 			isVisible: function()
 			{
 				return MCPi.music.vars.visible;
 			},
 
+			/**
+			 * Check is NowPlaying queue (list) is visible on the Music page.
+			 *
+			 * @returns true if the list is visible
+			 */
 			isNowPlayingVisible: function()
 			{
 				return MCPi.music.model.isVisible() && MCPi.music.vars.showNowPlaying;
@@ -383,6 +471,9 @@
 				if(MCPi.music.model.isNowPlayingVisible()) MCPi.music.scope.setNowPlayingQueue();
 			},
 
+			/**
+			 * Manually sort songs in NowPlaying queue by the end-user using drag&drop functions
+			 */
 			onSortNowPlayingQueue: function()
 			{
 				var indexes = $('#musicListItems').sortable('toArray', {});
@@ -413,6 +504,16 @@
 				}
 			},
 
+			/**
+			 * Design a graphical template of a new song item that have to be published in NowPlaying queue.
+			 *
+			 * @param index song index in the list
+			 * @param songId song id in library
+			 * @param image song thumbnail
+			 * @param title song title
+			 * @param details other song details (year, genre, etc.)
+			 * @returns HTMl content for the specified song that have to be appended in NowPlaying list
+			 */
 			getNowPlayingTemplate: function(index, songId, image, title, details)
 			{
 				if(image == null || image == "" || image.indexOf("DefaultAlbumCover") >= 0) image = "/resources/images/album.png";
@@ -429,10 +530,10 @@
 					'				<div class="media-body">' +
 					'					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><h5 class="media-heading">' + (index == 0 ? '<span class="fa fa-play-circle text-primary"></span> ' : '') + title + '</h5></a>' +
 					'					<ul class="dropdown-menu" role="menu">' +
-					(index > 0 || MCPi.player.id  < 0 ? '						<li><a data-clickthrough="music" data-type="menu" data-exec="playnow" data-refid="' + songId + '" data-index="' + index + '"><span class="fa fa-play-circle text-primary"></span> Play now</a></li>' : '') +
-					'						<li><a data-clickthrough="music" data-type="menu" data-exec="details" data-refid="' + songId + '" data-index="' + index + '"><span class="fa fa-info-circle"></span> Details</a></li>' +
+					(index > 0 || MCPi.player.id  < 0 ? '						<li><a data-clickthrough="menu-nowplaying" data-type="menu" data-exec="playnow" data-refid="' + songId + '" data-index="' + index + '"><span class="fa fa-play-circle text-primary"></span> Play now</a></li>' : '') +
+					'						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="details" data-refid="' + songId + '" data-index="' + index + '"><span class="fa fa-info-circle"></span> Details</a></li>' +
 					(index > 0 ? '						<li class="divider"></li>' : '') +
-					(index > 0 ? '						<li><a data-clickthrough="music" data-type="menu" data-exec="delete" data-refid="' + songId + '" data-index="' + index + '"><span class="fa fa-minus-circle text-danger"></span> Delete</a></li>' : '') +
+					(index > 0 ? '						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="delete" data-refid="' + songId + '" data-index="' + index + '"><span class="fa fa-minus-circle text-danger"></span> Delete</a></li>' : '') +
 					'					</ul>' +
 					'					<small style="cursor:default;"> ' + details + ' </small>' +
 					'				</div>' +
@@ -443,6 +544,12 @@
 					].join("\n"));
 			},
 
+			/**
+			 * Implementation of Click event in Music panel. Here are implemented all general options and the specific
+			 * functions are implemented in the related methods.
+			 *
+			 * @param e click event
+			 */
 			onClick: function(e)
 			{
 				var obj = $(this);
@@ -453,9 +560,9 @@
 
 				if(type)
 				{
-					if(type == "area") MCPi.music.model.showArea(obj);
-						else if(type == "filter") MCPi.music.model.showFilter(obj);
-							else if(type == "menu") MCPi.music.model.runActionOnMenuItem(obj);
+					if(type == "area") MCPi.music.model.setSelectedArea(obj);
+					else if(type == "filter") MCPi.music.model.setSelectedFilter(obj);
+					else if(type == "menu-nowplaying") MCPi.music.model.runNowPlayingActionOnMenuItem(obj);
 				}
 				else
 				{
@@ -470,12 +577,18 @@
 				}
 			},
 
-			showArea: function(obj)
+			/**
+			 * This is the first workflow that is executed when an user is selecting a specific area
+			 * from Music page/screen.
+			 *
+			 * @param obj selected area option provided by <code>onClick</code> method
+			 */
+			setSelectedArea: function(obj)
 			{
 				var prev = MCPi.music.vars.currentData;
 				var type = obj.attr('id').toLowerCase().slice(5);
 
-				console.log("music.model.showArea");
+				console.log("music.model.setSelectedArea(" + type + ")");
 
 				if(prev != null)
 				{
@@ -493,21 +606,29 @@
 				MCPi.music.vars.showNowPlaying = false;
 				MCPi.music.vars.currentData = "#" + obj.attr('id');
 
-				if(type.indexOf("albums") >=0 || type.indexOf("artists") >= 0 || type.indexOf("songs") >=0 )
+				if(type != "playlists" && type != "files" && !MCPi.music.vars.showFilterPanel)
 				{
 					$('#musicFiltersPanel').collapse('show');
+					MCPi.music.vars.showFilterPanel = true;
 				}
-				else
+				else if((type == "playlists" || type == "files") && MCPi.music.vars.showFilterPanel)
 				{
 					$('#musicFiltersPanel').collapse('hide');
+					MCPi.music.vars.showFilterPanel = false;
 				}
 			},
 
-			showFilter: function(obj)
+			/**
+			 * This is the first workflow that is executed when an user is selecting a specific filter
+			 * from Music page/screen. THe filter panel is available only for specific areas (artists, albums, songs).
+			 *
+			 * @param obj selected filter option provided by <code>onClick</code> method
+			 */
+			setSelectedFilter: function(obj)
 			{
 				var prev = MCPi.music.vars.currentFilter;
 
-				console.log("music.model.showFilter");
+				console.log("music.model.setSelectedFilter");
 
 				$(prev).removeClass('active');
 				$(prev).removeClass('btn-info');
@@ -520,13 +641,18 @@
 				MCPi.music.vars.currentFilter = "#" + obj.attr('id');
 			},
 
-			runActionOnMenuItem: function(obj)
+			/**
+			 * Implementation of user events that are attached to each song published NowPlaying list
+			 *
+			 * @param obj related menu of selected song entity from NowPlaying queue
+			 */
+			runNowPlayingActionOnMenuItem: function(obj)
 			{
 				var exec = obj.attr("data-exec");
 				var index = obj.attr("data-index");
 				var refid = obj.attr("data-refid");
 
-				console.log("music.model.runActionOnMenuItem");
+				console.log("music.model.runNowPlayingActionOnMenuItem");
 
 				switch (exec)
 				{
@@ -544,6 +670,13 @@
 				}
 			},
 
+			/**
+			 * Open song details modal dialog to display song ID3 tags. These tags are editable and could be updated by the end-user.
+			 * In this method the request to fetch song details (tags) is initiated, in the callback method will be displayed.
+			 *
+			 * @param index song index in the list. Index 0 in NowPlaying list is not editable
+			 * @param refid song reference in the music library
+			 */
 			openShowDetailsModalDialog: function(index, refid)
 			{
 				var properties = ["comment", "albumartist"];
@@ -554,13 +687,18 @@
 					$('#saveDetailsModal').attr("data-clickthrough", "music");
 					$('#showDetailsReferenceId').val(refid);
 
-					if(index == 0) $('#saveDetailsModal').attr("disabled", "disabled");
+					if(index == 0 && MCPi.music.model.isNowPlayingVisible()) $('#saveDetailsModal').attr("disabled", "disabled");
 						else $('#saveDetailsModal').removeAttr("disabled");
 
 					MCPi.music.scope.setSongDetails(refid);
 				}
 			},
 
+			/**
+			 * This is the callback method of displaying song tags into a modal dialog (to just show them or to update them).
+			 *
+			 * @param data data structure received from server
+			 */
 			openShowDetailsModalDialogCallback: function(data)
 			{
 				console.log("music.model.openShowDetailsModalDialogCallback " + data.artistid);
@@ -586,6 +724,10 @@
 				}
 			},
 
+			/**
+			 * This is the main trigger of saving /updating ID3 tags related to the selected song in the modal dialog.
+			 * The song reference (used to update the tags in music library) is stored into a hidden field.
+			 */
 			saveShowDetailsModalDialog: function()
 			{
 				var output = {songid:null, title:null, artistid:null, artist:null, albumid:null, album:null, year:null, comment:null, genre:null, rating: null};
