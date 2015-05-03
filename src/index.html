@@ -43,27 +43,17 @@
 		<div class="collapse navbar-collapse" id="mainNavbarControls">
 			<ul class="nav navbar-nav">
 				<li><a href="#home" id="screenHome" data-clickthrough="main"><span class="fa fa-home fa-lg" aria-hidden="true"></span> Home</a></li>
-				<li class="dropdown">
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-th fa-lg" aria-hidden="true"></span> Media <span class="caret"></span></a>
-					<ul class="dropdown-menu" role="menu">
-						<li><a href="#music" id="screenMusic" data-clickthrough="main"><span class="fa fa-music" aria-hidden="true"></span> Music</a></li>
-						<li class="divider"></li>
-						<li><a href="#movies" id="screenMovies" data-clickthrough="main"><span class="fa fa-film" aria-hidden="true"></span> Movies</a></li>
-						<li class="divider"></li>
-						<li><a href="#photos" id="screenPhotos" data-clickthrough="main"><span class="fa fa-photo" aria-hidden="true"></span> Photos</a></li>
-					</ul>
-				</li>
-				<li><a id="nowPlayingButton" data-toggle="collapse" href="#nowPlayingContainer" aria-expanded="false" aria-controls="nowPlayingContainer"><span class="fa fa-play-circle-o fa-lg text-primary" aria-hidden="true"></span> Now playing</a>
-				</li>
+				<li><a href="#music" id="screenMusic" data-clickthrough="main"><span class="fa fa-music" aria-hidden="true"></span> Music</a></li>
+				<li><a href="#movies" id="screenMovies" data-clickthrough="main"><span class="fa fa-film" aria-hidden="true"></span> Movies</a></li>
 			</ul>
 			<form class="navbar-form navbar-left" role="search">
 				<div class="form-group">
 					<input type="text" class="form-control" placeholder="Search">
 				</div>
-				<button type="submit" class="btn btn-primary">Search</button>
 			</form>
 			<ul class="nav navbar-nav navbar-right">
-				<li><a href="#remoteControlModal" data-toggle="modal" data-target="#remoteControlModal"><span class="fa fa-building-o fa-rotate-180 fa-lg" aria-hidden="true"></span> Remote</a></li>
+				<li><a href="#nowPlayingContainer" id="nowPlayingButton" data-toggle="collapse" aria-expanded="false" aria-controls="nowPlayingContainer"><span class="fa fa-play-circle-o fa-lg text-primary" aria-hidden="true"></span></a></li>
+				<li><a href="#remoteControlModal" id="remoteControl" data-toggle="modal" data-target="#remoteControlModal"><span class="fa fa-building-o fa-rotate-180 fa-lg" aria-hidden="true"></span></a></li>
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="fa fa-user fa-lg" aria-hidden="true"></span></a>
 					<ul class="dropdown-menu" role="menu">

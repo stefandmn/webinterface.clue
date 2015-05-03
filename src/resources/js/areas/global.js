@@ -164,13 +164,13 @@
 				 */
 				onClick: function (event)
 				{
-					console.log("global.model.onClick");
-
 					event.preventDefault();
 
 					var obj = $(this);
 					var id = obj.attr('id');
 					var name = id.slice(6).toLowerCase();
+
+					console.log("global.model.onClick(#" + id + ")");
 
 					MCPi.global.model.setContent("#" + name);
 				},
@@ -332,12 +332,14 @@
 		$('#nowPlayingContainer').on('show.bs.collapse',function (e)
 		{
 			MCPi.player.model.show();
+			$('#nowPlayingButton span').removeClass("text-primary");
 		});
 
 		//collapse nowplaying container panel
 		$('#nowPlayingContainer').on('hide.bs.collapse',function (e)
 		{
 			MCPi.player.model.hide();
+			$('#nowPlayingButton span').addClass("text-primary");
 		});
 
 		//register and then handle the click events from drop down options related to latest entries from each list published on home panel screen

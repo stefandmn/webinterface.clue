@@ -14,7 +14,7 @@
 			contentType: null,
 
 			isInitialCall: false,
-			refreshInterval: 5500,
+			refreshInterval: 15500,
 			refreshProcessId: null,
 
 			playerHashcode: null,
@@ -270,14 +270,15 @@
 				{
 					var text, item = data.result.item;
 
-					if(item.thumbnail != null && item.thumbnail.indexOf("DefaultAlbumCover.png") < 0)
+					if(item.thumbnail != null && item.thumbnail != "" && item.thumbnail.indexOf("Default") < 0)
 					{
-						MCPi.player.model.props.thumbnail = item.thumbnail;
+						MCPi.player.model.props.thumbnail = MCPi.libs.formatAssetURL(item.thumbnail);
 					}
+					else MCPi.player.model.props.thumbnail = null;
 
 					if(MCPi.player.id == 0)
 					{
-						if(MCPi.player.model.props.thumbnail == null || MCPi.player.model.props.thumbnail == '') MCPi.player.model.props.thumbnail = "/resources/images/album.png";
+						if(MCPi.player.model.props.thumbnail == null) MCPi.player.model.props.thumbnail = "/resources/images/album.png";
 
 						if(item.title != null && item.title != "") MCPi.player.model.props.title = item.title;
 							else MCPi.player.model.props.title = null;
@@ -296,7 +297,7 @@
 					}
 					else if(MCPi.player.id == 1)
 					{
-						if(MCPi.player.model.props.thumbnail == null || MCPi.player.model.props.thumbnail == '') MCPi.player.model.props.thumbnail = "/resources/images/video.png";
+						if(MCPi.player.model.props.thumbnail == null) MCPi.player.model.props.thumbnail = "/resources/images/video.png";
 
 						if(MCPi.player.vars.contentType == "movie")
 						{
@@ -343,14 +344,6 @@
 
 							MCPi.player.vars.contentType = item.type;
 							MCPi.player.scope.getPlayingItem(reference);
-						}
-					}
-
-					if(MCPi.player.model.props.thumbnail != null && MCPi.player.model.props.thumbnail != "")
-					{
-						if(MCPi.player.model.props.thumbnail.indexOf("/resources/images/album.png") < 0 && MCPi.player.model.props.thumbnail.indexOf("/resources/images/video.png") < 0)
-						{
-							MCPi.player.model.props.thumbnail = MCPi.libs.formatAssetURL(MCPi.player.model.props.thumbnail);
 						}
 					}
 

@@ -10,12 +10,13 @@
 			visible: false,
 			showNowPlaying: true,
 			showFilterPanel: false,
+			selectedPlaylist: null,
 			fillInNowPlayingQueue: false,
 			hashcodeNowPlayingQueue: null,
 			currentData: null,
 			currentFilter: "#musicFilterA",
 			refreshProcessId: null,
-			nowPlayingProperties: ['title', 'album', 'artist', 'genre', 'thumbnail', 'duration'],
+			nowPlayingProperties: ['title', 'album', 'artist', 'genre', 'thumbnail', 'duration', 'rating'],
 			genres: null,
 			albums: null,
 			artists: null,
@@ -53,7 +54,7 @@
 			},
 
 			/**
-			 * Ask MCPi server for the list of NowPlaying items. THis is a JSON command that will be processed by callback function.
+			 * Ask MCPi server for the list of NowPlaying items. This is a JSON command that will be processed by callback function.
 			 */
 			setNowPlayingQueue: function()
 			{
@@ -85,13 +86,16 @@
 
 						$.each(data.result.items, function (i, d)
 						{
-							var item = MCPi.music.scope.getNowPlayingItem(i, d);
+							var item = MCPi.music.model.getNowPlayingTemplate(i, d);
 
 							if(i == 0) $(id).html(item);
 								else $(id).append(item);
 						});
 
 						MCPi.music.vars.fillInNowPlayingQueue = false;
+
+						//in case of Now Playing panel is visible you have to refresh it
+						if(MCPi.player.model.isVisible()) MCPi.player.model.refresh();
 					}
 				}
 				else
@@ -99,27 +103,6 @@
 					$(id).html('<p>&nbsp;</p>');
 				}
 
-			},
-
-			/**
-			 * Get the HTML content of an item from NowPlaying queue
-			 * @param i index of item from NoPlaying list
-			 * @param data JSON structure fragment that represent an entry from the NowPlaying list
-			 * @returns HTML content of an item from NowPlaying queue
-			 */
-			getNowPlayingItem: function(i, data)
-			{
-				var image = data.thumbnail;
-				var title = data.title;
-				var details = [];
-
-				if(data.artist && data.artist.length > 0) details[details.length] = '<b>' + data.artist[0] + '</b>';
-				if(data.album) details[details.length] = data.album;
-				if(data.genre && data.genre.length > 0) details[details.length] = data.genre[0];
-				if(data.year) details[details.length] = data.year;
-				if(data.duration) details[details.length] = MCPi.libs.durationToString(data.duration);
-
-				return MCPi.music.model.getNowPlayingTemplate(i, data.id, image, title, details.join(" &bull; "));
 			},
 
 			/**
@@ -139,16 +122,16 @@
 				}
 				else
 				{
-					var values = ref.split(":");
+					var index, values = ref.split(":");
 
 					if(values.length == 1)
 					{
-						var index = parseInt(values[0]);
+						index = parseInt(values[0]);
 						MCPi.json.call("Playlist.Remove", {"position": index, "playlistid": 0}, MCPi.music.scope.setNowPlayingQueue);
 					}
 					else if(values.length >= 3)
 					{
-						var index = parseInt(values[0]);
+						index = parseInt(values[0]);
 						var params = values[1] + ":" + values[2];
 
 						//remove from cursor
@@ -180,10 +163,10 @@
 					var values = ref.split(":");
 
 					var index = parseInt(values[0]);
-					var songId = parseInt(values[1]);
+					var songid = parseInt(values[1]);
 
 					//insert to index
-					MCPi.json.call("Playlist.Insert", {"position": parseInt(index), "item":{"songid":parseInt(songId)}, "playlistid": 0}, MCPi.music.scope.setNowPlayingQueue);
+					MCPi.json.call("Playlist.Insert", {"position": parseInt(index), "item":{"songid":parseInt(songid)}, "playlistid": 0}, MCPi.music.scope.setNowPlayingQueue);
 				}
 			},
 
@@ -276,7 +259,7 @@
 			},
 
 			/**
-			 * Thes is the main method triggered by the end-user when a song profile has be updated. This business method is called by
+			 * This is the main method triggered by the end-user when a song profile has be updated. This business method is called by
 			 * <code>saveShowDetailsModalDialog</code> model method to start the data saving process in music library.
 			 * The workflow starts updating the artist details.
 			 * @param input
@@ -412,6 +395,44 @@
 						MCPi.music.scope.runDeleteNowPlayingQueue(index + ":" + index + ":" + refid);
 					}
 				}
+			},
+
+			setPlaylists: function()
+			{
+				var properties = {"directory": "special://profile/playlists/music/", "media": "music", "sort": { "method": "label" } };
+				console.log("music.scope.setPlaylists");
+
+				MCPi.json.call("Files.GetDirectory", properties, MCPi.music.scope.setPlaylistsCallback);
+			},
+
+			setPlaylistsCallback: function(data, ref)
+			{
+				var id = "#musicListItems";
+				console.log("music.scope.setPlaylistsCallback");
+
+				if(data && data.result && data.result.files)
+				{
+					$(id).html( MCPi.music.model.getRootPlaylistTemplate(ref) );
+
+					$.each(data.result.files, function (i, d)
+					{
+						$(id).append( MCPi.music.model.getPlaylistTemplate(i, d, ref) );
+					});
+				}
+				else
+				{
+					$(id).html('<p>&nbsp;</p>');
+				}
+			},
+
+			runPlaylistsBrowseInto: function(ref)
+			{
+				console.log("music.scope.runPlaylistBrowseInto");
+
+				if(ref != null && ref != '')
+				{
+					MCPi.json.call("Files.GetDirectory", {"directory":ref, "media":"music", "properties": MCPi.music.vars.nowPlayingProperties}, MCPi.music.scope.setPlaylistsCallback, ref);
+				}
 			}
 		},
 
@@ -425,10 +446,7 @@
 				console.log("music.model.show");
 
 				MCPi.music.vars.visible = true;
-				MCPi.music.scope.setNowPlayingQueue();
-
-				if(MCPi.player.model.isVisible()) MCPi.player.scope.setPersistentReference(MCPi.music.model.refresh);
-					else MCPi.music.scope.setRefresh();
+				if(MCPi.music.vars.currentData == null) MCPi.music.model.setShowNowPlayingQueue();
 			},
 
 			/**
@@ -472,6 +490,80 @@
 			},
 
 			/**
+			 * Initialize music list control, displaying "loading" control and set the list title.
+			 *
+			 * @param title list title
+			 */
+			initDataList: function(title)
+			{
+				console.log("music.model.initDataList");
+
+				if(title != null) $('#musicListTitle').html(title);
+					else $('#musicListTitle').html("");
+
+				$('#musicListItems').html('<i class="fa fa-spinner fa-spin fa-2x"></i>');
+			},
+
+			/**
+			 * This method returns the rating sign (one or many stars) for a song.
+			 *
+			 * @param rate song rating value
+			 */
+			getSongRatingSign:function(rate)
+			{
+				var sup = "";
+
+				if(rate && rate > 0)
+				{
+					for(var i = 1; i <= rate; i++)
+					{
+						sup += '<span class="fa fa-star"></span>';
+					}
+
+					sup = '<sup>' + sup +'</sup>';
+				}
+
+				return sup;
+			},
+
+			/**
+			 * Trigger all necessary actions and functions to display NowPlaying queue content
+			 */
+			setShowNowPlayingQueue: function()
+			{
+				var prev = MCPi.music.vars.currentData;
+				console.log("music.model.setShowNowPlayingQueue");
+
+				if(prev != null)
+				{
+					$(prev).removeClass('active');
+					$(prev).removeClass('btn-primary');
+					$(prev).addClass('btn-default');
+					$(prev).children('span').addClass("text-primary");
+				}
+
+				MCPi.music.vars.hashcodeNowPlayingQueue = null;
+				MCPi.music.vars.currentData = null;
+
+				MCPi.music.model.initDataList("Now Playing");
+				MCPi.music.scope.setNowPlayingQueue();
+
+				if(MCPi.player.model.isVisible()) MCPi.player.scope.setPersistentReference(MCPi.music.model.refresh);
+					else MCPi.music.scope.setRefresh();
+			},
+
+			/**
+			 * Trigger all necessary actions to display the playlists
+			 */
+			setShowPlaylists: function()
+			{
+				console.log("music.scope.setShowPlaylists");
+
+				MCPi.music.model.initDataList("Playlists");
+				MCPi.music.scope.setPlaylists();
+			},
+
+			/**
 			 * Manually sort songs in NowPlaying queue by the end-user using drag&drop functions
 			 */
 			onSortNowPlayingQueue: function()
@@ -497,8 +589,8 @@
 
 				if( cursor > 0)
 				{
-					var songId = $('#listitem-' + value).attr("data-refid");
-					var params = value + ":" + cursor + ":" + songId;
+					var songid = $('#listitem-' + value).attr("data-refid");
+					var params = value + ":" + cursor + ":" + songid;
 
 					MCPi.music.scope.runDeleteNowPlayingQueue(params);
 				}
@@ -508,19 +600,28 @@
 			 * Design a graphical template of a new song item that have to be published in NowPlaying queue.
 			 *
 			 * @param index song index in the list
-			 * @param songId song id in library
-			 * @param image song thumbnail
-			 * @param title song title
-			 * @param details other song details (year, genre, etc.)
+			 * @param data JSON structure fragment that represent an entry from the NowPlaying list
 			 * @returns HTMl content for the specified song that have to be appended in NowPlaying list
 			 */
-			getNowPlayingTemplate: function(index, songId, image, title, details)
+			getNowPlayingTemplate: function(index, data)
 			{
+				var songid = data.id;
+				var image = data.thumbnail;
+				var title = data.title;
+				var rating = data.rating;
+				var details = [];
+
+				if(data.artist && data.artist.length > 0) details[details.length] = '<b>' + data.artist[0] + '</b>';
+				if(data.album) details[details.length] = data.album;
+				if(data.genre && data.genre.length > 0) details[details.length] = data.genre[0];
+				if(data.year) details[details.length] = data.year;
+				if(data.duration) details[details.length] = MCPi.libs.durationToString(data.duration);
+
 				if(image == null || image == "" || image.indexOf("DefaultAlbumCover") >= 0) image = "/resources/images/album.png";
 					else image = MCPi.libs.formatAssetURL(image);
 
 				return $([
-					'<div class="row' + (index > 0 ? ' item' : '') + '" id="listitem-' + index + '" data-refid="' + songId + '"' + (index == 0 ? ' style="cursor:default;"' : '') + '>' +
+					'<div class="row' + (index > 0 ? ' item' : '') + '" id="listitem-' + index + '" data-refid="' + songid + '"' + (index == 0 ? ' style="cursor:default;"' : '') + '>' +
 					'	<div class="col-md-12">' +
 					'		<div class="dropdown">' +
 					'			<div class="media thumbnail">' +
@@ -528,14 +629,14 @@
 					'					<img class="media-object" src="' + image + '" style="height:2.9em;' + (index > 0 ? 'cursor:move;' : 'cursor:default;') + '"/>' +
 					'				</a>' +
 					'				<div class="media-body">' +
-					'					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><h5 class="media-heading">' + (index == 0 ? '<span class="fa fa-play-circle text-primary"></span> ' : '') + title + '</h5></a>' +
+					'					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><h5 class="media-heading">' + (index == 0 ? '<span class="fa fa-play-circle text-primary"></span> ' : '') + title + ' ' + MCPi.music.model.getSongRatingSign(rating) + '</h5></a>' +
 					'					<ul class="dropdown-menu" role="menu">' +
-					(index > 0 || MCPi.player.id  < 0 ? '						<li><a data-clickthrough="menu-nowplaying" data-type="menu" data-exec="playnow" data-refid="' + songId + '" data-index="' + index + '"><span class="fa fa-play-circle text-primary"></span> Play now</a></li>' : '') +
-					'						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="details" data-refid="' + songId + '" data-index="' + index + '"><span class="fa fa-info-circle"></span> Details</a></li>' +
+					(index > 0 || MCPi.player.id  < 0 ? '						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="playnow" data-refid="' + songid + '" data-index="' + index + '"><span class="fa fa-play-circle text-primary"></span> Play now</a></li>' : '') +
+					'						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="details" data-refid="' + songid + '" data-index="' + index + '"><span class="fa fa-info-circle"></span> Details</a></li>' +
 					(index > 0 ? '						<li class="divider"></li>' : '') +
-					(index > 0 ? '						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="delete" data-refid="' + songId + '" data-index="' + index + '"><span class="fa fa-minus-circle text-danger"></span> Delete</a></li>' : '') +
+					(index > 0 ? '						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="delete" data-refid="' + songid + '" data-index="' + index + '"><span class="fa fa-minus-circle text-danger"></span> Delete</a></li>' : '') +
 					'					</ul>' +
-					'					<small style="cursor:default;"> ' + details + ' </small>' +
+					'					<small style="cursor:default;"> ' + details.join(" &bull; ") + ' </small>' +
 					'				</div>' +
 					'			</div>' +
 					'		</div>' +
@@ -555,14 +656,15 @@
 				var obj = $(this);
 				var type = obj.attr("data-type");
 
-				console.log("music.model.onClick(#" + obj.attr('id') + ")");
+				console.log("music.model.onClick(" + (obj.attr('id') != null ? "#" + obj.attr('id') : type) + ")");
 				e.preventDefault();
 
 				if(type)
 				{
 					if(type == "area") MCPi.music.model.setSelectedArea(obj);
 					else if(type == "filter") MCPi.music.model.setSelectedFilter(obj);
-					else if(type == "menu-nowplaying") MCPi.music.model.runNowPlayingActionOnMenuItem(obj);
+					else if(type == "menu-nowplaying") MCPi.music.model.runActionOnNowPlayingMenuItem(obj);
+					else if(type == "menu-playlists") MCPi.music.model.runActionOnPlaylistsMenuItem(obj);
 				}
 				else
 				{
@@ -573,6 +675,12 @@
 						case 'saveDetailsModal':
 							MCPi.music.model.saveShowDetailsModalDialog();
 							break;
+						case 'showNowPlaying':
+							MCPi.music.model.setShowNowPlayingQueue();
+							break;
+						case 'showPlaylists':
+							MCPi.music.model.setShowPlaylists();
+							break
 					}
 				}
 			},
@@ -616,6 +724,25 @@
 					$('#musicFiltersPanel').collapse('hide');
 					MCPi.music.vars.showFilterPanel = false;
 				}
+
+				//delete refresh option from NowPlaying list
+				if(MCPi.music.vars.refreshProcessId) MCPi.music.scope.delRefresh();
+
+				//handle area option
+				switch(type)
+				{
+					case 'playlists':
+						MCPi.music.model.setShowPlaylists();
+						break;
+					case 'files':
+						break;
+					case 'songs':
+						break;
+					case 'albums':
+						break;
+					case 'artists':
+						break;
+				}
 			},
 
 			/**
@@ -646,13 +773,13 @@
 			 *
 			 * @param obj related menu of selected song entity from NowPlaying queue
 			 */
-			runNowPlayingActionOnMenuItem: function(obj)
+			runActionOnNowPlayingMenuItem: function(obj)
 			{
 				var exec = obj.attr("data-exec");
 				var index = obj.attr("data-index");
 				var refid = obj.attr("data-refid");
 
-				console.log("music.model.runNowPlayingActionOnMenuItem");
+				console.log("music.model.runActionOnNowPlayingMenuItem");
 
 				switch (exec)
 				{
@@ -750,6 +877,146 @@
 				MCPi.music.scope.saveSongRelatedData(output);
 
 				$('#showDetailsModal').modal('hide');
+			},
+
+			getRootPlaylistTemplate: function(ref)
+			{
+				if(ref == null)
+				{
+					return $([
+						'<div class="row">' +
+						'	<div class="col-md-12">' +
+						'			<div class="media thumbnail">' +
+						'				<a class="pull-left" data-toggle="modal">' +
+						'					<span class="fa fa-play-circle fa-lg text-primary">' +
+						'				</a>' +
+						'				<div class="media-body">' +
+						'					<a href="#" data-clickthrough="music" id="showNowPlaying" aria-expanded="false"><h4 class="media-heading" title="Now Playing">&bull;&bull;</h4></a>' +
+						'				</div>' +
+						'			</div>' +
+						'	</div>' +
+						'</div>'
+						].join("\n"));
+				}
+				else
+				{
+					return $([
+						'<div class="row" data-refid="' + ref + '" style="cursor:default;">' +
+						'	<div class="col-md-12">' +
+						'			<div class="media thumbnail">' +
+						'				<a class="pull-left" data-toggle="modal">' +
+						'					<span class="fa fa-level-up fa-lg">' +
+						'				</a>' +
+						'				<div class="media-body">' +
+						'					<a href="#" data-clickthrough="music" id="showPlaylists" aria-expanded="false"><h4 class="media-heading" title="Playlists">&bull;&bull;</h4></a>' +
+						'				</div>' +
+						'			</div>' +
+						'	</div>' +
+						'</div>'
+						].join("\n"));
+				}
+			},
+
+			getPlaylistTemplate: function(index, data, ref)
+			{
+				var refid, image, title, details, rating;
+
+				if(ref == null)
+				{
+					refid = data.file;
+					title = data.label;
+					image = "/resources/images/album.png";
+
+					return $([
+						'<div class="row" id="listitem-' + index + '" data-refid="' + refid + '" style="cursor:default;">' +
+						'	<div class="col-md-12">' +
+						'		<div class="dropdown">' +
+						'			<div class="media thumbnail">' +
+						'				<a class="pull-left" data-toggle="modal">' +
+						'					<img class="media-object" src="' + image + '" style="height:1.8em;"/>' +
+						'				</a>' +
+						'				<div class="media-body">' +
+						'					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><h4 class="media-heading">' + title + '</h4></a>' +
+						'					<ul class="dropdown-menu" role="menu">' +
+						'						<li><a data-clickthrough="music" data-type="menu-playlists" data-exec="play" data-refid="' + refid + '"><span class="fa fa-play-circle text-primary"></span> Play</a></li>' +
+						'						<li class="divider"></li>' +
+						'						<li><a data-clickthrough="music" data-type="menu-playlists" data-exec="browse" data-refid="' + refid + '"><span class="fa fa-chevron-circle-up"></span> Browse Into</a></li>' +
+						'						<li><a data-clickthrough="music" data-type="menu-playlists" data-exec="enqueue" data-refid="' + refid + '"><span class="fa fa-plus-circle"></span> Enqueue</a></li>' +
+						'					</ul>' +
+						'				</div>' +
+						'			</div>' +
+						'		</div>' +
+						'	</div>' +
+						'</div>'
+					].join("\n"));
+				}
+				else
+				{
+					refid = data.id;
+					title = data.title;
+					image = data.thumbnail;
+					rating = data.rating;
+					details = [];
+
+					if(data.artist && data.artist.length > 0) details[details.length] = '<b>' + data.artist[0] + '</b>';
+					if(data.album) details[details.length] = data.album;
+					if(data.genre && data.genre.length > 0) details[details.length] = data.genre[0];
+					if(data.year) details[details.length] = data.year;
+					if(data.duration) details[details.length] = MCPi.libs.durationToString(data.duration);
+
+					if(image == null || image == "" || image.indexOf("Default") >= 0) image = "/resources/images/album.png";
+						else image = MCPi.libs.formatAssetURL(image);
+
+					return $([
+						'<div class="row" id="listitem-' + index + '" data-refid="' + refid + '" style="cursor:default;">' +
+						'	<div class="col-md-12">' +
+						'		<div class="dropdown">' +
+						'			<div class="media thumbnail">' +
+						'				<a class="pull-left" data-toggle="modal">' +
+						'					<img class="media-object" src="' + image + '" style="height:2.9em;"/>' +
+						'				</a>' +
+						'				<div class="media-body">' +
+						'					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><h5 class="media-heading">' + title + ' ' + MCPi.music.model.getSongRatingSign(rating) + '</h5></a>' +
+						'					<ul class="dropdown-menu" role="menu">' +
+						'						<li><a data-clickthrough="music" data-type="menu-playlists" data-exec="playnow" data-refid="' + refid + '" data-index="' + index + '"><span class="fa fa-play-circle"></span> Play now</a></li>' +
+						'						<li class="divider"></li>' +
+						'						<li><a data-clickthrough="music" data-type="menu-playlists" data-exec="enqueue" data-refid="' + refid + '" data-index="' + index + '"><span class="fa fa-plus-circle""></span> Enqueue</a></li>' +
+						'						<li><a data-clickthrough="music" data-type="menu-playlists" data-exec="details" data-refid="' + refid + '" data-index="' + index + '"><span class="fa fa-info-circle"></span> Details</a></li>' +
+						'					</ul>' +
+						'					<small style="cursor:default;"> ' + details.join(" &bull; ") + ' </small>' +
+						'				</div>' +
+						'			</div>' +
+						'		</div>' +
+						'	</div>' +
+						'</div>'
+						].join("\n"));
+				}
+			},
+
+			/**
+			 * Implementation of user events that are attached to each song published NowPlaying list
+			 *
+			 * @param obj related menu of selected song entity from NowPlaying queue
+			 */
+			runActionOnPlaylistsMenuItem: function(obj)
+			{
+				var exec = obj.attr("data-exec");
+				var refid = obj.attr("data-refid");
+
+				console.log("music.model.runActionOnPlaylistsMenuItem");
+
+				switch (exec)
+				{
+					case "play":
+						break;
+
+					case "enqueue":
+						break;
+
+					case "browse":
+						MCPi.music.scope.runPlaylistsBrowseInto(refid);
+						break;
+				}
 			}
 		}
 	}
