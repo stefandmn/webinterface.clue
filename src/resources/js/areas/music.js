@@ -15,8 +15,8 @@
 			hashcodeNowPlayingQueue: null,
 			currentData: null,
 			currentFilter: "#musicFilterA",
-			refreshProcessId: null,
-			nowPlayingProperties: ['title', 'album', 'artist', 'genre', 'thumbnail', 'duration', 'rating'],
+			timerProcessId: null,
+			nowPlayingProperties: ['title', 'album', 'artist', 'genre', 'thumbnail', 'duration', 'rating', 'file'],
 			genres: null,
 			albums: null,
 			artists: null,
@@ -26,33 +26,6 @@
 
 		scope:
 		{
-			/**
-			 * Set automatic refresh (only one time - immediately after the screen is make it visible)
-			 */
-			setRefresh: function()
-			{
-				console.log("music.scope.setRefresh");
-
-				if(!MCPi.music.vars.refreshProcessId)
-				{
-					MCPi.music.vars.refreshProcessId = setInterval(MCPi.music.model.refresh, MCPi.player.vars.refreshInterval);
-				}
-			},
-
-			/**
-			 * Delete automatic refresh (should be called when the screen is made hidden)
-			 */
-			delRefresh: function()
-			{
-				console.log("music.scope.delRefresh");
-
-				if(MCPi.music.vars.refreshProcessId)
-				{
-					clearInterval(MCPi.music.vars.refreshProcessId);
-					MCPi.music.vars.refreshProcessId = null;
-				}
-			},
-
 			/**
 			 * Ask MCPi server for the list of NowPlaying items. This is a JSON command that will be processed by callback function.
 			 */
@@ -95,7 +68,7 @@
 						MCPi.music.vars.fillInNowPlayingQueue = false;
 
 						//in case of Now Playing panel is visible you have to refresh it
-						if(MCPi.player.model.isVisible()) MCPi.player.model.refresh();
+						if(MCPi.player.model.isVisible()) MCPi.player.model.setContent();
 					}
 				}
 				else
@@ -421,7 +394,7 @@
 				}
 				else
 				{
-					$(id).html('<p>&nbsp;</p>');
+					$(id).html( MCPi.music.model.getRootPlaylistTemplate() );
 				}
 			},
 
@@ -446,7 +419,7 @@
 				console.log("music.model.show");
 
 				MCPi.music.vars.visible = true;
-				if(MCPi.music.vars.currentData == null) MCPi.music.model.setShowNowPlayingQueue();
+				MCPi.global.scope.addReference(MCPi.music.model.setContent);
 			},
 
 			/**
@@ -454,10 +427,10 @@
 			 */
 			hide: function()
 			{
-				if(MCPi.player.model.isVisible() && MCPi.music.model.isNowPlayingVisible()) MCPi.player.scope.delPersistentReference();
-					else MCPi.music.scope.delRefresh();
+				console.log("music.model.show");
 
 				MCPi.music.vars.visible = false;
+				MCPi.global.scope.delReference(MCPi.music.scope.setContent);
 			},
 
 			/**
@@ -483,9 +456,9 @@
 			/**
 			 * Run automatic refresh routine. Run action to refresh and rebuild screen content
 			 */
-			refresh: function()
+			setContent: function()
 			{
-				console.log("music.model.refresh");
+				console.log("music.model.setContent");
 				if(MCPi.music.model.isNowPlayingVisible()) MCPi.music.scope.setNowPlayingQueue();
 			},
 
@@ -547,9 +520,6 @@
 
 				MCPi.music.model.initDataList("Now Playing");
 				MCPi.music.scope.setNowPlayingQueue();
-
-				if(MCPi.player.model.isVisible()) MCPi.player.scope.setPersistentReference(MCPi.music.model.refresh);
-					else MCPi.music.scope.setRefresh();
 			},
 
 			/**
@@ -609,19 +579,26 @@
 				var image = data.thumbnail;
 				var title = data.title;
 				var rating = data.rating;
+				var file = data.file;
 				var details = [];
 
+				if(title == null || title == "") title = data.label;
 				if(data.artist && data.artist.length > 0) details[details.length] = '<b>' + data.artist[0] + '</b>';
 				if(data.album) details[details.length] = data.album;
 				if(data.genre && data.genre.length > 0) details[details.length] = data.genre[0];
 				if(data.year) details[details.length] = data.year;
 				if(data.duration) details[details.length] = MCPi.libs.durationToString(data.duration);
 
+				var showFixed = (MCPi.player.scope.props.partyMode && index == 0) || (!MCPi.player.scope.props.partyMode && MCPi.player.vars.fileReference == file);
+				var showPlayNow = (MCPi.player.scope.props.partyMode && index > 0) || MCPi.player.id  < 0;
+				var showDetails = songid != null;
+				var showDelete = index > 0;
+
 				if(image == null || image == "" || image.indexOf("DefaultAlbumCover") >= 0) image = "/resources/images/album.png";
 					else image = MCPi.libs.formatAssetURL(image);
-
+console.log("TEST: " + file + " = " + MCPi.player.vars.fileReference);
 				return $([
-					'<div class="row' + (index > 0 ? ' item' : '') + '" id="listitem-' + index + '" data-refid="' + songid + '"' + (index == 0 ? ' style="cursor:default;"' : '') + '>' +
+					'<div class="row' + (showFixed ? ' item' : '') + '" id="listitem-' + index + '" data-refid="' + songid + '"' + (showFixed ? ' style="cursor:default;"' : '') + '>' +
 					'	<div class="col-md-12">' +
 					'		<div class="dropdown">' +
 					'			<div class="media thumbnail">' +
@@ -629,12 +606,12 @@
 					'					<img class="media-object" src="' + image + '" style="height:2.9em;' + (index > 0 ? 'cursor:move;' : 'cursor:default;') + '"/>' +
 					'				</a>' +
 					'				<div class="media-body">' +
-					'					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><h5 class="media-heading">' + (index == 0 ? '<span class="fa fa-play-circle text-primary"></span> ' : '') + title + ' ' + MCPi.music.model.getSongRatingSign(rating) + '</h5></a>' +
+					'					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><h5 class="media-heading">' + (showFixed ? '<span class="fa fa-play-circle text-primary"></span> ' : '') + title + ' ' + MCPi.music.model.getSongRatingSign(rating) + '</h5></a>' +
 					'					<ul class="dropdown-menu" role="menu">' +
-					(index > 0 || MCPi.player.id  < 0 ? '						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="playnow" data-refid="' + songid + '" data-index="' + index + '"><span class="fa fa-play-circle text-primary"></span> Play now</a></li>' : '') +
-					'						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="details" data-refid="' + songid + '" data-index="' + index + '"><span class="fa fa-info-circle"></span> Details</a></li>' +
-					(index > 0 ? '						<li class="divider"></li>' : '') +
-					(index > 0 ? '						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="delete" data-refid="' + songid + '" data-index="' + index + '"><span class="fa fa-minus-circle text-danger"></span> Delete</a></li>' : '') +
+	(showPlayNow ?	'						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="playnow" data-refid="' + songid + '" data-index="' + index + '"><span class="fa fa-play-circle text-primary"></span> Play now</a></li>' : '') +
+	(showDetails ?	'						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="details" data-refid="' + songid + '" data-index="' + index + '"><span class="fa fa-info-circle"></span> Details</a></li>' : '') +
+	(showPlayNow ?	'						<li class="divider"></li>' : '') +
+	(showDelete ?	'						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="delete" data-refid="' + songid + '" data-index="' + index + '"><span class="fa fa-minus-circle text-danger"></span> Delete</a></li>' : '') +
 					'					</ul>' +
 					'					<small style="cursor:default;"> ' + details.join(" &bull; ") + ' </small>' +
 					'				</div>' +
@@ -726,7 +703,7 @@
 				}
 
 				//delete refresh option from NowPlaying list
-				if(MCPi.music.vars.refreshProcessId) MCPi.music.scope.delRefresh();
+				if(MCPi.music.vars.timerProcessId) MCPi.music.scope.delRefresh();
 
 				//handle area option
 				switch(type)

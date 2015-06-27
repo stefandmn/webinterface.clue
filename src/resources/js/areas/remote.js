@@ -174,6 +174,7 @@
 				var reference = {source: MCPi.player.scope.setId, params: {source: MCPi.player.model.setContent, params: {source: MCPi.remote.model.setContent}}};
 				console.log("remote.scope.runPlayerStop");
 
+				MCPi.global.scope.setEnabledQueue('#remoteContainer');
 				MCPi.json.call("Player.Stop", {"playerid":MCPi.player.id}, null, reference);
 			},
 
@@ -185,6 +186,7 @@
 				var reference = {source: MCPi.player.scope.setProperties, params: {source: MCPi.remote.model.setContent}};
 				console.log("remote.scope.runPlayerPlay");
 
+				MCPi.global.scope.setEnabledQueue('#remoteContainer');
 				MCPi.json.call("Player.PlayPause", {"playerid":MCPi.player.id}, null, reference);
 			},
 
@@ -286,7 +288,8 @@
 			{
 				console.log("remote.scope.runMute");
 
-				return MCPi.json.call("Application.SetMute", {"mute":"toggle"}, MCPi.remote.scope.runMuteCallback);
+				MCPi.global.scope.setEnabledQueue('#remoteContainer');
+				MCPi.json.call("Application.SetMute", {"mute":"toggle"}, MCPi.remote.scope.runMuteCallback);
 			},
 
 			/**
@@ -296,13 +299,16 @@
 			 */
 			runMuteCallback: function(data)
 			{
-				console.log("remote.scope.runMuteCallback");
+				console.log("remote.scope.runMuteCallback - " + data.result);
 
 				if(data)
 				{
-					MCPi.player.scope.props.isMuted = !data.result;
+					if(MCPi.player.scope.props.isMuted == data.result) MCPi.player.scope.props.isMuted = !data.result;
+						else MCPi.player.scope.props.isMuted = data.result;
+
 					MCPi.remote.model.setContent();
 				}
+				else MCPi.global.scope.setDisabledQueue();
 			},
 
 			/**
@@ -312,7 +318,8 @@
 			{
 				console.log("remote.scope.runIncreaseVolume");
 
-				return MCPi.json.call("Application.SetVolume", {"volume":"increment"}, MCPi.remote.scope.runSetVolumeCallback);
+				MCPi.global.scope.setEnabledQueue('#remoteContainer');
+				MCPi.json.call("Application.SetVolume", {"volume":"increment"}, MCPi.remote.scope.runSetVolumeCallback);
 			},
 
 			/**
@@ -322,7 +329,8 @@
 			{
 				console.log("remote.scope.runDecreaseVolume");
 
-				 return MCPi.json.call("Application.SetVolume", {"volume":"decrement"}, MCPi.remote.scope.runSetVolumeCallback);
+				MCPi.global.scope.setEnabledQueue('#remoteContainer');
+				MCPi.json.call("Application.SetVolume", {"volume":"decrement"}, MCPi.remote.scope.runSetVolumeCallback);
 			},
 
 			/**
@@ -335,6 +343,7 @@
 				console.log("remote.cope.runSetVolumeCallback");
 
 				MCPi.player.scope.props.volume = data.result;
+				MCPi.player.scope.props.isMuted = false;
 				MCPi.remote.model.setContent();
 			},
 
@@ -358,15 +367,15 @@
 			 */
 			show: function()
 			{
-				var source;
+				var input;
 				console.log("remote.model.show");
 
 				if(!MCPi.player.model.isVisible())
 				{
-					source = {source: MCPi.player.scope.setVolume, params: {source: MCPi.remote.model.setContent}};
+					input = {source: MCPi.player.scope.setVolume, params: {source: MCPi.remote.model.setContent}};
 
-					if(MCPi.player.id < 0) MCPi.player.scope.setId(source);
-						else MCPi.player.scope.setProperties(source);
+					if(MCPi.player.id < 0) MCPi.player.scope.setId(input);
+						else MCPi.player.scope.setProperties(input);
 				}
 				else
 				{
@@ -413,6 +422,8 @@
 					mute.html('<span class="fa fa-volume-up fa-lg" aria-hidden="true"></span>  <span class="badge">' + MCPi.player.scope.props.volume + '</span>');
 					mute.removeClass("active");
 				}
+
+				MCPi.global.scope.setDisabledQueue();
 			},
 
 			/**
@@ -577,10 +588,10 @@
 					case 'remotePlay':
 						MCPi.remote.scope.runPlayerPlay();
 						break;
-					case 'remoteForward':
+					case 'remoteFastForward':
 						MCPi.remote.scope.runPlayerFastForward();
 						break;
-					case 'remoteFastForward':
+					case 'remoteForward':
 						MCPi.remote.scope.runPlayerForward();
 						break;
 					case 'remotePartyMode':

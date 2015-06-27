@@ -9,17 +9,12 @@
 
 		vars:
 		{
-			visible: false,
-			validData: false,
-			contentType: null,
-
-			isInitialCall: false,
-			refreshInterval: 15500,
-			refreshProcessId: null,
-
-			playerHashcode: null,
-			playerProperties: [ "speed", "shuffled", "repeat", "time", "totaltime", "position", "percentage", "partymode", "playlistid", "type"],
-			persistentReference: null
+			visible: false,			/* describe visibility of 'Now Playing' panel */
+			validData: false,		/* check if valid data has been found (about what media content is playing now) and if is true will allow setContent method to render data */
+			contentType: null,		/* used especially to identify the video content type (movie or tvshow episode) in order to now what JSON query to use to get the playing data */
+			playerHashcode: null,	/* is the hashcode of now playing data in order to know if the data has been changed to render it again or not, or for other comparing actions */
+			fileReference: null,	/* keep a reference about the file that is playing right now. This is used especially for static playlist in order to know where to put the cursor of the current playing item */
+			playerProperties: [ "speed", "shuffled", "repeat", "time", "totaltime", "position", "percentage", "partymode", "playlistid", "type"]	/* now playing details */
 		},
 
 		scope:
@@ -41,19 +36,6 @@
 			},
 
 			/**
-			 * Initialize control business status
-			 */
-			init: function()
-			{
-				console.log("player.scope.init");
-
-				MCPi.player.vars.visible = false;
-
-				MCPi.player.scope.reset();
-				MCPi.player.scope.setId();
-			},
-
-			/**
 			 * Reset properties and variables
 			 */
 			reset: function()
@@ -72,53 +54,9 @@
 				MCPi.player.scope.props.percentage = 0;
 				MCPi.player.scope.props.partyMode = false;
 				MCPi.player.scope.props.playlistId = 0;
+
 				MCPi.player.vars.contentType = null;
-			},
-
-			/**
-			 * Define a persistent reference to chain player workflow by other.
-			 *
-			 * @param reference reference method from other library
-			 */
-			setPersistentReference: function(reference)
-			{
-				MCPi.player.vars.persistentReference = reference;
-			},
-
-			/**
-			 * Delete existent persistent reference
-			 */
-			delPersistentReference: function()
-			{
-				MCPi.player.vars.persistentReference = null;
-			},
-
-			/**
-			 * Set automatic refresh (only one time - immediately after the screen is make it visible)
-			 */
-			setRefresh: function()
-			{
-				console.log("player.scope.setRefresh");
-
-				if(!MCPi.player.vars.refreshProcessId && MCPi.player.vars.isInitialCall)
-				{
-					MCPi.player.vars.refreshProcessId = setInterval(MCPi.player.model.refresh, MCPi.player.vars.refreshInterval);
-					MCPi.player.vars.isInitialCall = false;
-				}
-			},
-
-			/**
-			 * Delete automatic refresh (should be called when the screen is made hidden)
-			 */
-			delRefresh: function()
-			{
-				console.log("player.scope.delRefresh");
-
-				if(MCPi.player.vars.refreshProcessId)
-				{
-					clearInterval(MCPi.player.vars.refreshProcessId);
-					MCPi.player.vars.refreshProcessId = null;
-				}
+				MCPi.player.vars.fileReference = null;
 			},
 
 			/**
@@ -129,6 +67,7 @@
 			setId: function(source)
 			{
 				console.log("player.scope.setId");
+				MCPi.global.scope.setEnabledQueue();
 
 				if(source != null) MCPi.json.call("Player.GetActivePlayers", {}, MCPi.player.scope.setIdCallback, source);
 					else MCPi.json.call("Player.GetActivePlayers", {}, MCPi.player.scope.setIdCallback);
@@ -143,7 +82,7 @@
 			setIdCallback: function(data, reference)
 			{
 				var chain = false;
-				console.log("player.scope.setIdCallback, JSON = " + JSON.stringify(data));
+				console.log("player.scope.setIdCallback");
 
 				//if player id exists: set player id and get player properties
 				if(data && data.result != '')
@@ -151,17 +90,17 @@
 					chain = true;
 					MCPi.player.id = data.result[0].playerid;
 
-					if(reference != null) MCPi.player.scope.setProperties(reference);
-						else MCPi.player.scope.setProperties();
+					//read player properties
+					MCPi.player.scope.setProperties(reference);
 				}
 				else
 				{
 					MCPi.player.vars.validData = false;
 					MCPi.player.scope.reset();
-				}
 
-				// call references if the execution chain is interrupted here
-				if(!chain) MCPi.player.scope.runChain(reference);
+					// call chain reference
+					MCPi.json.chain(reference);
+				}
 			},
 
 			/**
@@ -171,13 +110,14 @@
 			 */
 			setProperties: function(reference)
 			{
-				console.log("player.scope.setProperties, PlayerID = " + MCPi.player.id);
+				console.log("player.scope.setProperties(" + MCPi.player.id + ")");
 
 				if(MCPi.player.id >= 0)
 				{
-					if(reference != null) MCPi.json.call("Player.GetProperties", {"playerid": MCPi.player.id, "properties": MCPi.player.vars.playerProperties}, MCPi.player.scope.setPropertiesCallback, reference);
-						else MCPi.json.call("Player.GetProperties", {"playerid": MCPi.player.id, "properties": MCPi.player.vars.playerProperties}, MCPi.player.scope.setPropertiesCallback);
+					//get player properties
+					MCPi.json.call("Player.GetProperties", {"playerid": MCPi.player.id, "properties": MCPi.player.vars.playerProperties}, MCPi.player.scope.setPropertiesCallback, reference);
 				}
+				else MCPi.global.scope.setDisabledQueue();
 			},
 
 			/**
@@ -215,18 +155,15 @@
 						MCPi.player.scope.props.shuffled = data.result.shuffled;
 						MCPi.player.scope.props.speed = data.result.speed;
 						MCPi.player.scope.props.type = data.result.type;
-					}
 
-					if(MCPi.player.vars.validData && MCPi.player.model.isVisible())
-					{
-						if(reference != null) MCPi.player.scope.setPlayingItem(reference);
-							else MCPi.player.scope.setPlayingItem();
+						//if the panel is visible call to set the content, if not allow chain execution
+						if(MCPi.player.model.isVisible()) MCPi.player.scope.setPlayingItem(reference);
+							else chain = false;
 					}
-					else chain = false;
 				}
 
-				// call references if the execution chain is interrupted here
-				if(!chain) MCPi.player.scope.runChain(reference);
+				// call chain reference
+				if(!chain) MCPi.json.chain(reference);
 			},
 
 			/**
@@ -250,8 +187,7 @@
 						else if(MCPi.player.vars.contentType == "episode") properties = MCPi.json.props.episode;
 				}
 
-				if(reference != null) MCPi.json.call("Player.GetItem", {"playerid": MCPi.player.id, "properties":properties}, MCPi.player.scope.setPlayingItemCallback, reference);
-					else MCPi.json.call("Player.GetItem", {"playerid": MCPi.player.id, "properties":properties}, MCPi.player.scope.setPlayingItemCallback);
+				MCPi.json.call("Player.GetItem", {"playerid": MCPi.player.id, "properties":properties}, MCPi.player.scope.setPlayingItemCallback, reference);
 			},
 
 			/**
@@ -270,39 +206,43 @@
 				{
 					var text, item = data.result.item;
 
+					//get file reference of the playing item
+					MCPi.player.vars.fileReference = item.file;
+
+					//analyze and define the content of thumbnail
 					if(item.thumbnail != null && item.thumbnail != "" && item.thumbnail.indexOf("Default") < 0)
 					{
 						MCPi.player.model.props.thumbnail = MCPi.libs.formatAssetURL(item.thumbnail);
 					}
 					else MCPi.player.model.props.thumbnail = null;
 
-					if(MCPi.player.id == 0)
+					if(MCPi.player.id == 0)			//set audio content
 					{
-						if(MCPi.player.model.props.thumbnail == null) MCPi.player.model.props.thumbnail = "/resources/images/album.png";
+						if (MCPi.player.model.props.thumbnail == null) MCPi.player.model.props.thumbnail = "/resources/images/album.png";
 
-						if(item.title != null && item.title != "") MCPi.player.model.props.title = item.title;
-							else MCPi.player.model.props.title = null;
+						if (item.title != null && item.title != "") MCPi.player.model.props.title = item.title;
+						else MCPi.player.model.props.title = item.label;
 
 						text = [];
-						if(item.artist != null && item.artist != "") text[text.length] =  "<b>" + item.artist + "</b>";
-						if(item.album != null && item.album != "") text[text.length] = item.album;
+						if (item.artist != null && item.artist != "") text[text.length] = "<b>" + item.artist + "</b>";
+						if (item.album != null && item.album != "") text[text.length] = item.album;
 
-						if(text.length > 0) MCPi.player.model.props.description1 = text.join(" &bull; ");
-								else MCPi.player.model.props.description1 = null;
+						if (text.length > 0) MCPi.player.model.props.description1 = text.join(" &bull; ");
+						else MCPi.player.model.props.description1 = null;
 
-						if(item.year != null && item.year != '') MCPi.player.model.props.description2 = item.year;
-							else MCPi.player.model.props.description2 = null;
+						if (item.year != null && item.year != '') MCPi.player.model.props.description2 = item.year;
+						else MCPi.player.model.props.description2 = null;
 
 						MCPi.player.vars.contentType = item.type;
 					}
-					else if(MCPi.player.id == 1)
+					else if(MCPi.player.id == 1)	//set video content
 					{
 						if(MCPi.player.model.props.thumbnail == null) MCPi.player.model.props.thumbnail = "/resources/images/video.png";
 
 						if(MCPi.player.vars.contentType == "movie")
 						{
 							if(item.title != null && item.title != "") MCPi.player.model.props.title = item.title;
-								else MCPi.player.model.props.title = null;
+								else MCPi.player.model.props.title = item.label;
 
 							text = [];
 							if(item.genre != null && item.genre.length > 3) item.genre.splice(3);
@@ -318,7 +258,7 @@
 						else if(MCPi.player.vars.contentType == "episode")
 						{
 							if(item.title != null && item.title != "") MCPi.player.model.props.title = item.title;
-								else MCPi.player.model.props.title = null;
+								else MCPi.player.model.props.title = item.label;
 
 							if(item.showtitle != null) MCPi.player.model.props.description1 = "<b>" +item.showtitle + "</b>";
 								else MCPi.player.model.props.description1= null;
@@ -329,7 +269,7 @@
 							if(item.rating != null) text[text.length] = item.rating.toFixed(1);
 
 							if(text.length > 0) MCPi.player.model.props.description2 = text.join(" &bull; ");
-									else MCPi.player.model.props.description2 = null;
+								else MCPi.player.model.props.description2 = null;
 
 						}
 						else if(MCPi.player.vars.contentType == null)
@@ -343,20 +283,18 @@
 							MCPi.player.model.props.description2 = null;
 
 							MCPi.player.vars.contentType = item.type;
-							MCPi.player.scope.getPlayingItem(reference);
+							MCPi.player.scope.setPlayingItem(reference);
 						}
 					}
 
 					//allow screen details to become visible and display them
 					MCPi.player.vars.validData = true;
 				}
-				else
-				{
-					MCPi.player.vars.validData = false;
-				}
+				else MCPi.player.vars.validData = false;
 
-				// call references if the execution chain is interrupted here
-				if(!chain) MCPi.player.scope.runChain(reference);
+
+				// call chain reference
+				if(!chain) MCPi.json.chain(reference);
 			},
 
 			/**
@@ -368,8 +306,7 @@
 			{
 				console.log("player.scope.setVolume");
 
-				if(reference != null) MCPi.json.call("Application.GetProperties", {"properties":["volume", "muted"]}, MCPi.player.scope.setVolumeCallback, reference);
-					else MCPi.json.call("Application.GetProperties", {"properties":["volume", "muted"]}, MCPi.player.scope.setVolumeCallback);
+				MCPi.json.call("Application.GetProperties", {"properties":["volume", "muted"]}, MCPi.player.scope.setVolumeCallback, reference);
 			},
 
 			/**
@@ -389,25 +326,7 @@
 				}
 
 				//call chain reference
-				if(reference != null) MCPi.json.chain(reference);
-			},
-
-			/**
-			 * Execute workflow reference and also execute persistent reference.
-			 * A persistent reference is set when the player has to be chained by other
-			 * module (library, e.g. music current playlist)
-			 *
-			 * @param reference this is the workflow reference
-			 */
-			runChain: function(reference)
-			{
-				console.log("player.scope.runChain");
-
-				//call workflow reference
-				if(reference != null) MCPi.json.chain(reference);
-
-				//call persistent reference
-				if(MCPi.player.vars.persistentReference != null) MCPi.json.chain(MCPi.player.vars.persistentReference);
+				MCPi.json.chain(reference);
 			}
 		},
 
@@ -429,16 +348,10 @@
 				console.log("player.model.show");
 
 				MCPi.player.vars.visible = true;
-				MCPi.player.vars.isInitialCall = true;
+				$('#nowPlayingButton span').removeClass("text-primary");
 
+				MCPi.global.scope.addReference(MCPi.player.model.setContent, false);
 				MCPi.player.scope.setId(MCPi.player.model.setContent);
-				MCPi.player.scope.setRefresh();
-
-				if(MCPi.music.model.isNowPlayingVisible())
-				{
-					MCPi.music.scope.delRefresh();
-					MCPi.player.scope.setPersistentReference(MCPi.music.model.refresh);
-				}
 			},
 
 			/**
@@ -450,21 +363,9 @@
 
 				MCPi.player.vars.visible = false;
 				$('#nowPlayingButton').removeClass('active');
+				$('#nowPlayingButton span').addClass("text-primary");
 
-				MCPi.player.scope.delRefresh();
-				MCPi.player.scope.delPersistentReference();
-
-				if(MCPi.music.model.isNowPlayingVisible()) MCPi.music.scope.setRefresh();
-			},
-
-			/**
-			 * Run automatic refresh routine. Run action to refresh and rebuild screen content
-			 */
-			refresh: function()
-			{
-				console.log("player.scope.refresh");
-
-				MCPi.player.scope.setId(MCPi.player.model.setContent);
+				MCPi.global.scope.delReference(MCPi.player.model.setContent);
 			},
 
 			/**
@@ -480,6 +381,7 @@
 			setContent: function(reference)
 			{
 				console.log("player.model.setContent");
+				MCPi.global.scope.setEnabledQueue();
 
 				if(MCPi.player.vars.validData)
 				{
@@ -517,8 +419,8 @@
 					$('#playItemFanart').attr('src', "#");
 				}
 
-				//call workflow reference
-				if(reference != null) MCPi.json.chain(reference);
+				// call chain reference
+				MCPi.json.chain(reference);
 			}
 		}
 	}

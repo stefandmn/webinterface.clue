@@ -22,9 +22,9 @@
 
 			props:
 			{
-				audio: ['title', 'artist', 'album', 'year', 'genre', 'thumbnail', 'fanart', 'rating'],
-				movie: ['title', 'set', 'genre', 'year', 'rating', 'fanart', 'thumbnail'],
-				episode: ['title', 'showtitle', 'season', 'episode', 'rating', 'fanart', 'thumbnail']
+				audio: ['title', 'artist', 'album', 'year', 'genre', 'thumbnail', 'fanart', 'rating', 'file'],
+				movie: ['title', 'set', 'genre', 'year', 'rating', 'fanart', 'thumbnail', 'file'],
+				episode: ['title', 'showtitle', 'season', 'episode', 'rating', 'fanart', 'thumbnail', 'file']
 			},
 
 			/**
@@ -38,6 +38,8 @@
 			 */
 			call: function (method, params, callback, reference)
 			{
+				console.log("  > json.call");
+
 				var request, data =
 				{
 					'id': 1,
@@ -55,8 +57,23 @@
 						success: function (output)
 						{
 							//process references
-							if(reference != null) callback(output, reference);
-								else callback(output);
+							if(reference != null)
+							{
+								console.log("    > callback(output,reference)");
+								callback(output, reference);
+							}
+							else
+							{
+								console.log("    > callback(output)");
+								callback(output);
+							}
+
+							MCPi.global.model.setOkStatus();
+						},
+						error: function(output)
+						{
+							var msg = MCPi.json.error(output);
+							MCPi.global.model.setErrorStatus(msg);
 						}
 					});
 				}
@@ -73,9 +90,36 @@
 							{
 								var source = reference.source;
 
-								if(reference.params != null) source(reference.params);
-									else source();
+								if(reference.params != null)
+								{
+									console.log("    > source(params)");
+									source(reference.params);
+								}
+								else
+								{
+									console.log("    > source()");
+									source();
+								}
 							}
+							else if(reference.origin != null)
+							{
+								console.log("    > origin");
+
+								//call chain reference
+								MCPi.global.scope.runReference(reference.origin);
+							}
+							else
+							{
+								console.log("    > reference");
+								reference();
+							}
+
+							MCPi.global.model.setOkStatus();
+						},
+						error: function(output)
+						{
+							var msg = MCPi.json.error(output);
+							MCPi.global.model.setErrorStatus(msg);
 						}
 					});
 				}
@@ -101,10 +145,16 @@
 			{
 				if(output && output.error)
 				{
-					var errorMsg = "Error (" + output.error.code + "): " + output.error.message;
+					var errorMsg = null;
 
-					if(output.error.data && output.error.data.method) errorMsg +="\n\tMethod: " + output.error.data.method;
-					if(output.error.data && output.error.data.stack && output.error.data.stack.message) errorMsg +="\n\tDetails: " + output.error.data.stack.message;
+					if(output.error.code  && output.error.message)
+					{
+						errorMsg = "Error (" + output.error.code + "): " + output.error.message;
+
+						if(output.error.data && output.error.data.method) errorMsg +="\n\tMethod: " + output.error.data.method;
+						if(output.error.data && output.error.data.stack && output.error.data.stack.message) errorMsg +="\n\tDetails: " + output.error.data.stack.message;
+					}
+					else errorMsg = "Connection lost";
 
 					return errorMsg;
 				}
@@ -118,21 +168,52 @@
 			 */
 			chain: function(reference)
 			{
+				console.log("  > json.chain");
+
 				//process references
 				if(reference != null)
 				{
-					//run a source reference
-					if(reference.source)
+					if(reference.source != null)
 					{
 						var source = reference.source;
 
-						if(reference.params != null) source(reference.params);
-							else source();
+						if(reference.params != null)
+						{
+							console.log("    > source(params)");
+							source(reference.params);
+
+							//closing reference chain
+							if(reference.params.source == null) MCPi.global.scope.setDisabledQueue();
+						}
+						else
+						{
+							console.log("    > source()");
+							source();
+
+							//closing reference chain
+							MCPi.global.scope.setDisabledQueue();
+						}
+					}
+					else if(reference.origin != null)
+					{
+						console.log("    > origin");
+
+						//call chain reference
+						MCPi.global.scope.runReference(reference.origin);
 					}
 					else
 					{
+						console.log("    > reference");
 						reference();
+
+						//closing reference chain
+						MCPi.global.scope.setDisabledQueue();
 					}
+				}
+				else
+				{
+					//closing reference chain
+					MCPi.global.scope.setDisabledQueue();
 				}
 			}
 		},
@@ -141,17 +222,162 @@
 		{
 			vars:
 			{
-				currentScreen: "#home"
+				timerInterval: 15500,		/* interval time (in ms) to run reference queue */
+				timerProcessId: null,		/* timer process id - if this is not null means that the reference queue has been scheduled */
+				timerReferences: [],		/* reference functions that are in queue of execution */
+				runningInQueue: false,		/* show if function(s) that registered in queue are currently running. In this situation the queue will not run over */
+				currentScreen: "#home",		/* current screen name */
+				userActionIdentifier: null	/* this is the tag object instance used to identify the current serialized user action that is run locking the screen or a screen area during execution */
 			},
 
 			scope:
 			{
+				/**
+				 * Initialize MCPi web component: the player is reset, set the reference queue and in in it set player id function and
+				 * set home page screen content.
+				 */
 				init: function()
 				{
 					console.log("global.scope.init");
 
-					MCPi.player.scope.init();
+					MCPi.player.scope.reset();
+
+					MCPi.global.scope.addReference(MCPi.player.scope.setId);
+					MCPi.global.scope.setReferenceTimer();
+
 					MCPi.global.model.setContent(MCPi.global.vars.currentScreen);
+				},
+
+				/**
+				 * Activate the semaphore of reference queue to not run in parallel many instances
+				 */
+				setEnabledQueue: function(id)
+				{
+					MCPi.global.vars.runningInQueue = true;
+					if(id != null) MCPi.global.model.startUserAction(id);
+				},
+
+				/**
+				 * Disable the semaphore of reference queue to allow running the queue
+				 */
+				setDisabledQueue: function()
+				{
+					MCPi.global.vars.runningInQueue = false;
+					MCPi.global.model.stopUserAction();
+				},
+
+				/**
+				 * Check is the reference queue is running.
+				 *
+				 * @returns boolean true if there is a method (or a linked one) from reference queue which is currently running
+				 */
+				isRunningQueue: function()
+				{
+					return MCPi.global.vars.runningInQueue;
+				},
+
+				/**
+				 * Check is the reference queue is not running.
+				 *
+				 * @returns boolean true if any method (or a linked one) from reference queue are not running
+				 */
+				isNotRunningQueue: function()
+				{
+					return !MCPi.global.scope.isRunningQueue();
+				},
+
+				/**
+				 * Set automatic queue execution (only one time - immediately after the application is initialized)
+				 */
+				setReferenceTimer: function()
+				{
+					console.log("global.scope.setReferenceTimer");
+
+					if(MCPi.global.vars.timerProcessId == null)
+					{
+						MCPi.global.vars.timerProcessId = setInterval(MCPi.global.scope.runReference, MCPi.global.vars.timerInterval);
+					}
+				},
+
+				/**
+				 * Execute the first reference from queue in case of the input parameter is null or the next reference from queue
+				 * when the input reference is specified.
+				 *
+				 * @param reference current reference (function that is executed)
+				 */
+				runReference: function(reference)
+				{
+					console.log("global.scope.runReference");
+
+					if(reference == null && MCPi.global.vars.timerReferences.length > 0)
+					{
+						if(MCPi.global.scope.isNotRunningQueue())
+						{
+							console.log("  > queue(init)");
+							var initFunction = MCPi.global.vars.timerReferences[0];
+							initFunction({"origin":initFunction});
+						}
+						else
+						{
+							console.log("  > queue(skip)");
+							MCPi.global.scope.setDisabledQueue();
+						}
+					}
+					else if(reference != null && MCPi.global.vars.timerReferences.length > 0)
+					{
+						var nextFunction = null;
+						var index = MCPi.global.vars.timerReferences.indexOf(reference);
+
+						if (index >= 0 && MCPi.global.vars.timerReferences.length > index + 1)
+						{
+							console.log("  > queue(next)");
+							nextFunction = MCPi.global.vars.timerReferences[index + 1];
+							nextFunction({"origin": nextFunction});
+						}
+						else
+						{
+							console.log("  > queue(end)");
+							MCPi.global.scope.setDisabledQueue();
+						}
+					}
+				},
+
+				/**
+				 * Add new function reference in queue.
+				 *
+				 * @param reference function reference
+				 * @param now decide if the reference is executed after queue registration. If is null or true will be executed
+				 */
+				addReference: function(reference, now)
+				{
+					console.log("global.scope.addReference");
+
+					if(reference != null)
+					{
+						if(now == null || now == true) reference();
+
+						var index = MCPi.global.vars.timerReferences.indexOf(reference);
+						if(index < 0) MCPi.global.vars.timerReferences.push(reference);
+					}
+				},
+
+				/**
+				 * Delete the specified reference from queue.
+				 *
+				 * @param reference function reference
+				 * @param now decide if the reference is executed after queue registration. If is null or true will be executed
+				 */
+				delReference: function(reference, now)
+				{
+					console.log("global.scope.delReference");
+
+					if(reference != null)
+					{
+						var index = MCPi.global.vars.timerReferences.indexOf(reference);
+						if(index < 0) MCPi.global.vars.timerReferences.splice(index, 1);
+
+						if(now == null || now == true) reference();
+					}
 				}
 			},
 
@@ -182,7 +408,7 @@
 				 */
 				setContent: function(name)
 				{
-					console.log("global.model.setContent");
+					console.log("global.model.setContent(" + name + ")");
 
 					if(MCPi.global.vars.currentScreen != name)
 					{
@@ -204,10 +430,11 @@
 				{
 					var obj, text = '<div class="text-center wait-overlay"><i class="fa fa-spinner fa-spin fa-5x"></i></div>';
 
-					if(id == null) obj = $('body');
-						else obj = $(id);
+					if(jQuery.type(id) === "string") obj = $(id);
+							else if(jQuery.type(id) === "object") obj = id;
+								else obj = null;
 
-					if(obj.children('.wait-overlay').length == 0)
+					if(obj && obj.children('.wait-overlay').length == 0)
 					{
 						obj.append(text);
 					}
@@ -226,9 +453,14 @@
 					var obj;
 
 					if(id == null) obj = $('body');
-						else obj = $(id);
+					else
+					{
+						if(jQuery.type(id) === "string") obj = $(id);
+							else if(jQuery.type(id) === "object") obj = id;
+								else obj = null;
+					}
 
-					if(obj.children('.wait-overlay').length > 0)
+					if(obj && obj.children('.wait-overlay').length > 0)
 					{
 						obj.children('.wait-overlay').css('display', 'none');
 						obj.children('.wait-overlay').remove();
@@ -240,6 +472,65 @@
 					// set the message to display: none to fade it in later.
 					$('#errorMessageDialog p').html(text);
 					$('#errorMessageDialog').modal('show');
+				},
+
+				/**
+				 * Set 'ok' status (and a corresponding graphical sign in navigation bar) when
+				 * the transaction has been performed without errors
+				 *
+				 * @param msg test message to be written as title of the graphical icon
+				 */
+				setOkStatus: function(msg)
+				{
+					console.log("global.model.setOkStatus");
+
+					$('#brandStatus').html('<i class="fa fa-circle-o-notch fa-spin text-primary"' + (msg != null ? '" title="' + msg + '">' : '>') + '</i>');
+				},
+
+				/**
+				 * Set 'error' status (and a corresponding graphical sign in navigation bar) when
+				 * the transaction has been performed with errors
+				 *
+				 * @param msg test message to be written as title of the graphical icon
+				 */
+				setErrorStatus: function(msg)
+				{
+					console.log("global.model.setErrorStatus");
+					MCPi.global.scope.setDisabledQueue();
+
+					$('#brandStatus').html('<i class="fa fa-ban text-danger"' + (msg != null ? '" title="' + msg + '">' : '>') + '</i>');
+				},
+
+				/**
+				 * This is a GUI function to send a signal to Window Manager that an user action started and the screen will be locked
+				 * until the end of action's execution
+				 *
+				 * @param id this is the identifier of the screen (to apply locking indicator) or a screen area identifier.
+				 */
+				startUserAction: function(id)
+				{
+					console.log("global.model.startUserAction");
+
+					if(id == null) MCPi.global.vars.userActionIdentifier = $('body');
+						else MCPi.global.vars.userActionIdentifier = $(id);
+
+					MCPi.global.model.setWaitOn(MCPi.global.vars.userActionIdentifier);
+				},
+
+				/**
+				 * This is a GUI function to send a signal to Window Manager that an user action finished his action and
+				 * the screen have to be unlocked. In case of <code>startUserAction</code> function has been executed this current
+				 * function is be able to revoke GUI behavior (initiated by the opposite function)
+				 */
+				stopUserAction: function()
+				{
+					if(MCPi.global.vars.userActionIdentifier != null)
+					{
+						console.log("global.model.stopUserAction");
+
+						MCPi.global.model.setWaitOff(MCPi.global.vars.userActionIdentifier);
+						MCPi.global.vars.userActionIdentifier = null;
+					}
 				}
 			}
 		},
@@ -332,14 +623,12 @@
 		$('#nowPlayingContainer').on('show.bs.collapse',function (e)
 		{
 			MCPi.player.model.show();
-			$('#nowPlayingButton span').removeClass("text-primary");
 		});
 
 		//collapse nowplaying container panel
 		$('#nowPlayingContainer').on('hide.bs.collapse',function (e)
 		{
 			MCPi.player.model.hide();
-			$('#nowPlayingButton span').addClass("text-primary");
 		});
 
 		//register and then handle the click events from drop down options related to latest entries from each list published on home panel screen
@@ -369,14 +658,14 @@
 			MCPi.home.scope.setLatestEpisodes()
 		});
 
-		//expand music screen panel
-		$('#music').on('show.bs.collapse', function(e)
+		//expand audio screen panel
+		$('#audio').on('show.bs.collapse', function(e)
 		{
 			MCPi.music.model.show();
 		});
 
-		//collapse music screen panel
-		$('#music').on('hide.bs.collapse', function(e)
+		//collapse audio screen panel
+		$('#audio').on('hide.bs.collapse', function(e)
 		{
 			MCPi.music.model.hide();
 		});
@@ -394,16 +683,19 @@
 		//register and then handle the click events for all buttons and links from music screen panel
 		$(document).on('click', '[data-clickthrough=music]', MCPi.music.model.onClick);
 
-		$('#movies').on('show.bs.collapse', function(e)
+		//expand video screen panel
+		$('#video').on('show.bs.collapse', function(e)
 		{
 			//
 		});
 
-		$('#photos').on('show.bs.collapse', function(e)
+		//collapse video screen panel
+		$('#video').on('show.bs.collapse', function(e)
 		{
 			//
 		});
 
+		/** Initialize Clue MCPi WebInterface module */
 		MCPi.global.scope.init();
 	})
 
