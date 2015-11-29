@@ -596,9 +596,8 @@
 
 				if(image == null || image == "" || image.indexOf("DefaultAlbumCover") >= 0) image = "/resources/images/album.png";
 					else image = MCPi.libs.formatAssetURL(image);
-console.log("TEST: " + file + " = " + MCPi.player.vars.fileReference);
 				return $([
-					'<div class="row' + (showFixed ? ' item' : '') + '" id="listitem-' + index + '" data-refid="' + songid + '"' + (showFixed ? ' style="cursor:default;"' : '') + '>' +
+					'<div class="row' + (!showFixed ? ' item' : '') + '" id="listitem-' + index + '" data-refid="' + songid + '"' + (showFixed ? ' style="cursor:default;"' : '') + '>' +
 					'	<div class="col-md-12">' +
 					'		<div class="dropdown">' +
 					'			<div class="media thumbnail">' +

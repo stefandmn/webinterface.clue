@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="webinterface.clue" version="1.0.24" name="Clue Web Interface" provider-name="AMSD">
+<addon id="webinterface.clue" version="1.0.37" name="Clue Web Interface" provider-name="AMSD">
 	<requires>
 		<import addon="xbmc.json" version="6.0.0"/>
 	</requires>
-	<extension point="xbmc.gui.webinterface"/>
+	<extension point="xbmc.webinterface"/>
 	<extension point="xbmc.addon.metadata">
 		<summary>Web Interface for MCPi</summary>
 		<description lang="de">Mit diesem Web Interface laesst sich die Audio- und Video-Sektion: play/pause/stop/skip, sowie Anzeigen/Abspielen von Interpreten/Alben/Filmen/Serien. Es wurde fuer den Einsatz an einem PC oder Laptop mit einem JavaScript-faehigen Browser wie FireFox entwickelt</description>
