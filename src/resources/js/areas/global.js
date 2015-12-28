@@ -222,12 +222,18 @@
 		{
 			vars:
 			{
-				timerInterval: 15500,		/* interval time (in ms) to run reference queue */
-				timerProcessId: null,		/* timer process id - if this is not null means that the reference queue has been scheduled */
-				timerReferences: [],		/* reference functions that are in queue of execution */
-				runningInQueue: false,		/* show if function(s) that registered in queue are currently running. In this situation the queue will not run over */
-				currentScreen: "#home",		/* current screen name */
-				userActionIdentifier: null	/* this is the tag object instance used to identify the current serialized user action that is run locking the screen or a screen area during execution */
+				/* Time interval (in ms) to run reference queue */
+				timerInterval: 20000,
+				/* Timer process id - if this is not null means that the reference queue has been scheduled */
+				timerProcessId: null,
+				/* Reference functions that are in queue of execution */
+				timerReferences: [],
+				/* Show if function(s) that registered in queue are currently running. In this situation the queue will not run over */
+				runningInQueue: false,
+				/* Current screen name */
+				currentScreen: "#home",
+				/* This is the tag object instance used to identify the current serialized user action that is run locking the screen or a screen area during execution */
+				userActionIdentifier: null
 			},
 
 			scope:

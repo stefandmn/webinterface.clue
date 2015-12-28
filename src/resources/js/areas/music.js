@@ -68,7 +68,7 @@
 						MCPi.music.vars.fillInNowPlayingQueue = false;
 
 						//in case of Now Playing panel is visible you have to refresh it
-						if(MCPi.player.model.isVisible()) MCPi.player.model.setContent();
+						if(MCPi.player.model.isVisible()) MCPi.player.scope.setId(MCPi.player.model.setContent);
 					}
 				}
 				else

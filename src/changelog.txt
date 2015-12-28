@@ -1,7 +1,12 @@
+v1.3
+- Improve NowPlaying screen with player controls
+- Implementation of playlists management
+- Adapted for Kodi 15 and 16
+
 v1.0
 - New logo and favorite icon
 - Implementation of Music screen
 - Implement the Home page and Now Playing controls
 - Redesign the whole design and concept. Use the latest Bootstrap version
-- Adapted for Kodi v15
+- Adapted for Kodi v14
 - Reuse and optimize components from other webinterface add-ons (default and flecks)

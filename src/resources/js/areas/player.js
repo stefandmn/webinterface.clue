@@ -9,12 +9,18 @@
 
 		vars:
 		{
-			visible: false,			/* describe visibility of 'Now Playing' panel */
-			validData: false,		/* check if valid data has been found (about what media content is playing now) and if is true will allow setContent method to render data */
-			contentType: null,		/* used especially to identify the video content type (movie or tvshow episode) in order to now what JSON query to use to get the playing data */
-			playerHashcode: null,	/* is the hashcode of now playing data in order to know if the data has been changed to render it again or not, or for other comparing actions */
-			fileReference: null,	/* keep a reference about the file that is playing right now. This is used especially for static playlist in order to know where to put the cursor of the current playing item */
-			playerProperties: [ "speed", "shuffled", "repeat", "time", "totaltime", "position", "percentage", "partymode", "playlistid", "type"]	/* now playing details */
+			/* Describe visibility of 'Now Playing' panel */
+			visible: false,
+			/* Check if valid data has been found (about what media content is playing now) and if is true will allow setContent method to render data */
+			validData: false,
+			/* Used especially to identify the video content type (movie or tvshow episode) in order to now what JSON query to use to get the playing data */
+			contentType: null,
+			/* It is the hashcode of now playing data in order to know if the data has been changed to render it again or not, or for other comparing actions */
+			playerHashcode: null,
+			/* Keep a reference about the file that is playing right now. This is used especially for static playlist in order to know where to put the cursor of the current playing item */
+			fileReference: null,
+			/* Details of now playing srceen/control */
+			playerProperties: [ "speed", "shuffled", "repeat", "time", "totaltime", "position", "percentage", "partymode", "playlistid", "type"]
 		},
 
 		scope:

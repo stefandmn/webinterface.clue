@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="webinterface.clue" version="1.0.38" name="Clue Web Interface" provider-name="AMSD">
+<addon id="webinterface.clue" version="1.3.1" name="Clue" provider-name="AMSD">
 	<requires>
 		<import addon="xbmc.json" version="6.0.0"/>
 	</requires>
 	<extension point="xbmc.webinterface"/>
 	<extension point="xbmc.addon.metadata">
 		<summary>Web Interface for MCPi</summary>
-		<description lang="de">Mit diesem Web Interface laesst sich die Audio- und Video-Sektion: play/pause/stop/skip, sowie Anzeigen/Abspielen von Interpreten/Alben/Filmen/Serien. Es wurde fuer den Einsatz an einem PC oder Laptop mit einem JavaScript-faehigen Browser wie FireFox entwickelt</description>
 		<description lang="en">You can use this web interface to control remotely most of the functions provided: play/pause/stop/skip, show artists/albums/movies/tv shows and play them or add them to the playlist. It's designed for use on PCs or laptops with a browser which supports JavaScript</description>
-		<description lang="fr">Cette interface web peut être utilisée pour contrôler tout ce qui concerne l'audio et la vidéo: Lecture/Pause/Arrêt/Suivant, affichage des artistes, albums, films et séries TV, avec la possibilité de les lire ou de les ajouter à la liste de lecture. Elle est conçue pour être utilisés sur un ordinateur fixe ou portable à l'aide d'un navigateur supportant le JavaScript</description>
-		<description lang="en">Poti folosi interfata web pentru a controla remote cea mai mare parte a functionalitatilor implementate: redare/pauza/stop/skip, arată artisti/albume/filme/emisiuni TV si redați-le sau să le adăugați în lista de redare. Este proiectat pentru a fi utilizat pe PC-uri sau laptop-uri cu un browser care suporta JavaScript</description>
 		<platform>all</platform>
+		<language>en</language>
 	</extension>
 </addon>
