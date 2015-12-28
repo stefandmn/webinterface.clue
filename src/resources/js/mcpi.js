@@ -23,8 +23,7 @@
 			"resources/js/areas/system.js",
 			"resources/js/areas/home.js",
 			"resources/js/areas/music.js",
-			"resources/js/areas/movies.js",
-			"resources/js/areas/photos.js"
+			"resources/js/areas/movies.js"
 		];
 
 	for (i = 0; i < scripts.length; i += 1)
