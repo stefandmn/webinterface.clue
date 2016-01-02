@@ -1,4 +1,6 @@
 v1.3
+- New code optimization and reorganization and define addon API
+- Update bootstrap and jquery to the latest versions (3.3.6 and 1.11.3)
 - Improve NowPlaying screen with player controls
 - Implementation of playlists management
 - Adapted for Kodi 15 and 16

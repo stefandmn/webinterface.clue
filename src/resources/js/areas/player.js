@@ -3,431 +3,537 @@
 	'use strict';
 	var MCPi = window.MCPi;
 
-	MCPi.player =
+	MCPi.Player =
 	{
 		id: -1,
 
 		vars:
 		{
-			/* Describe visibility of 'Now Playing' panel */
-			visible: false,
-			/* Check if valid data has been found (about what media content is playing now) and if is true will allow setContent method to render data */
-			validData: false,
+			/* Check if valid properties have been found (about what media content is playing now) and if is true will allow to detected GUI data for rendering */
+			allowData: false,
 			/* Used especially to identify the video content type (movie or tvshow episode) in order to now what JSON query to use to get the playing data */
-			contentType: null,
-			/* It is the hashcode of now playing data in order to know if the data has been changed to render it again or not, or for other comparing actions */
-			playerHashcode: null,
-			/* Keep a reference about the file that is playing right now. This is used especially for static playlist in order to know where to put the cursor of the current playing item */
-			fileReference: null,
-			/* Details of now playing srceen/control */
-			playerProperties: [ "speed", "shuffled", "repeat", "time", "totaltime", "position", "percentage", "partymode", "playlistid", "type"]
+			contentType: null
 		},
 
-		scope:
+		props:
 		{
-			props:
+			speed: 0,
+			shuffled: false,
+			repeat: "off",
+			volume: 0,
+			time: 0,
+			type: null,
+			totalTime: 0,
+			position: 0,
+			percentage: 0,
+			mute: false,
+			partymode: false,
+			playlistid: 0
+		},
+
+		data:
+		{
+			title: null,
+			description1: null,
+			description2: null,
+			thumbnail: null,
+			reference: null
+		},
+
+		const:
+		{
+			/* Details of now playing screen/control */
+			properties: ["speed", "shuffled", "repeat", "time", "totaltime", "position", "percentage", "partymode", "playlistid", "type"]
+		},
+
+		/**
+		 * Reset properties and variables
+		 */
+		reset: function ()
+		{
+			console.log("Player.reset");
+			MCPi.Player.id = -1;
+
+			MCPi.Player.props.speed = 0;
+			MCPi.Player.props.shuffled = false;
+			MCPi.Player.props.repeat = "off";
+			MCPi.Player.props.time = 0;
+			MCPi.Player.props.type = null;
+			MCPi.Player.props.totalTime = 0;
+			MCPi.Player.props.position = 0;
+			MCPi.Player.props.percentage = 0;
+			MCPi.Player.props.partymode = false;
+			MCPi.Player.props.playlistid = 0;
+
+			MCPi.Player.props.volume = 100;
+			MCPi.Player.props.mute = false;
+
+			MCPi.Player.vars.allowData = false;
+			MCPi.Player.vars.contentType = null;
+			MCPi.Player.vars.fileReference = null;
+		},
+
+		/**
+		 * Get player Id. This is a standard method for a generic MCPi object. This type of method should use the
+		 * parameters (in the function signature) described below and it is implemented in the way to be used itself
+		 * for callback procedure.
+		 *
+		 * @param input input value of structure (could be any data type). The input parameter is included in the reference structure
+		 * 	to be able to be used in the callback implementation part
+		 * @param output data structure received from server that should contain the callback processing details. Initially this parameter
+		 * 	should be null and it will be filled by callback call
+		 * @param chain data structure for chained method execution, to define a process flow. A chain structure is a JSON message and it
+		 * 	could have the following attributes:
+		 * 		- [<code>input: describes the input value or structure]
+		 * 		- [<code>callback</code>: indicates the callback method; usually should be the same method name/signature]
+		 * 		- [<code>onsuccess</code>: function/method to be called when the JSON call is executed with success]
+		 * 		- [<code>onerror</code>: function/method to be called when the JSON call is executed with errors]
+		 * 		- [<code>nextcall</code>: function/method to be called after JSON call, even if the call is executed with success or errors]
+		 * 		- [<code>chain</code>: next chain structure to be called]
+		 */
+		getId: function (input, output, chain)
+		{
+			if(output == null)
 			{
-				speed: 0,
-				shuffled: false,
-				repeat: "off",
-				volume: 0,
-				time: 0,
-				type: null,
-				totalTime: 0,
-				position: 0,
-				percentage: 0,
-				isMuted: false,
-				partyMode: false,
-				playlistId: 0
-			},
+				console.log("Player.getId");
+				var reference = {"input":input, "callback":MCPi.Player.getId, "chain":chain};
 
-			/**
-			 * Reset properties and variables
-			 */
-			reset: function()
+				MCPi.json.call("Player.GetActivePlayers", {}, reference);
+			}
+			else
 			{
-				console.log("player.scope.reset");
+				console.log("Player.getId-Callback");
+				if (output && output.result != '') MCPi.Player.id = output.result[0].playerid;
+			}
+		},
 
-				MCPi.player.id = -1;
-
-				MCPi.player.scope.props.speed = 0;
-				MCPi.player.scope.props.shuffled = false;
-				MCPi.player.scope.props.repeat = "off";
-				MCPi.player.scope.props.time = 0;
-				MCPi.player.scope.props.type = null;
-				MCPi.player.scope.props.totalTime = 0;
-				MCPi.player.scope.props.position = 0;
-				MCPi.player.scope.props.percentage = 0;
-				MCPi.player.scope.props.partyMode = false;
-				MCPi.player.scope.props.playlistId = 0;
-
-				MCPi.player.vars.contentType = null;
-				MCPi.player.vars.fileReference = null;
-			},
-
-			/**
-			 * Set player identifier
-			 *
-			 * @param source transfer callback function to be executed after the current callback chain is executed
-			 */
-			setId: function(source)
+		/**
+		 * Get the properties of the current player.
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		getProperties: function (input, output, chain)
+		{
+			if(output == null)
 			{
-				console.log("player.scope.setId");
-				MCPi.global.scope.setEnabledQueue();
+				console.log("Player.getProperties(" + MCPi.Player.id + ")");
 
-				if(source != null) MCPi.json.call("Player.GetActivePlayers", {}, MCPi.player.scope.setIdCallback, source);
-					else MCPi.json.call("Player.GetActivePlayers", {}, MCPi.player.scope.setIdCallback);
-			},
-
-			/**
-			 * Callback method of set player identifier. Receive data from server and set the corresponding properties.
-			 *
-			 * @param data data structure received from server
-			 * @param reference another callback function to be transferred to functions that are called inside
-			 */
-			setIdCallback: function(data, reference)
-			{
-				var chain = false;
-				console.log("player.scope.setIdCallback");
-
-				//if player id exists: set player id and get player properties
-				if(data && data.result != '')
+				if (MCPi.Player.id >= 0)
 				{
-					chain = true;
-					MCPi.player.id = data.result[0].playerid;
-
-					//read player properties
-					MCPi.player.scope.setProperties(reference);
+					var reference = {"input":input, "callback":MCPi.Player.getProperties, "chain":chain};
+					MCPi.json.call("Player.GetProperties", {"playerid":MCPi.Player.id, "properties":MCPi.Player.const.properties}, reference);
 				}
-				else
-				{
-					MCPi.player.vars.validData = false;
-					MCPi.player.scope.reset();
-
-					// call chain reference
-					MCPi.json.chain(reference);
-				}
-			},
-
-			/**
-			 * Set the properties of the current player.
-			 *
-			 * @param reference transfer callback function to be executed after the current callback chain is executed
-			 */
-			setProperties: function(reference)
+			}
+			else
 			{
-				console.log("player.scope.setProperties(" + MCPi.player.id + ")");
+				console.log("Player.getProperties-Callback");
 
-				if(MCPi.player.id >= 0)
+				if (output && output.result)
 				{
-					//get player properties
-					MCPi.json.call("Player.GetProperties", {"playerid": MCPi.player.id, "properties": MCPi.player.vars.playerProperties}, MCPi.player.scope.setPropertiesCallback, reference);
+					MCPi.Player.props.playlistid = output.result.playlistid;
+					MCPi.Player.props.partymode = output.result.partymode;
+					MCPi.Player.props.position = output.result.position;
+					MCPi.Player.props.percentage = Math.round(output.result.percentage);
+					MCPi.Player.props.time = MCPi.libs.timeToDuration(output.result.time);
+					MCPi.Player.props.totalTime = MCPi.libs.timeToDuration(output.result.totaltime);
+					MCPi.Player.props.repeat = output.result.repeat;
+					MCPi.Player.props.shuffled = output.result.shuffled;
+					MCPi.Player.props.speed = output.result.speed;
+					MCPi.Player.props.type = output.result.type;
+
+					MCPi.Player.vars.allowData = true;
 				}
-				else MCPi.global.scope.setDisabledQueue();
-			},
+				else MCPi.Player.vars.allowData = false;
+			}
+		},
 
-			/**
-			 * Callback method of player properties to till in all player properties
-			 *
-			 * @param data data structure received from server
-			 * @param reference another callback function to be transferred to functions that are called inside
-			 */
-			setPropertiesCallback: function(data, reference)
+
+		/**
+		 * The player read volume properties by reading data from MCPi through JSON calls
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		getVolume: function (input, output, chain)
+		{
+			if(output == null)
 			{
-				var chain = false;
-				console.log("player.scope.setPropertiesCallback()");
+				console.log("Player.getVolume");
+				var reference = {"input":input, "callback":MCPi.Player.getVolume, "chain":chain};
 
-				if(data && data.result)
+				MCPi.json.call("Application.GetProperties", {"properties":["volume", "muted"]}, reference);
+			}
+			else
+			{
+				console.log("Player.getVolume-Callback");
+
+				if (output.result)
 				{
-					if(MCPi.player.scope.props.partyMode == true && data.result.partymode == false)
-					{
-						MCPi.player.vars.validData = false;
-						MCPi.player.scope.reset();
-					}
-					else
-					{
-						chain = true;
-
-						MCPi.player.vars.validData = true;
-						MCPi.player.vars.playerHashcode = JSON.stringify(data).hashCode();
-
-						MCPi.player.scope.props.playlistId = data.result.playlistid;
-						MCPi.player.scope.props.partyMode = data.result.partymode;
-						MCPi.player.scope.props.position = data.result.position;
-						MCPi.player.scope.props.percentage = Math.round(data.result.percentage);
-						MCPi.player.scope.props.time = MCPi.libs.timeToDuration(data.result.time);
-						MCPi.player.scope.props.totalTime = MCPi.libs.timeToDuration(data.result.totaltime);
-						MCPi.player.scope.props.repeat = data.result.repeat;
-						MCPi.player.scope.props.shuffled = data.result.shuffled;
-						MCPi.player.scope.props.speed = data.result.speed;
-						MCPi.player.scope.props.type = data.result.type;
-
-						//if the panel is visible call to set the content, if not allow chain execution
-						if(MCPi.player.model.isVisible()) MCPi.player.scope.setPlayingItem(reference);
-							else chain = false;
-					}
+					MCPi.Player.props.mute = output.result.muted;
+					MCPi.Player.props.volume = output.result.volume;
 				}
+			}
+		},
 
-				// call chain reference
-				if(!chain) MCPi.json.chain(reference);
-			},
-
-			/**
-			 * Set playing item details doesn't matter what type of entity is about.
-			 *
-			 * @param reference transfer callback function to be executed after the current callback chain is executed
-			 */
-			setPlayingItem: function(reference)
+		/**
+		 * Read playing item details doesn't matter what type of entity is about.
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		getPlayingItemDetails: function (input, output, chain)
+		{
+			if(output == null)
 			{
-				console.log("player.scope.getPlayingItem");
+				console.log("Player.getPlayingItemDetails");
 
 				var properties = [];
+				var reference = {"input":input, "callback":MCPi.Player.getPlayingItemDetails, "chain":chain};
 
-				if(MCPi.player.id == 0)
-				{
-					properties = MCPi.json.props.audio;
-				}
-				else if(MCPi.player.id == 1)
-				{
-					if(MCPi.player.vars.contentType == "movie") properties = MCPi.json.props.movie;
-						else if(MCPi.player.vars.contentType == "episode") properties = MCPi.json.props.episode;
-				}
+				if (MCPi.Player.id == 0) properties = MCPi.json.const.props.audio;
+					else if (MCPi.Player.id == 1)
+					{
+						if (MCPi.Player.vars.contentType == "movie") properties = MCPi.json.const.props.movie;
+							else if (MCPi.Player.vars.contentType == "episode") properties = MCPi.json.const.props.episode;
+					}
 
-				MCPi.json.call("Player.GetItem", {"playerid": MCPi.player.id, "properties":properties}, MCPi.player.scope.setPlayingItemCallback, reference);
-			},
-
-			/**
-			 * Callback method of item details to decode and format item details, doesn't matter
-			 * what type of entity is about. This method will fill in several screen properties.
-			 *
-			 * @param data data structure received from server
-			 * @param reference another callback function to be transferred to functions that are called inside
-			 */
-			setPlayingItemCallback: function(data, reference)
+				MCPi.json.call("Player.GetItem", {"playerid":MCPi.Player.id, "properties":properties}, reference);
+			}
+			else
 			{
-				var chain = false;
-				console.log("player.scope.setPlayingItemCallback");
+				console.log("Player.getPlayingItemDetails-Callback");
 
-				if(data && data.result && data.result.item)
+				if (output.result && output.result.item)
 				{
-					var text, item = data.result.item;
+					var text, item = output.result.item;
 
 					//get file reference of the playing item
-					MCPi.player.vars.fileReference = item.file;
+					MCPi.Player.data.reference = item.file;
 
 					//analyze and define the content of thumbnail
-					if(item.thumbnail != null && item.thumbnail != "" && item.thumbnail.indexOf("Default") < 0)
-					{
-						MCPi.player.model.props.thumbnail = MCPi.libs.formatAssetURL(item.thumbnail);
-					}
-					else MCPi.player.model.props.thumbnail = null;
+					if (item.thumbnail != null && item.thumbnail != "" && item.thumbnail.indexOf("Default") < 0) MCPi.Player.data.thumbnail = MCPi.libs.formatAssetURL(item.thumbnail);
+						else MCPi.Player.data.thumbnail = null;
 
-					if(MCPi.player.id == 0)			//set audio content
+					if (MCPi.Player.id == 0)			//set audio content
 					{
-						if (MCPi.player.model.props.thumbnail == null) MCPi.player.model.props.thumbnail = "/resources/images/album.png";
+						if (MCPi.Player.data.thumbnail == null) MCPi.Player.data.thumbnail = "/resources/images/album.png";
 
-						if (item.title != null && item.title != "") MCPi.player.model.props.title = item.title;
-						else MCPi.player.model.props.title = item.label;
+						if (item.title != null && item.title != "") MCPi.Player.data.title = item.title;
+							else MCPi.Player.data.title = item.label;
 
 						text = [];
 						if (item.artist != null && item.artist != "") text[text.length] = "<b>" + item.artist + "</b>";
 						if (item.album != null && item.album != "") text[text.length] = item.album;
 
-						if (text.length > 0) MCPi.player.model.props.description1 = text.join(" &bull; ");
-						else MCPi.player.model.props.description1 = null;
+						if (text.length > 0) MCPi.Player.data.description1 = text.join(" &bull; ");
+							else MCPi.Player.data.description1 = null;
 
-						if (item.year != null && item.year != '') MCPi.player.model.props.description2 = item.year;
-						else MCPi.player.model.props.description2 = null;
+						if (item.year != null && item.year != '') MCPi.Player.data.description2 = item.year;
+							else MCPi.Player.data.description2 = null;
 
-						MCPi.player.vars.contentType = item.type;
+						MCPi.Player.vars.contentType = item.type;
 					}
-					else if(MCPi.player.id == 1)	//set video content
+					else if (MCPi.Player.id == 1)	//set video content
 					{
-						if(MCPi.player.model.props.thumbnail == null) MCPi.player.model.props.thumbnail = "/resources/images/video.png";
+						if (MCPi.Player.data.thumbnail == null) MCPi.Player.data.thumbnail = "/resources/images/video.png";
 
-						if(MCPi.player.vars.contentType == "movie")
+						if (MCPi.Player.vars.contentType == "movie")
 						{
-							if(item.title != null && item.title != "") MCPi.player.model.props.title = item.title;
-								else MCPi.player.model.props.title = item.label;
+							if (item.title != null && item.title != "") MCPi.Player.data.title = item.title;
+								else MCPi.Player.data.title = item.label;
 
 							text = [];
-							if(item.genre != null && item.genre.length > 3) item.genre.splice(3);
-							if(item.genre != null && item.genre.length > 0) text[text.length] = item.genre.join(",");
-							if(item.rating) text[text.length] = item.rating.toFixed(1);
+							if (item.genre != null && item.genre.length > 3) item.genre.splice(3);
+							if (item.genre != null && item.genre.length > 0) text[text.length] = item.genre.join(",");
+							if (item.rating) text[text.length] = item.rating.toFixed(1);
 
-							if(text.length > 0) MCPi.player.model.props.description1 = text.join(" &bull; ");
-								else MCPi.player.model.props.description1 = null;
+							if (text.length > 0) MCPi.Player.data.description1 = text.join(" &bull; ");
+								else MCPi.Player.data.description1 = null;
 
-							if(item.year != null && item.year != "") MCPi.player.model.props.description2 = item.year;
-								else MCPi.player.model.props.description2 = null;
+							if (item.year != null && item.year != "") MCPi.Player.data.description2 = item.year;
+								else MCPi.Player.data.description2 = null;
 						}
-						else if(MCPi.player.vars.contentType == "episode")
+						else if (MCPi.Player.vars.contentType == "episode")
 						{
-							if(item.title != null && item.title != "") MCPi.player.model.props.title = item.title;
-								else MCPi.player.model.props.title = item.label;
+							if (item.title != null && item.title != "") MCPi.Player.data.title = item.title;
+								else MCPi.Player.data.title = item.label;
 
-							if(item.showtitle != null) MCPi.player.model.props.description1 = "<b>" +item.showtitle + "</b>";
-								else MCPi.player.model.props.description1= null;
+							if (item.showtitle != null) MCPi.Player.data.description1 = "<b>" + item.showtitle + "</b>";
+								else MCPi.Player.data.description1 = null;
 
 							text = [];
-							if(item.season != null && item.season != '') text[text.length] =  "Season " + item.season;
-							if(item.episode != null && item.episode != '') text[text.length] = "Episode " + item.episode;
-							if(item.rating != null) text[text.length] = item.rating.toFixed(1);
+							if (item.season != null && item.season != '') text[text.length] = "Season " + item.season;
+							if (item.episode != null && item.episode != '') text[text.length] = "Episode " + item.episode;
+							if (item.rating != null) text[text.length] = item.rating.toFixed(1);
 
-							if(text.length > 0) MCPi.player.model.props.description2 = text.join(" &bull; ");
-								else MCPi.player.model.props.description2 = null;
+							if (text.length > 0) MCPi.Player.data.description2 = text.join(" &bull; ");
+								else MCPi.Player.data.description2 = null;
 
 						}
-						else if(MCPi.player.vars.contentType == null)
+						else if (MCPi.Player.vars.contentType == null)
 						{
-							chain = true;
+							if (item.label != null && item.label != "") MCPi.Player.data.title = item.label;
+								else MCPi.Player.data.title = null;
 
-							if(item.label != null && item.label != "") MCPi.player.model.props.title = item.label;
-								else MCPi.player.model.props.title = null;
+							MCPi.Player.data.description1 = null;
+							MCPi.Player.data.description2 = null;
 
-							MCPi.player.model.props.description1= null;
-							MCPi.player.model.props.description2 = null;
-
-							MCPi.player.vars.contentType = item.type;
-							MCPi.player.scope.setPlayingItem(reference);
+							MCPi.Player.vars.contentType = item.type;
+							MCPi.Player.setPlayingItemDetails(input, null, chain);
 						}
 					}
 
 					//allow screen details to become visible and display them
-					MCPi.player.vars.validData = true;
+					MCPi.Player.vars.allowData = true;
 				}
-				else MCPi.player.vars.validData = false;
-
-
-				// call chain reference
-				if(!chain) MCPi.json.chain(reference);
-			},
-
-			/**
-			 * The volume properties.
-			 *
-			 * @param reference another callback function to be transferred to functions that are called inside
-			 */
-			setVolume: function(reference)
-			{
-				console.log("player.scope.setVolume");
-
-				MCPi.json.call("Application.GetProperties", {"properties":["volume", "muted"]}, MCPi.player.scope.setVolumeCallback, reference);
-			},
-
-			/**
-			 * This is the callback method of setting player volume
-			 *
-			 * @param data data structure received from server
-			 * @param reference another callback function to be transferred to functions that are called inside
-			 */
-			setVolumeCallback: function(data, reference)
-			{
-				console.log("player.scope.setVolumeCallback");
-
-				if(data && data.result)
-				{
-					MCPi.player.scope.props.isMuted = data.result.muted;
-					MCPi.player.scope.props.volume = data.result.volume;
-				}
-
-				//call chain reference
-				MCPi.json.chain(reference);
+				else MCPi.Player.vars.allowData = false;
 			}
 		},
 
-		model:
+		/**
+		 * Set <code>Play</code> mode of the current player
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setPlay: function (input, output, chain)
 		{
-			props:
+			if(output == null)
 			{
-				title: null,
-				description1: null,
-				description2: null,
-				thumbnail: null				
-			},
-			
-			/**
-			 * Prepare controls and GUI details when the screen is open or shown
-			 */
-			show: function()
-			{
-				console.log("player.model.show");
+				console.log("Player.setPlay");
+				var reference = {"input":input, "chain":chain};
 
-				MCPi.player.vars.visible = true;
-				$('#nowPlayingButton span').removeClass("text-primary");
-
-				MCPi.global.scope.addReference(MCPi.player.model.setContent, false);
-				MCPi.player.scope.setId(MCPi.player.model.setContent);
-			},
-
-			/**
-			 * Release controls and GUI details when the screen is become hidden
-			 */
-			hide: function()
-			{
-				console.log("player.model.hide");
-
-				MCPi.player.vars.visible = false;
-				$('#nowPlayingButton').removeClass('active');
-				$('#nowPlayingButton span').addClass("text-primary");
-
-				MCPi.global.scope.delReference(MCPi.player.model.setContent);
-			},
-
-			/**
-			 * Check if screen panel is visible
-			 *
-			 * @returns true if screen panel is visible
-			 */
-			isVisible: function()
-			{
-				return MCPi.player.vars.visible;
-			},
-
-			setContent: function(reference)
-			{
-				console.log("player.model.setContent");
-				MCPi.global.scope.setEnabledQueue();
-
-				if(MCPi.player.vars.validData)
-				{
-					$('#playItemContent').removeClass("hide");
-					$('#playItemContent').addClass("show");
-					$('#playerItemNone').removeClass("show");
-					$('#playerItemNone').addClass("hide");
-
-					if(MCPi.player.model.props.title != null) $('#playItemTitle').html("&nbsp;" + MCPi.player.model.props.title);
-						else $('#playItemTitle').html("&nbsp;");
-
-					if(MCPi.player.model.props.description1 != null) $('#playItemDetails').html("&nbsp;&nbsp;" + MCPi.player.model.props.description1);
-						else $('#playItemDetails').html("&nbsp;&nbsp;");
-
-					if(MCPi.player.model.props.description2 != null)  $('#playItemYear').html("&nbsp;&nbsp;" + MCPi.player.model.props.description2);
-						else $('#playItemYear').html("&nbsp;&nbsp;");
-
-					$('#playItemTotalTime').html(MCPi.libs.durationToString(MCPi.player.scope.props.totalTime));
-
-					$('#playItemProgress').css('width', MCPi.player.scope.props.percentage + '%').attr("aria-valuenow", MCPi.player.scope.props.percentage);
-					$('#playItemProgress').html('<span class="sr-only">' + MCPi.player.scope.props.percentage + '% Complete (success)</span>' + MCPi.player.scope.props.percentage + "%");
-
-					$('#playItemFanart').attr("src", MCPi.player.model.props.thumbnail);
-				}
-				else
-				{
-					$('#playItemContent').removeClass("show");
-					$('#playItemContent').addClass("hide");
-					$('#playerItemNone').removeClass("hide");
-					$('#playerItemNone').addClass("show");
-
-					$('#playItemTitle').html("&nbsp;");
-					$('#playItemDetails').html("&nbsp;&nbsp;");
-					$('#playItemYear').html("&nbsp;&nbsp;");
-					$('#playItemFanart').attr('src', "#");
-				}
-
-				// call chain reference
-				MCPi.json.chain(reference);
+				MCPi.json.call("Player.PlayPause", {"playerid":MCPi.Player.id}, reference);
 			}
+		},
+
+		/**
+		 * Set <code>Stop</code> mode of the current player
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setStop: function (input, output, chain)
+		{
+			if(output == null)
+			{
+				console.log("Player.setStop");
+				var reference = {"input":input, "chain":chain};
+
+				MCPi.json.call("Player.Stop", {"playerid":MCPi.Player.id}, reference);
+			}
+		},
+
+		/**
+		 * Set fast playing mode of the current player (fast forward or fast rewind)
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setFastPlayingMode: function (input, output, chain)
+		{
+			if(output == null)
+			{
+				if(input == null) input = "increment";
+
+				console.log("Player.setFastPlayingMode");
+				var reference = {"input":input, "chain":chain};
+
+				MCPi.json.call("Player.SetSpeed", {"playerid":MCPi.Player.id, "speed":input}, reference);
+			}
+		},
+
+		/**
+		 * Set <code>FastForward</code> mode of the current player
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setFastForward: function (input, output, chain)
+		{
+			console.log("Player.setFastForward");
+			MCPi.Player.setFastPlayingMode("increment", output, chain);
+		},
+
+		/**
+		 * Set <code>FastRewind</code> mode of the current player
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setFastRewind: function (input, output, chain)
+		{
+			console.log("Player.setFastRewind");
+			MCPi.Player.setFastPlayingMode("decrement", output, chain);
+		},
+
+		/**
+		 * Set playing mode of the current player (forward or rewind)
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setPlayingMode: function (input, output, chain)
+		{
+			if(output == null)
+			{
+				if(input == null) input = "next";
+
+				console.log("Player.setPlayingMode");
+				var reference = {"input":input, "chain":chain};
+
+				MCPi.json.call("Player.GoTo", {"playerid":MCPi.Player.id, "to":input}, reference);
+			}
+		},
+
+		/**
+		 * Set <code>Forward</code> mode of the current player
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setForward: function (input, output, chain)
+		{
+			console.log("Player.setForward");
+			MCPi.Player.setPlayingMode("next", output, chain);
+		},
+
+		/**
+		 * Set <code>Rewind</code> mode of the current player
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setRewind: function (input, output, chain)
+		{
+			console.log("Player.setRewind");
+			MCPi.Player.setPlayingMode("previous", output, chain);
+		},
+
+		/**
+		 * Set player in <code>Party</code> mode.
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setPartyMode: function(input, output, chain)
+		{
+			if(output == null)
+			{
+				if(input == null) input = true;
+
+				console.log("Player.setPartyMode");
+				var reference = {"input":input, "callback":MCPi.Player.setPartyMode, "chain":chain};
+
+				MCPi.json.call("Player.SetPartymode", {"playerid":MCPi.Player.id, "partymode":input}, reference);
+			}
+			else
+			{
+				if (output != null && output.result == "OK")
+				{
+					MCPi.Player.props.partymode = input;
+				}
+			}
+		},
+
+		/**
+		 * Set player in <code>Mute/Unmute</code> mode.
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setMute: function(input, output, chain)
+		{
+			if(output == null)
+			{
+				if(input == null) input = "toggle";
+
+				if(MCPi.Player.props.mute != input)
+				{
+					console.log("Player.setMute");
+					var reference = {"input":input, "callback":MCPi.Player.setMute, "chain":chain};
+
+					MCPi.json.call("Application.SetMute", {"mute":input}, reference);
+				}
+			}
+			else
+			{
+				if (output != null && output.result != null)
+				{
+					console.log("Player.setMute-Callback");
+					MCPi.Player.props.mute = output.result;
+				}
+			}
+		},
+
+		/**
+		 * Set player volume
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setVolume: function(input, output, chain)
+		{
+			if(output == null)
+			{
+				if(input == null) input = "increment";
+
+				console.log("Player.setVolume");
+				var reference = {"input":input, "callback":MCPi.Player.setVolume, "chain":chain};
+
+				MCPi.json.call("Application.SetVolume", {"volume":input}, reference);
+			}
+			else
+			{
+				if(output != null && output.result != null)
+				{
+					console.log("Player.setVolume-Callback");
+
+					MCPi.Player.props.volume = data.result;
+					MCPi.Player.props.mute = false;
+				}
+			}
+		},
+
+		/**
+		 * Increment player volume
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setIncreaseVolume: function(input, output, chain)
+		{
+			console.log("Player.setIncreaseVolume");
+			MCPi.Player.setVolume("increment", null, chain);
+		},
+
+		/**
+		 * Decrement player volume
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setDecreaseVolume: function(input, output, chain)
+		{
+			console.log("Player.setDecreaseVolume");
+			MCPi.Player.setVolume("decrement", null, chain);
 		}
 	}
 }(window));

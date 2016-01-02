@@ -370,6 +370,11 @@
 				}
 			},
 
+			/**
+			 * Display the list of existing music playlists (read from playlist location from the MCPi file system).
+			 * The answer of this call and the data fetching in the list are managed by callback function.
+			 * This scope method is triggered by a "model" method called <code>setShowPlaylists</code>
+			 */
 			setPlaylists: function()
 			{
 				var properties = {"directory": "special://profile/playlists/music/", "media": "music", "sort": { "method": "label" } };
@@ -378,6 +383,12 @@
 				MCPi.json.call("Files.GetDirectory", properties, MCPi.music.scope.setPlaylistsCallback);
 			},
 
+			/**
+			 * Callback method to read playlist names and references and to pass them to the rendering functions
+			 *
+			 * @param data JSON output data structure that contains playlist data
+			 * @param ref specific playlist reference
+			 */
 			setPlaylistsCallback: function(data, ref)
 			{
 				var id = "#musicListItems";
@@ -398,14 +409,64 @@
 				}
 			},
 
-			runPlaylistsBrowseInto: function(ref)
+			/**
+			 * This is a "scope" method that is triggered by a "play playlist" GUI option that should performed the following actions:
+			 * 1) stop party-mode (in case is activated), 2) clean the default queue, read selected playlist and add all items in queue and
+			 * 3) start playing the first item in queue. After these actions the method should call the function to display the content of
+			 * the default queue.
+			 *
+			 * @param ref reference of the selected playlist
+			 */
+			runPlaylistPlay: function(ref)
+			{
+				console.log("music.scope.runPlaylistPlay");
+
+				MCPi.json.call("Files.GetDirectory", {"directory":ref, "media":"music", "properties": MCPi.music.vars.nowPlayingProperties}, MCPi.music.scope.setPlaylistsCallback, ref);
+			},
+
+			runPlaylistEnqueue: function(ref)
+			{
+				console.log("music.scope.runPlaylistEnqueue");
+			},
+
+			/**
+			 * List the content of the selected music playlist
+			 *
+			 * @param ref playlist reference
+			 * @param label playlist name (display name)
+			 */
+			runPlaylistBrowseInto: function(ref, label)
 			{
 				console.log("music.scope.runPlaylistBrowseInto");
 
 				if(ref != null && ref != '')
 				{
+					MCPi.music.model.initDataList(label);
 					MCPi.json.call("Files.GetDirectory", {"directory":ref, "media":"music", "properties": MCPi.music.vars.nowPlayingProperties}, MCPi.music.scope.setPlaylistsCallback, ref);
 				}
+			},
+
+			cleanNowPlayingQueue: function(reference)
+			{
+				console.log("music.scope.cleanNowPlayingQueue");
+
+				MCPi.json.call("Playlist.Clear", {"playlistid": MCPi.player.scope.props.playlistid}, MCPi.player.scope.setPartyModeCallback, reference);
+			},
+
+			cleanNowPlayingQueueCallback: function(data, reference)
+			{
+				console.log("music.scope.cleanNowPlayingQueueCallback");
+
+				if(data && data.result == "OK")
+				{
+					//call chain reference
+					MCPi.json.chain(reference);
+				}
+			},
+
+			addPlaylistEntriesInNowPlayingQueue: function(reference)
+			{
+
 			}
 		},
 
@@ -589,8 +650,8 @@
 				if(data.year) details[details.length] = data.year;
 				if(data.duration) details[details.length] = MCPi.libs.durationToString(data.duration);
 
-				var showFixed = (MCPi.player.scope.props.partyMode && index == 0) || (!MCPi.player.scope.props.partyMode && MCPi.player.vars.fileReference == file);
-				var showPlayNow = (MCPi.player.scope.props.partyMode && index > 0) || MCPi.player.id  < 0;
+				var showFixed = (MCPi.player.scope.props.partymode && index == 0) || (!MCPi.player.scope.props.partymode && MCPi.player.vars.fileReference == file);
+				var showPlayNow = (MCPi.player.scope.props.partymode && index > 0) || MCPi.player.id  < 0;
 				var showDetails = songid != null;
 				var showDelete = index > 0;
 
@@ -914,10 +975,10 @@
 						'				<div class="media-body">' +
 						'					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><h4 class="media-heading">' + title + '</h4></a>' +
 						'					<ul class="dropdown-menu" role="menu">' +
-						'						<li><a data-clickthrough="music" data-type="menu-playlists" data-exec="play" data-refid="' + refid + '"><span class="fa fa-play-circle text-primary"></span> Play</a></li>' +
+						'						<li><a data-clickthrough="music" data-type="menu-playlists" data-exec="play" data-refid="' + refid + '" data-label="' + title + '"><span class="fa fa-play-circle text-primary"></span> Play</a></li>' +
 						'						<li class="divider"></li>' +
-						'						<li><a data-clickthrough="music" data-type="menu-playlists" data-exec="browse" data-refid="' + refid + '"><span class="fa fa-chevron-circle-up"></span> Browse Into</a></li>' +
-						'						<li><a data-clickthrough="music" data-type="menu-playlists" data-exec="enqueue" data-refid="' + refid + '"><span class="fa fa-plus-circle"></span> Enqueue</a></li>' +
+						'						<li><a data-clickthrough="music" data-type="menu-playlists" data-exec="browse" data-refid="' + refid + '" data-label="' + title + '"><span class="fa fa-chevron-circle-up"></span> Browse Into</a></li>' +
+						'						<li><a data-clickthrough="music" data-type="menu-playlists" data-exec="enqueue" data-refid="' + refid + '" data-label="' + title + '"><span class="fa fa-plus-circle"></span> Enqueue</a></li>' +
 						'					</ul>' +
 						'				</div>' +
 						'			</div>' +
@@ -978,19 +1039,22 @@
 			{
 				var exec = obj.attr("data-exec");
 				var refid = obj.attr("data-refid");
+				var label = obj.attr("data-label");
 
 				console.log("music.model.runActionOnPlaylistsMenuItem");
 
 				switch (exec)
 				{
 					case "play":
+						MCPi.music.scope.runPlaylistPlay(refid);
 						break;
 
 					case "enqueue":
+						MCPi.music.scope.runPlaylistEnqueue(refid);
 						break;
 
 					case "browse":
-						MCPi.music.scope.runPlaylistsBrowseInto(refid);
+						MCPi.music.scope.runPlaylistBrowseInto(refid, label);
 						break;
 				}
 			}
