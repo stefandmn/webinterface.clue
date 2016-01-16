@@ -306,9 +306,14 @@
 			if(output == null)
 			{
 				console.log("Player.setPlay");
-				var reference = {"input":input, "chain":chain};
+				var reference = {"input":input, "callback":MCPi.Player.setPlay, "chain":chain};
 
 				MCPi.json.call("Player.PlayPause", {"playerid":MCPi.Player.id}, reference);
+			}
+			else
+			{
+				console.log("Player.setPlay-Callback");
+				if (output && output.result != null) MCPi.Player.props.speed = output.result.speed;
 			}
 		},
 
@@ -324,9 +329,17 @@
 			if(output == null)
 			{
 				console.log("Player.setStop");
-				var reference = {"input":input, "chain":chain};
+				var reference = {"input":input, "callback":MCPi.Player.setStop ,"chain":chain};
 
 				MCPi.json.call("Player.Stop", {"playerid":MCPi.Player.id}, reference);
+			}
+			else
+			{
+				if (output != null && output.result == "OK")
+				{
+					console.log("Player.setStop-Callback");
+					MCPi.Player.reset();
+				}
 			}
 		},
 
@@ -344,9 +357,14 @@
 				if(input == null) input = "increment";
 
 				console.log("Player.setFastPlayingMode");
-				var reference = {"input":input, "chain":chain};
+				var reference = {"input":input, "callback":MCPi.Player.setFastPlayingMode, "chain":chain};
 
 				MCPi.json.call("Player.SetSpeed", {"playerid":MCPi.Player.id, "speed":input}, reference);
+			}
+			else
+			{
+				console.log("Player.setFastPlayingMode-Callback");
+				if (output && output.result != null) MCPi.Player.props.speed = output.result.speed;
 			}
 		},
 
@@ -444,6 +462,7 @@
 			{
 				if (output != null && output.result == "OK")
 				{
+					console.log("Player.setPartyMode-Callback");
 					MCPi.Player.props.partymode = input;
 				}
 			}
@@ -504,7 +523,7 @@
 				{
 					console.log("Player.setVolume-Callback");
 
-					MCPi.Player.props.volume = data.result;
+					MCPi.Player.props.volume = output.result;
 					MCPi.Player.props.mute = false;
 				}
 			}

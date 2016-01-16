@@ -30,7 +30,7 @@
 		setMusicScreen: function(input, output, chain)
 		{
 			console.log("RemoteControl.setMusicScreen");
-			MCPi.RemoteControl.setScreen("musiclibrary", null, chain);
+			MCPi.RemoteControl.setScreen("music", null, chain);
 		},
 
 		/**
@@ -43,7 +43,7 @@
 		setVideoScreen: function(input, output, chain)
 		{
 			console.log("RemoteControl.setVideoScreen");
-			MCPi.RemoteControl.setScreen("setVideoScreen", null, chain);
+			MCPi.RemoteControl.setScreen("video", null, chain);
 		},
 
 		/**
@@ -248,7 +248,7 @@
 		setShowPlaylist: function(input, output, chain)
 		{
 			console.log("RemoteControl.setShowPlaylist");
-			MCPi.RemoteControl.runStandardAction("playlist", null, chain);
+			MCPi.RemoteControl.setStandardAction("playlist", null, chain);
 		},
 
 		/**
@@ -290,10 +290,9 @@
 		 */
 		openDialog: function()
 		{
-			var input;
 			console.log("GUI.RemoteControl.openDialog");
 
-			MCPi.Player.getId(null,null, {"onsuccess":MCPi.Player.getProperties, "chain":{"nextcall":MCPi.Player.getVolume, "chain":{"nextcall":MCPi.GUI.RemoteControl.loadDialog}}});
+			MCPi.Player.getId(null, null, {"onsuccess":MCPi.Player.getProperties, "chain":{"nextcall":MCPi.Player.getVolume, "chain":{"nextcall":MCPi.GUI.RemoteControl.loadDialog}}});
 		},
 
 		/**
@@ -364,7 +363,7 @@
 				console.log("GUI.RemoteControl.runMute-Timercall");
 
 				MCPi.Player.getVolume();
-				setTimeout(MCPi.GUI.RemoteControl.runMute, 1000);
+				setTimeout(MCPi.GUI.RemoteControl.runMute, 250);
 
 				MCPi.GUI.RemoteControl.vars.lockingCounter++;
 				MCPi.GUI.RemoteControl.vars.newPropHash = MCPi.libs.getHashcode("mute", MCPi.Player.props.mute);
@@ -405,7 +404,7 @@
 				console.log("GUI.RemoteControl.runIncreaseVolume-Timercall");
 
 				MCPi.Player.getVolume();
-				setTimeout(MCPi.GUI.RemoteControl.runIncreaseVolume, 1000);
+				setTimeout(MCPi.GUI.RemoteControl.runIncreaseVolume, 250);
 
 				MCPi.GUI.RemoteControl.vars.lockingCounter++;
 				MCPi.GUI.RemoteControl.vars.newPropHash = MCPi.libs.getHashcode("volume", MCPi.Player.props.volume);
@@ -441,12 +440,12 @@
 				MCPi.Player.setDecreaseVolume();
 			}
 
-			if((MCPi.GUI.RemoteControl.vars.oldPropHash == MCPi.Player.vars.newPropHash) && MCPi.GUI.RemoteControl.vars.lockingCounter < 60 )
+			if((MCPi.GUI.RemoteControl.vars.oldPropHash == MCPi.GUI.RemoteControl.vars.newPropHash) && MCPi.GUI.RemoteControl.vars.lockingCounter < 60 )
 			{
 				console.log("GUI.RemoteControl.runDecreaseVolume-Timercall");
 
 				MCPi.Player.getVolume();
-				setTimeout(MCPi.GUI.RemoteControl.runDecreaseVolume, 1000);
+				setTimeout(MCPi.GUI.RemoteControl.runDecreaseVolume, 250);
 
 				MCPi.GUI.RemoteControl.vars.lockingCounter++;
 				MCPi.GUI.RemoteControl.vars.newPropHash = MCPi.libs.getHashcode("volume", MCPi.Player.props.volume);
@@ -469,7 +468,6 @@
 		 */
 		runPartyMode: function()
 		{
-
 			if(!MCPi.GUI.RemoteControl.vars.lockingFlag)
 			{
 				console.log("GUI.RemoteControl.runPartyMode");
@@ -480,13 +478,12 @@
 				MCPi.GUI.RemoteControl.vars.lockingFlag = true;
 				MCPi.GUI.RemoteControl.vars.lockingCounter = 0;
 
-
 				if(MCPi.Player.id < 0) MCPi.Player.id = 0;
 
 				MCPi.Player.setPartyMode();
 			}
 
-			if((MCPi.GUI.RemoteControl.vars.oldPropHash == MCPi.Player.vars.newPropHash) && MCPi.GUI.RemoteControl.vars.lockingCounter < 60 )
+			if((MCPi.GUI.RemoteControl.vars.oldPropHash == MCPi.GUI.RemoteControl.vars.newPropHash) && MCPi.GUI.RemoteControl.vars.lockingCounter < 60 )
 			{
 				console.log("GUI.RemoteControl.runPartyMode-Timercall");
 
@@ -531,9 +528,10 @@
 		 */
 		onKeyPress: function(e)
 		{
+			e.preventDefault();
+
 			var keys =
 			{
-				8: 'remoteHome',			// Back space
 				9: 'remoteFullscreen',		// Tab
 				13: 'remoteSelect',			// Enter
 				27: 'remoteBack',			// Escape
@@ -553,6 +551,7 @@
 
 			var which = e.which;
 			var key = keys[which];
+			var keyControl = $('#' + key);
 
 			console.log("GUI.RemoteControl.onKeyPress(" + key + ")");
 
@@ -597,7 +596,11 @@
 			}
 			else
 			{
-				return MCPi.GUI.RemoteControl.call(e.data.key);
+				keyControl.addClass("active");
+				var outcall = MCPi.GUI.RemoteControl.call(e.data.key);
+				keyControl.removeClass("active");
+
+				return outcall;
 			}
 		},
 
@@ -661,19 +664,19 @@
 					MCPi.RemoteControl.setContextKey();
 					break;
 				case 'remoteFastRewind':
-					MCPi.Player.setFastRewind();
+					MCPi.Player.setFastRewind(null, null, MCPi.GUI.RemoteControl.loadDialog);
 					break;
 				case 'remoteRewind':
 					MCPi.Player.setRewind();
 					break;
 				case 'remoteStop':
-					MCPi.Player.setStop();
+					MCPi.Player.setStop(null, null, MCPi.GUI.RemoteControl.loadDialog);
 					break;
 				case 'remotePlay':
-					MCPi.Player.setPlay();
+					MCPi.Player.setPlay(null, null, MCPi.GUI.RemoteControl.loadDialog);
 					break;
 				case 'remoteFastForward':
-					MCPi.Player.setFastForward();
+					MCPi.Player.setFastForward(null, null, MCPi.GUI.RemoteControl.loadDialog);
 					break;
 				case 'remoteForward':
 					MCPi.Player.setForward();

@@ -1,6 +1,6 @@
-# Clue Web Interface
+# Clue WebInterface
 
-_**This project is under development and no release has been issued yet!**_
+_**This project is under development and the release that have been issued are only for testing purposes!**_
 
 Clue WebInterface package is designed to become the default web interface for Clue MCPi 
 media player - a Kodi fork for Raspberry Pi - and also it could be used also as a standalone 

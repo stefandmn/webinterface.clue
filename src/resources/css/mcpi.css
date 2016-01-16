@@ -10,22 +10,36 @@
 
 #remoteContainer #remoteHome
 {
+	border-radius: 0;
 	border-top-left-radius: 2.5em;
 }
 
 #remoteContainer #remoteInfo
 {
+	border-radius: 0;
 	border-top-right-radius: 2.5em;
 }
 
 #remoteContainer #remoteBack
 {
+	border-radius: 0;
 	border-bottom-left-radius: 2.5em;
 }
 
 #remoteContainer #remoteContext
 {
+	border-radius: 0;
 	border-bottom-right-radius: 2.5em;
+}
+
+#remoteContainer #remoteLeft
+{
+	border-radius: 0;
+}
+
+#remoteContainer #remoteRight
+{
+	border-radius: 0;
 }
 
 #volumeContainer
