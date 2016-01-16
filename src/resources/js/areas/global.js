@@ -419,7 +419,7 @@
 		$(document).on('click', '[data-clickthrough=main]', MCPi.GUI.onClick);
 
 		//register and then handle the click events from system menu (all options from right side of navigation container)
-		//$(document).on('click', '[data-clickthrough=system]', MCPi.system.model.onClick);
+		$(document).on('click', '[data-clickthrough=system]', MCPi.GUI.System.onClick);
 
 		//register and then handle the click events from remote control dialog
 		$(document).on('click', '[data-clickthrough=remote]', MCPi.GUI.RemoteControl.onClick);

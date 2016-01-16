@@ -3,190 +3,202 @@
 	'use strict';
 	var MCPi = window.MCPi;
 
-	MCPi.system =
+	MCPi.System =
 	{
-		scope:
+		/**
+		 * Execute scan operation for audio library
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setAudioScan: function(input, output, chain)
 		{
-			/**
-			 * Execute scan operation for audio library
-			 */
-			runScanAudio: function()
+			console.log("System.setAudioScan");
+			var reference = {"input":input, "chain":chain};
+
+			MCPi.json.call("AudioLibrary.Scan", {}, reference);
+		},
+
+		/**
+		 * Execute clean operation for audio library
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setAudioClean: function(input, output, chain)
+		{
+			console.log("System.setAudioClean");
+			var reference = {"input":input, "chain":chain};
+
+			MCPi.json.call("AudioLibrary.Clean", {}, reference);
+		},
+
+		/**
+		 * Execute scan operation for video library
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setVideoScan: function(input, output, chain)
+		{
+			console.log("System.setVideoScan");
+			var reference = {"input":input, "chain":chain};
+
+			MCPi.json.call("VideoLibrary.Scan", {}, reference);
+		},
+
+		/**
+		 * Execute clean operation for video library
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setVideoClean: function(input, output, chain)
+		{
+			console.log("System.setVideoClean");
+			var reference = {"input":input, "chain":chain};
+
+			MCPi.json.call("VideoLibrary.Clean", {}, reference);
+		},
+
+		/**
+		 * Execute shutdown on the machine or HDMI channel related to MCPi server
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setShutdown: function(input, output, chain)
+		{
+			console.log("System.setShutdown");
+			var reference = {"input":input, "chain":chain};
+
+			MCPi.json.call("System.Shutdown", {}, reference);
+		},
+
+		/**
+		 * Execute reboot operation on the machine or on HDMI channel related to MCPi server
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setReboot: function(input, output, chain)
+		{
+			console.log("System.setReboot");
+			var reference = {"input":input, "chain":chain};
+
+			MCPi.json.call("System.Reboot", {}, reference);
+		},
+
+		/**
+		 * Execute exit operation on the machine or on HDMI channel related to MCPi server
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setExit: function(input, output, chain)
+		{
+			console.log("System.setExit");
+			var reference = {"input":input, "chain":chain};
+
+			MCPi.json.call("Application.Quit", {}, reference);
+		},
+
+		/**
+		 * Execute notification operation to be displayed on the player screen
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setNotification: function(input, output, chain)
+		{
+			console.log("System.setNotification");
+			var nTitle = "Notification", nMessage, nDisplayTime = 5000, reference = {"input": input, "chain": chain};
+
+			if (typeof input === 'string') nMessage = input;
+			else
 			{
-				console.log("system.scope.runScanAudio");
+				if (input.title != null) nTitle = input.title;
+				if (input.message != null) nMessage = input.message;
+				if (input.displaytime != null) nDisplayTime = input.displaytime;
+			}
 
-				MCPi.json.call("AudioLibrary.Scan", {});
-			},
-
-			/**
-			 * Execute clean operation for audio library
-			 */
-			runCleanAudio: function()
+			if (nMessage != null)
 			{
-				console.log("system.scope.runCleanAudio");
+				MCPi.json.call("GUI.ShowNotification", {"title": nTitle, "message": nMessage, "displaytime": nDisplayTime }, reference);
+			}
+		}
+	};
 
-				MCPi.json.call("AudioLibrary.Clean", {});
-			},
+	MCPi.GUI.System =
+	{
+		/**
+		 * Handles click events all buttons and links.
+		 *
+		 * @param e click event.
+		 */
+		onClick: function (e)
+		{
+			e.preventDefault();
 
-			/**
-			 * Execute scan operation for video library
-			 */
-			runScanVideo: function()
+			var obj = $(this);
+			var id = obj.attr('id');
+
+			console.log("GUI.System.onClick(#" + id + ")");
+
+			switch (id)
 			{
-				console.log("system.scope.runScanVideo");
-
-				MCPi.json.call("VideoLibrary.Scan", {});
-			},
-
-			/**
-			 * Execute clean operation for video library
-			 */
-			runCleanVideo: function()
-			{
-				console.log("system.scope.runCleanVideo");
-
-				MCPi.json.call("VideoLibrary.Clean", {});
-			},
-
-			/**
-			 * Execute shutdown on the machine or HDMI channel related to MCPi server
-			 */
-			runShutdown: function()
-			{
-				console.log("system.scope.runShutdown");
-
-				MCPi.json.call("System.Shutdown", {}, MCPi.system.runShutdownCallback);
-			},
-
-			/**
-			 * This is the callback method of shutdown operation calling in loop the same operation
-			 *
-			 * @param data JSON message of previous shutdown operation
-			 */
-			runShutdownCallback: function(data)
-			{
-				console.log("system.scope.runShutdownCallback");
-
-				if(data && data.result) MCPi.system.runShutdown();
-			},
-
-			/**
-			 * Execute reboot operation on the machine or on HDMI channel related to MCPi server
-			 */
-			runReboot: function()
-			{
-				console.log("system.scope.runReboot");
-
-				MCPi.json.call("System.Reboot", {}, MCPi.system.runRebootCallback);
-			},
-
-			/**
-			 * This is the callback method of reboot operation calling in loop the same operation
-			 *
-			 * @param data JSON message of previous reboot operation
-			 */
-			runRebootCallback: function(data)
-			{
-				console.log("system.scope.runRebootCallback");
-
-				if(data && data.result) MCPi.system.runReboot();
-			},
-
-			/**
-			 * Execute exit operation on the machine or on HDMI channel related to MCPi server
-			 */
-			runExit: function()
-			{
-				console.log("system.scope.runExit");
-
-				MCPi.json.call("Application.Quit", {}, MCPi.system.runExitCallback);
-			},
-
-			/**
-			 * This is the callback method of exit operation calling in loop the same operation
-			 *
-			 * @param data JSON message of previous exit operation
-			 */
-			runExitCallback: function(data)
-			{
-				console.log("system.scope.runExitCallback");
-
-				if(data && data.result) MCPi.system.runExit();
-			},
-
-			/**
-			 * Send a notification message to the main console of MCPi server. This method will be executed only if any
-			 * text message is written in '#notification-text' edit control
-			 */
-			sendNotification: function()
-			{
-				var nTitle = $('#notification-title').val();
-				var nDisplayTime = parseInt($('#notification-time').val());
-				var nMessage = $('#notification-text').val();
-
-				console.log("system.scope.sendNotification");
-
-				if(nMessage && nTitle)
-				{
-					$('#notificationModal').modal('hide');
-
-					MCPi.json.call("GUI.ShowNotification", {"title": nTitle, "message":nMessage, "displaytime":nDisplayTime});
-				}
-			},
-
-			hideNotificationDialog: function()
-			{
-				console.log("system.scope.hideNotificationDialog");
-
-				$('#notificationModal').modal('hide');
+				case 'videoLibraryUpdate':
+					MCPi.System.setVideoScan();
+					break;
+				case 'videoLibraryClean':
+					MCPi.System.setVideoClean();
+					break;
+				case 'audioLibraryUpdate':
+					MCPi.System.setAudioScan();
+					break;
+				case 'audioLibraryClean':
+					MCPi.System.setAudioClean();
+					break;
+				case 'systemPowerOff':
+					MCPi.System.setShutdown();
+					break;
+				case 'systemReboot':
+					MCPi.System.setReboot();
+					break;
+				case 'systemExit':
+					MCPi.System.setExit();
+					break;
+				case 'notifyInGUI':
+					MCPi.GUI.System.runNotification();
+					break;
 			}
 		},
 
-		model:
+		/**
+		 * Send a notification message to the main console of MCPi server. This method will be executed only if any
+		 * text message is written in '#notification-text' edit control
+		 */
+		runNotification: function()
 		{
-			/**
-			 * Handles click events all buttons and links.
-			 *
-			 * @param e click event.
-			 */
-			onClick: function (e)
+			var nTitle = $('#notification-title').val();
+			var nDisplayTime = parseInt($('#notification-time').val());
+			var nMessage = $('#notification-text').val();
+
+			console.log("GUI.System.runNotification");
+
+			if(nMessage && nTitle)
 			{
-				e.preventDefault();
+				$('#notificationModal').modal('hide');
 
-				var obj = $(this);
-				var id = obj.attr('id');
-
-				console.log("system.model.onClick(#" + id + ")");
-
-				switch (id)
-				{
-					case 'videoLibraryUpdate':
-						MCPi.system.scope.runScanVideo();
-						break;
-					case 'videoLibraryClean':
-						MCPi.system.scope.runCleanVideo();
-						break;
-					case 'audioLibraryUpdate':
-						MCPi.system.scope.runScanAudio();
-						break;
-					case 'audioLibraryClean':
-						MCPi.system.scope.runCleanAudio();
-						break;
-					case 'powerOff':
-						MCPi.system.scope.runShutdown();
-						break;
-					case 'powerReboot':
-						MCPi.system.scope.runReboot();
-						break;
-					case 'powerExit':
-						MCPi.system.scope.runExit();
-						break;
-					case 'sendNotifyMessage':
-						MCPi.system.scope.sendNotification();
-						break;
-					case 'cancelNotifyDialog':
-						MCPi.system.scope.hideNotificationDialog();
-						break;
-				}
+				MCPi.System.setNotification({"title": nTitle, "message":nMessage, "displaytime":nDisplayTime});
 			}
 		}
 	}
