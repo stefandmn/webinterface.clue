@@ -283,9 +283,9 @@
 			 *
 			 * @param name panel name to be shown
 			 */
-			callWindow: function(name)
+			open: function(name)
 			{
-				console.log("GUI.callWindow(" + name + ")");
+				console.log("GUI.open(" + name + ")");
 
 				if(MCPi.GUI.vars.currentScreen != name)
 				{
@@ -310,7 +310,7 @@
 				var name = id.slice(6).toLowerCase();
 
 				console.log("GUI.onClick(#" + id + ")");
-				MCPi.GUI.callWindow("#" + name);
+				MCPi.GUI.open("#" + name);
 			},
 
 			/**
@@ -397,7 +397,7 @@
 		{
 			console.log("MCPi.init");
 
-			MCPi.GUI.callWindow(this.GUI.vars.currentScreen);
+			MCPi.GUI.open(this.GUI.vars.currentScreen);
 			MCPi.Player.getId(null,null, {"onsuccess":MCPi.Player.getProperties, "chain":{"onsuccess":MCPi.Player.getVolume, "chain":{"onsuccess":MCPi.Player.getPlayingItemDetails}}});
 		}
 	};
@@ -406,33 +406,22 @@
 
 	$(function ()
 	{
-		//dedicated code for mobile to collapse navigation bar when click event has been performed
-		$(document).on('click','.navbar-collapse.in', function(e)
-		{
-			if( $(e.target).is('a') && ( $(e.target).attr('class') != 'dropdown-toggle' ) )
-			{
-				$(this).collapse('hide');
-			}
-		});
-
-		//register and then handle the click events to change the screen panels
+	/* GLOBAL - Register event handlers for Main and System options */
 		$(document).on('click', '[data-clickthrough=main]', MCPi.GUI.onClick);
-
-		//register and then handle the click events from system menu (all options from right side of navigation container)
 		$(document).on('click', '[data-clickthrough=system]', MCPi.GUI.System.onClick);
 
-		//register and then handle the click events from remote control dialog
-		$(document).on('click', '[data-clickthrough=remote]', MCPi.GUI.RemoteControl.onClick);
+	/* REMOTECONTROL - Register event handlers for RemoteControl modal dialog  */
+		$('#remoteControlModal').on('show.bs.modal', MCPi.GUI.RemoteControl.open);
+		$('#remoteControlModal').on('keydown', jQuery.proxy(MCPi.GUI.RemoteControl.onKeyPress, this));
+		$('#remoteControlModal').on('click', '[data-clickthrough=remote]', MCPi.GUI.RemoteControl.onClick);
 
-		//register and then handle the keydown events from remote control dialog
-		$(document).on('keydown', '[id=remoteControlModal]', jQuery.proxy(MCPi.GUI.RemoteControl.onKeyPress, this));
+	/* HOME - Register event handlers for Home screen (panel) */
+		$('#home').on('shown.bs.collapse', MCPi.GUI.Home.open);
+		$('#home').on('click', '[data-clickthrough=home]', MCPi.GUI.Home.onClick);
+		$('#home').on('shown.bs.collapse', '[data-collapse=home]', MCPi.GUI.Home.open);
 
-		//show remote control dialog
-		$('#remoteControlModal').on('show.bs.modal',function (e)
-		{
-			MCPi.GUI.RemoteControl.openDialog();
-		});
 
+	/** NowPlaying */
 		//expand nowplaying container panel
 		$('#nowPlayingContainer').on('show.bs.collapse',function (e)
 		{
@@ -445,26 +434,17 @@
 			//MCPi.player.model.hide();
 		});
 
-		//register and then handle the click events from drop down options related to latest entries from each list published on home panel screen
-		//$(document).on('click', '[data-clickthrough=home]', MCPi.home.model.onClick);
-
-		//expand home screen panel
-		$('#home').on('shown.bs.collapse', function(e)
-		{
-			//MCPi.home.model.show();
-		});
-
 		//expand event of recentsongs list from home screen panel
-		$('#recentsongs').on('show.bs.collapse',function (e)
-		{
+		//$('#recentsongs').on('show.bs.collapse',function (e)
+		//{
 			//MCPi.home.scope.setLatestSongs();
-		});
+		//});
 
 		//expand event of recentmovies list from home screen panel
-		$('#recentmovies').on('show.bs.collapse',function (e)
-		{
+		//$('#recentmovies').on('show.bs.collapse',function (e)
+		//{
 			//MCPi.home.scope.setLatestMovies();
-		});
+		//});
 
 		//expand event of recentepisodes list from home screen panel
 		$('#recentepisodes').on('show.bs.collapse',function (e)
@@ -507,6 +487,15 @@
 		$('#video').on('show.bs.collapse', function(e)
 		{
 			//
+		});
+
+		//Dedicated code for mobile to collapse navigation bar when click event has been performed
+		$(document).on('click','.navbar-collapse.in', function(e)
+		{
+			if( $(e.target).is('a') && ( $(e.target).attr('class') != 'dropdown-toggle' ) )
+			{
+				$(this).collapse('hide');
+			}
 		});
 
 		/** Initialize Clue MCPi WebInterface module */

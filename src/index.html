@@ -78,7 +78,7 @@
 </nav>
 
 
-<!-- Now Playing panel -->
+<!-- NowPlaying panel -->
 <div id="nowPlayingContainer" class="container collapse">
 	<div class="row">
 		<div class="col-md-3">
@@ -120,12 +120,17 @@
 <!-- Main Content-->
 <hr>
 <div id="mainContent">
+
 	<!-- Home -->
 	<div id="home" class="container collapse">
 		<div class="jumbotron">
+			<!--div class="row">
+				<div class="col-md-12">
+				</div>
+			</div-->
 			<div class="row">
 				<div class="col-md-4">
-					<div class="panel panel-primary" id="recentsongs">
+					<div class="panel panel-primary" id="recentsongs" data-collapse="home">
 						<div class="panel-heading">
 							<h4 class="panel-title"><a data-toggle="collapse" data-parent="#recentsongs" href="#rads" aria-expanded="true" aria-controls="rads">Recently added songs</a></h4>
 						</div>
@@ -135,7 +140,7 @@
 					</div>
 				</div>
 				<div class="col-md-4 col-sm-6">
-					<div class="panel panel-primary" id="recentmovies">
+					<div class="panel panel-primary" id="recentmovies" data-collapse="home">
 						<div class="panel-heading">
 							<h4 class="panel-title"><a data-toggle="collapse" data-parent="#recentmovies" href="#radm" aria-expanded="true" aria-controls="radm">Recently added movies</a></h4>
 						</div>
@@ -145,7 +150,7 @@
 					</div>
 				</div>
 				<div class="col-md-4 col-sm-6">
-					<div class="panel panel-primary" id="recentepisodes">
+					<div class="panel panel-primary" id="recentepisodes" data-collapse="home">
 						<div class="panel-heading">
 							<h4 class="panel-title"><a data-toggle="collapse" data-parent="#recentepisodes" href="#rade" aria-expanded="true" aria-controls="rade">Recently added episodes</a></h4>
 						</div>
@@ -367,7 +372,7 @@
 </div>
 
 
-<!-- Remote control modal dialog -->
+<!-- MediaDetails dialog -->
 <div class="modal fade" id="showDetailsModal" tabindex="-1" role="dialog" aria-labelledby="showDetailsModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">

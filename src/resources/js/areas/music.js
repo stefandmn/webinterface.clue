@@ -200,7 +200,7 @@
 
 				if(refid != null)
 				{
-					properties = properties.concat(MCPi.json.props.audio);
+					properties = properties.concat(MCPi.json.const.props.audio);
 					MCPi.json.call("AudioLibrary.GetSongDetails", {"songid":parseInt(refid), "properties":properties}, MCPi.music.scope.setSongDetailsCallback);
 				}
 			},

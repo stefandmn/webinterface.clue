@@ -194,12 +194,15 @@
 				var properties = [];
 				var reference = {"input":input, "callback":MCPi.Player.getPlayingItemDetails, "chain":chain};
 
-				if (MCPi.Player.id == 0) properties = MCPi.json.const.props.audio;
-					else if (MCPi.Player.id == 1)
-					{
-						if (MCPi.Player.vars.contentType == "movie") properties = MCPi.json.const.props.movie;
-							else if (MCPi.Player.vars.contentType == "episode") properties = MCPi.json.const.props.episode;
-					}
+				if (MCPi.Player.id == 0)
+				{
+					properties = MCPi.json.const.props.audio;
+				}
+				else if (MCPi.Player.id == 1)
+				{
+					if (MCPi.Player.vars.contentType == "movie") properties = MCPi.json.const.props.movie;
+						else if (MCPi.Player.vars.contentType == "episode") properties = MCPi.json.const.props.episode;
+				}
 
 				MCPi.json.call("Player.GetItem", {"playerid":MCPi.Player.id, "properties":properties}, reference);
 			}
@@ -553,6 +556,159 @@
 		{
 			console.log("Player.setDecreaseVolume");
 			MCPi.Player.setVolume("decrement", null, chain);
+		},
+
+		/**
+		 * THis method is able to decode the <code>input<code> value into a media structure in order to access it.
+		 *
+		 * @param input input content that could be a string or a JSON structure
+		 * @returns {{mediatype: *, mediaid: *}|*}
+		 */
+		getMediaStructure: function(input)
+		{
+			var mediaType, mediaId;
+
+			if (typeof input === 'string')
+			{
+				mediaId = parseInt(input);
+				mediaType = MCPi.Player.vars.contentType;
+			}
+			else
+			{
+				if(input.mediatype != null) mediaType = input.mediatype;
+
+				if(input.mediaid != null)
+				{
+					if (typeof input.mediaid === 'string') mediaId = parseInt(input.mediaid);
+						else mediaId = input.mediaid;
+
+					if(mediaType == null) mediaType = MCPi.Player.vars.contentType;
+				}
+				else if(input.songid != null)
+				{
+					if (typeof input.songid === 'string') mediaId = parseInt(input.songid);
+						else mediaId = input.songid;
+
+					if(mediaType == null) mediaType = "song";
+				}
+				else if(input.movieid != null)
+				{
+					if (typeof input.movieid === 'string') mediaId = parseInt(input.movieid);
+						else mediaId = input.movieid;
+
+					if(mediaType == null) mediaType = "movie";
+				}
+				else if(input.episodeid != null)
+				{
+					if (typeof input.episodeid === 'string') mediaId = parseInt(input.episodeid);
+						else mediaId = input.episodeid;
+
+					if(mediaType == null) mediaType = "episode";
+				}
+			}
+
+			return {"mediatype":mediaType, "mediaid": mediaId};
+		},
+
+		/**
+		 * This method plays a specific media object (song, movie or tvshow episode) described in <code>input</code>
+		 * parameter (the input structure is decoded by <code>getMediaStructure</code> method). In case the player
+		 * has a queue (a playlist) it will stop playing the current media object and with start playing the specified
+		 * media object. After that it will continue to run the queue starting with the next media object.
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setOpenMedia: function(input, output, chain)
+		{
+			if(output == null)
+			{
+				input = MCPi.Player.getMediaStructure(input);
+				console.log("Player.setOpen");
+
+				var parameters, reference = {"input":input, "callback":MCPi.Player.setOpen, "chain":chain};
+
+				if(input.mediatype == "song") parameters ={"item":{"songid":input.mediaid}};
+					else if(input.mediatype == "movie") parameters = {"item":{"movieid":input.mediaid}};
+						else if(input.mediatype == "episode") parameters = {"item":{"episodeid":input.mediaid}};
+
+				MCPi.json.call("Player.Open", parameters, reference);
+			}
+			else
+			{
+				if(output && output.result == "OK")
+				{
+					console.log("Player.setOpen-Callback");
+				}
+			}
+		}
+	};
+
+	MCPi.Playlist =
+	{
+		/**
+		 * This method insert on the first position in the current playlist (queue) a new media object. Just to make
+		 * clear, in case the player plays the current playlist, the object that is run has index zero.
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setInsertMedia: function(input, output, chain)
+		{
+			if(output == null)
+			{
+				input = MCPi.Player.getMediaStructure(input);
+				console.log("Playlist.setInsertMedia");
+
+				var parameters, reference = {"input":input, "callback":MCPi.Playlist.setInsertMedia, "chain":chain};
+
+				if(input.mediatype == "song") parameters ={"item":{"songid":input.mediaid}, "position":1, "playlistid":MCPi.Player.id};
+					else if(input.mediatype == "movie") parameters = {"item":{"movieid":input.mediaid}, "position":1, "playlistid":MCPi.Player.id};
+						else if(input.mediatype == "episode") parameters = {"item":{"episodeid":input.mediaid}, "position":1, "playlistid":MCPi.Player.id};
+
+				MCPi.json.call("Playlist.Insert", parameters, reference);
+			}
+			else
+			{
+				if(output && output.result == "OK")
+				{
+					console.log("Playlist.setInsertMedia-Callback");
+				}
+			}
+		},
+
+		/**
+		 * This method a new media item in the curent playlist (in queue, even if the playlist is created based on
+		 * party-mode function)
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		setAppendMedia: function(input, output, chain)
+		{
+			if(output == null)
+			{
+				input = MCPi.Player.getMediaStructure(input);
+				console.log("Playlist.setAppendMedia");
+
+				var parameters, reference = {"input":input, "callback":MCPi.Playlist.setAppendMedia, "chain":chain};
+
+				if(input.mediatype == "song") parameters ={"item":{"songid":input.mediaid}, "playlistid":MCPi.Player.id};
+					else if(input.mediatype == "movie") parameters = {"item":{"movieid":input.mediaid}, "playlistid":MCPi.Player.id};
+						else if(input.mediatype == "episode") parameters = {"item":{"episodeid":input.mediaid}, "playlistid":MCPi.Player.id};
+
+				MCPi.json.call("Playlist.Add", parameters, reference);
+			}
+			else
+			{
+				if(output && output.result == "OK")
+				{
+					console.log("Playlist.setAppendMedia-Callback");
+				}
+			}
 		}
 	}
 }(window));

@@ -288,11 +288,11 @@
 		 *  2) get player volume details
 		 *  3) load GUI details of this window/dialog
 		 */
-		openDialog: function()
+		open: function()
 		{
-			console.log("GUI.RemoteControl.openDialog");
+			console.log("GUI.RemoteControl.open");
 
-			MCPi.Player.getId(null, null, {"onsuccess":MCPi.Player.getProperties, "chain":{"nextcall":MCPi.Player.getVolume, "chain":{"nextcall":MCPi.GUI.RemoteControl.loadDialog}}});
+			MCPi.Player.getId(null, null, {"onsuccess":MCPi.Player.getProperties, "chain":{"nextcall":MCPi.Player.getVolume, "chain":{"nextcall":MCPi.GUI.RemoteControl.display}}});
 		},
 
 		/**
@@ -301,9 +301,9 @@
 		 * 2) set the partymode status
 		 * 3) set the volume level and if the player is in mute or un-mute mode
 		 */
-		loadDialog: function()
+		display: function()
 		{
-			console.log("GUI.RemoteControl.loadDialog");
+			console.log("GUI.RemoteControl.display");
 
 			var play = $('#remotePlay');
 			var mute = $('#remoteVolumeMute');
@@ -375,7 +375,7 @@
 				MCPi.GUI.RemoteControl.vars.lockingFlag = false;
 				MCPi.GUI.RemoteControl.vars.lockingCounter = 0;
 
-				MCPi.GUI.RemoteControl.loadDialog();
+				MCPi.GUI.RemoteControl.display();
 				MCPi.GUI.runWaitOff('#remoteContainer');
 			}
 		},
@@ -416,7 +416,7 @@
 				MCPi.GUI.RemoteControl.vars.lockingFlag = false;
 				MCPi.GUI.RemoteControl.vars.lockingCounter = 0;
 
-				MCPi.GUI.RemoteControl.loadDialog();
+				MCPi.GUI.RemoteControl.display();
 				MCPi.GUI.runWaitOff('#remoteContainer');
 			}
 		},
@@ -457,7 +457,7 @@
 				MCPi.GUI.RemoteControl.vars.lockingFlag = false;
 				MCPi.GUI.RemoteControl.vars.lockingCounter = 0;
 
-				MCPi.GUI.RemoteControl.loadDialog();
+				MCPi.GUI.RemoteControl.display();
 				MCPi.GUI.runWaitOff('#remoteContainer');
 			}
 		},
@@ -500,7 +500,7 @@
 				MCPi.GUI.RemoteControl.vars.lockingFlag = false;
 				MCPi.GUI.RemoteControl.vars.lockingCounter = 0;
 
-				MCPi.GUI.RemoteControl.loadDialog();
+				MCPi.GUI.RemoteControl.display();
 				MCPi.GUI.runWaitOff('#remoteContainer');
 			}
 		},
@@ -664,19 +664,19 @@
 					MCPi.RemoteControl.setContextKey();
 					break;
 				case 'remoteFastRewind':
-					MCPi.Player.setFastRewind(null, null, MCPi.GUI.RemoteControl.loadDialog);
+					MCPi.Player.setFastRewind(null, null, MCPi.GUI.RemoteControl.display);
 					break;
 				case 'remoteRewind':
 					MCPi.Player.setRewind();
 					break;
 				case 'remoteStop':
-					MCPi.Player.setStop(null, null, MCPi.GUI.RemoteControl.loadDialog);
+					MCPi.Player.setStop(null, null, MCPi.GUI.RemoteControl.display);
 					break;
 				case 'remotePlay':
-					MCPi.Player.setPlay(null, null, MCPi.GUI.RemoteControl.loadDialog);
+					MCPi.Player.setPlay(null, null, MCPi.GUI.RemoteControl.display);
 					break;
 				case 'remoteFastForward':
-					MCPi.Player.setFastForward(null, null, MCPi.GUI.RemoteControl.loadDialog);
+					MCPi.Player.setFastForward(null, null, MCPi.GUI.RemoteControl.display);
 					break;
 				case 'remoteForward':
 					MCPi.Player.setForward();
