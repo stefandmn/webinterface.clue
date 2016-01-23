@@ -10,6 +10,11 @@
 			showPanel: false
 		},
 
+		const:
+		{
+			tmdburl: "http://api.themoviedb.org/3/movie/upcoming?api_key=57983e31fb435df4df77afb854740ea9"
+		},
+
 		/**
 		 * This method is called when the <code>home</code> page is called to be open and to display the content. In
 		 * addition this method is called also when one of the panels (inside of home screen) is collapsed
@@ -34,9 +39,10 @@
 				case "home":
 					if(!MCPi.GUI.Home.vars.showPanel)
 					{
+						MCPi.GUI.Home.runExtraContent();
 						MCPi.GUI.Home.vars.showPanel = true;
-						$('#rads').collapse();
 					}
+					break;
 			}
 		},
 
@@ -281,6 +287,44 @@
 				'	</div>' +
 				'</div>'
 				].join("\n"));
+		},
+
+		runExtraContent: function()
+		{
+			console.log("GUI.Home.runExtraContent");
+
+			$.ajax({
+				url: MCPi.GUI.Home.const.tmdburl,
+				crossDomain: true,
+				dataType: 'json'
+			}).done(function (output) {
+				if(output != null && output.results != null)
+				{
+					$('#extracontent').html(
+					'\n					<div class="panel panel-primary" id="upcoming" data-collapse="home">' +
+					'\n						<div class="panel-heading">' +
+					'\n							<h4 class="panel-title"><a data-toggle="collapse" data-parent="#upcoming" href="#radu" aria-expanded="true" aria-controls="rade">Upcoming</a></h4>' +
+					'\n						</div>' +
+					'\n						<div id="radu" class="panel-body panel-collapse collapse">'	);
+
+					$.each(output.results, function(index, value) {
+						if(value.backdrop_path != null) $('#radu').append(
+						'\n							<div class="media thumbnail">' +
+						'\n								<a class="pull-left" href="https://www.themoviedb.org/movie/' + value.id + '" target="_blank">' +
+						'\n									<img src="https://image.tmdb.org/t/p/w185/' + value.backdrop_path + '" alt="' + value.title + '" style="height:4em;">' +
+						'\n								</a>' +
+						'\n								<div class="media-body">' +
+						'\n									<h5 class="media-heading text-primary">' + value.title + '</h5>' +
+						'\n									<small class="media-object"><span class="fa fa-calendar text-primary"></span> ' + value.release_date + '</small>' +
+						'\n									<small class="media-object"><span class="fa fa-star text-primary"></span> ' + value.vote_average + '</small>' +
+						'\n								</div>' +
+						'\n							</div>'	);
+					});
+
+					$('#extracontent').append(
+					'\n					</div>');
+				}
+			});
 		}
 	}
 }(window));
