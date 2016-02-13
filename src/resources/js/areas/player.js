@@ -34,8 +34,7 @@
 		data:
 		{
 			title: null,
-			description1: null,
-			description2: null,
+			details: null,
 			thumbnail: null,
 			reference: null
 		},
@@ -120,11 +119,8 @@
 			{
 				console.log("Player.getProperties(" + MCPi.Player.id + ")");
 
-				if (MCPi.Player.id >= 0)
-				{
-					var reference = {"input":input, "callback":MCPi.Player.getProperties, "chain":chain};
-					MCPi.json.call("Player.GetProperties", {"playerid":MCPi.Player.id, "properties":MCPi.Player.const.properties}, reference);
-				}
+				var reference = {"input":input, "callback":MCPi.Player.getProperties, "chain":chain};
+				MCPi.json.call("Player.GetProperties", {"playerid":MCPi.Player.id, "properties":MCPi.Player.const.properties}, reference);
 			}
 			else
 			{
@@ -148,7 +144,6 @@
 				else MCPi.Player.vars.allowData = false;
 			}
 		},
-
 
 		/**
 		 * The player read volume properties by reading data from MCPi through JSON calls
@@ -231,12 +226,10 @@
 						text = [];
 						if (item.artist != null && item.artist != "") text[text.length] = "<b>" + item.artist + "</b>";
 						if (item.album != null && item.album != "") text[text.length] = item.album;
+						if (item.year != null && item.year != "") text[text.length] = item.year;
 
-						if (text.length > 0) MCPi.Player.data.description1 = text.join(" &bull; ");
-							else MCPi.Player.data.description1 = null;
-
-						if (item.year != null && item.year != '') MCPi.Player.data.description2 = item.year;
-							else MCPi.Player.data.description2 = null;
+						if (text.length > 0) MCPi.Player.data.details = text.join(" &bull; ");
+							else MCPi.Player.data.details = null;
 
 						MCPi.Player.vars.contentType = item.type;
 					}
@@ -252,41 +245,34 @@
 							text = [];
 							if (item.genre != null && item.genre.length > 3) item.genre.splice(3);
 							if (item.genre != null && item.genre.length > 0) text[text.length] = item.genre.join(",");
-							if (item.rating) text[text.length] = item.rating.toFixed(1);
+							if (item.year != null && item.year != "") text[text.length] = item.year;
+							if (item.rating != null && item.rating != "") text[text.length] = item.rating.toFixed(1);
 
-							if (text.length > 0) MCPi.Player.data.description1 = text.join(" &bull; ");
-								else MCPi.Player.data.description1 = null;
-
-							if (item.year != null && item.year != "") MCPi.Player.data.description2 = item.year;
-								else MCPi.Player.data.description2 = null;
+							if (text.length > 0) MCPi.Player.data.details = text.join(" &bull; ");
+								else MCPi.Player.data.details = null;
 						}
 						else if (MCPi.Player.vars.contentType == "episode")
 						{
 							if (item.title != null && item.title != "") MCPi.Player.data.title = item.title;
 								else MCPi.Player.data.title = item.label;
 
-							if (item.showtitle != null) MCPi.Player.data.description1 = "<b>" + item.showtitle + "</b>";
-								else MCPi.Player.data.description1 = null;
-
 							text = [];
-							if (item.season != null && item.season != '') text[text.length] = "Season " + item.season;
-							if (item.episode != null && item.episode != '') text[text.length] = "Episode " + item.episode;
-							if (item.rating != null) text[text.length] = item.rating.toFixed(1);
+							if (item.showtitle != null && item.showtitle != "") text[text.length] = "<b>" + item.showtitle + "</b>";
+							if (item.season != null && item.season != "") text[text.length] = "Season " + item.season;
+							if (item.episode != null && item.episode != "") text[text.length] = "Episode " + item.episode;
+							if (item.rating != null && item.rating != "")text[text.length] = item.rating.toFixed(1);
 
-							if (text.length > 0) MCPi.Player.data.description2 = text.join(" &bull; ");
-								else MCPi.Player.data.description2 = null;
-
+							if (text.length > 0) MCPi.Player.data.details = text.join(" &bull; ");
+								else MCPi.Player.data.details = null;
 						}
 						else if (MCPi.Player.vars.contentType == null)
 						{
 							if (item.label != null && item.label != "") MCPi.Player.data.title = item.label;
 								else MCPi.Player.data.title = null;
 
-							MCPi.Player.data.description1 = null;
-							MCPi.Player.data.description2 = null;
-
+							MCPi.Player.data.details = null;
 							MCPi.Player.vars.contentType = item.type;
-							MCPi.Player.setPlayingItemDetails(input, null, chain);
+							MCPi.Player.getPlayingItemDetails(input, null, chain);
 						}
 					}
 
@@ -645,7 +631,93 @@
 		}
 	};
 
-	MCPi.Playlist =
+	MCPi.Player.GUI =
+	{
+		/**
+		 * Show the NowPlaying panel based on the user action performed n the corresponding button on the
+		 * main navigation panel. This action actually do:
+		 * 1) set a new view of <code>nowPlayingButton</code> button on navigation panel
+		 * 2) get payer id, read player properties, read items details and call <code>display</code> method of this
+		 * object to render 'now playing item'.
+		 */
+		show: function()
+		{
+			console.log("Player.GUI.show");
+			$('#nowPlayingButton span').removeClass("text-primary");
+
+			MCPi.Player.getId(null,null, {"nextcall":MCPi.Player.getProperties, "chain":{"nextcall":MCPi.Player.getPlayingItemDetails, "chain":{"nextcall":MCPi.Player.GUI.display}}});
+		},
+
+		/**
+		 * Hone the NowPlaying panel based on the user action performed n the corresponding button on the
+		 * main navigation panel. Also this method will display back the standard view of <code>nowPlayingButton</code>
+		 * button (classes active and text-primary).
+		 */
+		hide: function()
+		{
+			console.log("Player.GUI.hide");
+
+			$('#nowPlayingButton').removeClass('active');
+			$('#nowPlayingButton span').addClass("text-primary");
+		},
+
+		/**
+		 * Fill in the graphical details of this dialog:
+		 * 1) display playing item details: title, description and fanart
+		 * 2) show progress bar (and current level)
+		 * 3) display player controls and their status
+		 */
+		display: function()
+		{
+			console.log("Player.GUI.display");
+
+			if(MCPi.Player.vars.allowData)
+			{
+				$('#nowPlayingData').removeClass("hide");
+				$('#nowPlayingData').addClass("show");
+				$('#nowPlayingNone').removeClass("show");
+				$('#nowPlayingNone').addClass("hide");
+				$('#nowPlayingCtrl').removeClass("hide");
+				$('#nowPlayingCtrl').addClass("show");
+
+				if(MCPi.Player.data.title != null) $('#nowPlayingItemTitle').html(MCPi.Player.data.title);
+					else $('#nowPlayingItemTitle').html("&nbsp;");
+
+				if(MCPi.Player.data.details != null) $('#nowPlayingItemDetails').html(MCPi.Player.data.details);
+					else $('#nowPlayingItemDetails').html("&nbsp;");
+
+				$('#nowPlayingItemProgress').css('width', MCPi.Player.props.percentage + '%').attr("aria-valuenow", MCPi.Player.props.percentage);
+				$('#nowPlayingItemProgress').html(MCPi.Player.props.percentage + "% ( " + MCPi.libs.durationToString(MCPi.Player.props.time) + " / " + MCPi.libs.durationToString(MCPi.Player.props.totalTime) + ")");
+
+				$('#nowPlayingItemFanart').attr("src", MCPi.Player.data.thumbnail);
+			}
+			else
+			{
+				$('#nowPlayingData').removeClass("show");
+				$('#nowPlayingData').addClass("hide");
+				$('#nowPlayingNone').removeClass("hide");
+				$('#nowPlayingNone').addClass("show");
+				$('#nowPlayingCtrl').removeClass("show");
+				$('#nowPlayingCtrl').addClass("hide");
+
+				$('#nowPlayingItemTitle').html("&nbsp;");
+				$('#nowPlayingItemDetails').html("&nbsp;&nbsp;");
+				$('#nowPlayingItemFanart').attr('src', "#");
+			}
+
+			var play = $('#nowPlayingPlay');
+			if (MCPi.Player.props.speed <= 0 || MCPi.Player.props.speed > 1)
+			{
+				play.html('<span class="fa fa-play" aria-hidden="true"></span>');
+			}
+			else if(MCPi.Player.props.speed == 1)
+			{
+				play.html('<span class="fa fa-pause" aria-hidden="true"></span>');
+			}
+		}
+	};
+
+	MCPi.Player.Queue =
 	{
 		/**
 		 * This method insert on the first position in the current playlist (queue) a new media object. Just to make
@@ -660,7 +732,7 @@
 			if(output == null)
 			{
 				input = MCPi.Player.getMediaStructure(input);
-				console.log("Playlist.setInsertMedia");
+				console.log("Player.Queue.setInsertMedia");
 
 				var parameters, reference = {"input":input, "callback":MCPi.Playlist.setInsertMedia, "chain":chain};
 
@@ -674,7 +746,7 @@
 			{
 				if(output && output.result == "OK")
 				{
-					console.log("Playlist.setInsertMedia-Callback");
+					console.log("Player.Queue.setInsertMedia-Callback");
 				}
 			}
 		},
@@ -692,7 +764,7 @@
 			if(output == null)
 			{
 				input = MCPi.Player.getMediaStructure(input);
-				console.log("Playlist.setAppendMedia");
+				console.log("Player.Queue.setAppendMedia");
 
 				var parameters, reference = {"input":input, "callback":MCPi.Playlist.setAppendMedia, "chain":chain};
 
@@ -706,7 +778,7 @@
 			{
 				if(output && output.result == "OK")
 				{
-					console.log("Playlist.setAppendMedia-Callback");
+					console.log("Player.Queue.setAppendMedia-Callback");
 				}
 			}
 		}

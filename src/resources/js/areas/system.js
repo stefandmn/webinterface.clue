@@ -137,7 +137,7 @@
 		}
 	};
 
-	MCPi.GUI.System =
+	MCPi.System.GUI =
 	{
 		/**
 		 * Handles click events all buttons and links.
@@ -151,7 +151,7 @@
 			var obj = $(this);
 			var id = obj.attr('id');
 
-			console.log("GUI.System.onClick(#" + id + ")");
+			console.log("System.GUI.onClick(#" + id + ")");
 
 			switch (id)
 			{
@@ -177,7 +177,7 @@
 					MCPi.System.setExit();
 					break;
 				case 'notifyInGUI':
-					MCPi.GUI.System.runNotification();
+					MCPi.System.GUI.runNotification();
 					break;
 			}
 		},
@@ -192,7 +192,7 @@
 			var nDisplayTime = parseInt($('#notification-time').val());
 			var nMessage = $('#notification-text').val();
 
-			console.log("GUI.System.runNotification");
+			console.log("System.GUI.runNotification");
 
 			if(nMessage && nTitle)
 			{

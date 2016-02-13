@@ -269,11 +269,9 @@
 			vars:
 			{
 				/* Time interval (in ms) to run reference queue */
-				timerInterval: 20000,
+				timerInterval: 3500,
 				/* Timer process id - if this is not null means that the reference queue has been scheduled */
 				timerProcessId: null,
-				/* Reference functions (process) to be executed based on clock interval */
-				timerReferences: null,
 				/* Current screen name */
 				currentScreen: "#home"
 			},
@@ -387,6 +385,36 @@
 			showErrorStatus: function(msg)
 			{
 				$('#brandStatus').html('<i class="fa fa-ban text-danger"' + (msg != null ? '" title="' + msg + '">' : '>') + '</i>');
+			},
+
+			/**
+			 * This is the MCPi method that is able to refresh/renew the graphical content for all visible GUI objects.
+			 * Typically this method is launched by <code>MCPi.init</conde> method into a clock interval sequence
+			 */
+			refresh: function()
+			{
+				console.log("MCPi.GUI.referesh");
+				var remoteControlVisible=false, nowPlayingVisible=false, audioVisible=false, videoVisible=false;
+
+				remoteControlVisible = $('#remoteControlModal').is(":visible");
+				nowPlayingVisible = $('#nowPlayingContainer').is(":visible");
+				audioVisible = $('#audio').is(":visible");
+				videoVisible = $('#video').is(":visible");
+
+				if(remoteControlVisible)
+				{
+					nowPlayingVisible = false;
+					audioVisible = false;
+					videoVisible = false;
+				}
+				else
+				{
+					//if NowPlaying panel (Player GUI panel) is visible refresh the content
+					if(nowPlayingVisible)
+					{
+						MCPi.Player.getId(null,null, {"nextcall":MCPi.Player.getProperties, "chain":{"nextcall":MCPi.Player.getPlayingItemDetails, "chain":{"nextcall":MCPi.Player.GUI.display}}});
+					}
+				}
 			}
 		},
 
@@ -399,6 +427,12 @@
 
 			MCPi.GUI.open(this.GUI.vars.currentScreen);
 			MCPi.Player.getId(null,null, {"onsuccess":MCPi.Player.getProperties, "chain":{"onsuccess":MCPi.Player.getVolume, "chain":{"onsuccess":MCPi.Player.getPlayingItemDetails}}});
+
+			//schedule GUI refresh method execution.
+			if(MCPi.GUI.vars.timerInterval > 0 && MCPi.GUI.vars.timerProcessId == null)
+			{
+				MCPi.GUI.vars.timerProcessId = setInterval(MCPi.GUI.refresh, MCPi.GUI.vars.timerInterval);
+			}
 		}
 	};
 
@@ -408,31 +442,22 @@
 	{
 	/* GLOBAL - Register event handlers for Main and System options */
 		$(document).on('click', '[data-clickthrough=main]', MCPi.GUI.onClick);
-		$(document).on('click', '[data-clickthrough=system]', MCPi.GUI.System.onClick);
+		$(document).on('click', '[data-clickthrough=system]', MCPi.System.GUI.onClick);
 
 	/* REMOTECONTROL - Register event handlers for RemoteControl modal dialog  */
-		$('#remoteControlModal').on('show.bs.modal', MCPi.GUI.RemoteControl.open);
-		$('#remoteControlModal').on('keydown', jQuery.proxy(MCPi.GUI.RemoteControl.onKeyPress, this));
-		$('#remoteControlModal').on('click', '[data-clickthrough=remote]', MCPi.GUI.RemoteControl.onClick);
+		$('#remoteControlModal').on('show.bs.modal', MCPi.RemoteControl.GUI.open);
+		$('#remoteControlModal').on('keydown', jQuery.proxy(MCPi.RemoteControl.GUI.onKeyPress, this));
+		$('#remoteControlModal').on('click', '[data-clickthrough=remote]', MCPi.RemoteControl.GUI.onClick);
 
 	/* HOME - Register event handlers for Home screen (panel) */
-		$('#home').on('shown.bs.collapse', MCPi.GUI.Home.open);
-		$('#home').on('click', '[data-clickthrough=home]', MCPi.GUI.Home.onClick);
-		$('#home').on('shown.bs.collapse', '[data-collapse=home]', MCPi.GUI.Home.open);
+		$('#home').on('shown.bs.collapse', MCPi.Home.GUI.show);
+		$('#home').on('click', '[data-clickthrough=home]', MCPi.Home.GUI.onClick);
+		$('#home').on('shown.bs.collapse', '[data-collapse=home]', MCPi.Home.GUI.show);
 
 
-	/** NowPlaying */
-		//expand nowplaying container panel
-		$('#nowPlayingContainer').on('show.bs.collapse',function (e)
-		{
-			//MCPi.player.model.show();
-		});
-
-		//collapse nowplaying container panel
-		$('#nowPlayingContainer').on('hide.bs.collapse',function (e)
-		{
-			//MCPi.player.model.hide();
-		});
+	/** NOWPLAYING - Register event handlers for NowPlaying panel*/
+		$('#nowPlayingContainer').on('show.bs.collapse', MCPi.Player.GUI.show);
+		$('#nowPlayingContainer').on('hide.bs.collapse', MCPi.Player.GUI.hide);
 
 		//expand event of recentsongs list from home screen panel
 		//$('#recentsongs').on('show.bs.collapse',function (e)

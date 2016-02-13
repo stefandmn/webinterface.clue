@@ -3,7 +3,96 @@
 	'use strict';
 	var MCPi = window.MCPi;
 
-	MCPi.GUI.Home =
+	MCPi.Home =
+	{
+		vars:
+		{
+			panelData: null
+		},
+
+		/**
+		 * Read the latest songs deployed in Audio library
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		getLatestSongs: function (input, output, chain)
+		{
+			if (output == null)
+			{
+				console.log("Home.getLatestSongs");
+				var reference = {"input":input, "callback":MCPi.Home.getLatestSongs, "chain":chain};
+
+				MCPi.json.call('AudioLibrary.GetRecentlyAddedSongs', {"properties":MCPi.json.const.props.audio, "sort":{"method":'dateadded', "order":'descending'}, "limits":{"end": 5}}, reference);
+			}
+			else
+			{
+				if (output && output.result && output.result.songs)
+				{
+					console.log("Home.getLatestSongs-Callback");
+					MCPi.Home.panelData = output.result.songs;
+				}
+				else MCPi.Home.panelData = null;
+			}
+		},
+
+		/**
+		 * Read the latest movies deployed in Video library
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		getLatestMovies: function(input, output, chain)
+		{
+			if (output == null)
+			{
+				console.log("Home.getLatestMovies");
+				var reference = {"input":input, "callback":MCPi.Home.getLatestMovies, "chain":chain};
+
+				MCPi.json.call('VideoLibrary.GetRecentlyAddedMovies', {"properties":MCPi.json.const.props.movie, "sort":{"method":'dateadded', "order":'descending'}, "limits":{"end":5}}, reference);
+			}
+			else
+			{
+				if(output && output.result && output.result.movies)
+				{
+					console.log("Home.getLatestMovies-Callback");
+					MCPi.Home.panelData = output.result.movies;
+				}
+				else MCPi.Home.panelData = null;
+			}
+		},
+
+		/**
+		 * Read the latest showTV episode deployed in Video library
+		 *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+		 */
+		getLatestEpisodes: function (input, output, chain)
+		{
+			if (output == null)
+			{
+				console.log("Home.getLatestEpisodes");
+				var reference = {"input":input, "callback":MCPi.Home.getLatestEpisodes, "chain":chain};
+
+				MCPi.json.call('VideoLibrary.GetRecentlyAddedEpisodes', {"properties":MCPi.json.const.props.episode, "sort":{"method":'dateadded', "order":'descending'}, "limits":{"end":5}}, reference);
+			}
+			else
+			{
+				if (output && output.result && output.result.episodes)
+				{
+					console.log("Home.getLatestEpisodes-Callback");
+					MCPi.Home.panelData = output.result.episodes;
+				}
+				else MCPi.Home.panelData = null;
+			}
+		}
+	};
+
+	MCPi.Home.GUI =
 	{
 		vars:
 		{
@@ -19,28 +108,28 @@
 		 * This method is called when the <code>home</code> page is called to be open and to display the content. In
 		 * addition this method is called also when one of the panels (inside of home screen) is collapsed
 		 */
-		open: function()
+		show: function()
 		{
 			var obj = $(this);
 			var panel = obj.attr("id");
-			console.log("GUI.Home.open");
+			console.log("Home.GUI.show");
 
 			switch (panel)
 			{
 				case "recentsongs":
-					MCPi.GUI.Home.runLatestSongs();
+					MCPi.Home.getLatestSongs(null, null, MCPi.Home.GUI.showLatestSongs);
 					break;
 				case "recentmovies":
-					MCPi.GUI.Home.runLatestMovies();
+					MCPi.Home.getLatestMovies(null, null, MCPi.Home.GUI.showLatestMovies);
 					break;
 				case "recentepisodes":
-					MCPi.GUI.Home.runLatestEpisodes();
+					MCPi.Home.getLatestEpisodes(null, null, MCPi.Home.GUI.showLatestEpisodes);
 					break;
 				case "home":
-					if(!MCPi.GUI.Home.vars.showPanel)
+					if(!MCPi.Home.GUI.vars.showPanel)
 					{
-						MCPi.GUI.Home.runExtraContent();
-						MCPi.GUI.Home.vars.showPanel = true;
+						MCPi.Home.GUI.runExtraContent();
+						MCPi.Home.GUI.vars.showPanel = true;
 					}
 					break;
 			}
@@ -61,7 +150,7 @@
 			var refid = obj.attr("data-refid");
 
 			MCPi.Player.vars.contentType = type;
-			console.log("GUI.Home.onClick (" + exec + "(" + type + "))");
+			console.log("Home.GUI.onClick (" + exec + "(" + type + "))");
 
 			switch (exec)
 			{
@@ -70,180 +159,102 @@
 					break;
 
 				case "playnext":
-					MCPi.Playlist.setInsertMedia(refid);
+					MCPi.Player.Queue.setInsertMedia(refid);
 					break;
 
 				case "enqueue":
-					MCPi.Playlist.setAppendMedia(refid);
+					MCPi.Player.Queue.setAppendMedia(refid);
 					break;
 			}
 		},
 
 		/**
 		 * Fill in "#rads" panel the latest songs deployed in Audio library
-		 *
-		 * @param input input value of structure (could be any data type).
-		 * @param output data structure received from server that should contain the callback processing details.
-		 * @param chain data structure for chained method execution, to define a process flow.
 		 */
-		runLatestSongs: function (input, output, chain)
+		showLatestSongs: function ()
 		{
-			if (output == null)
-			{
-				console.log("GUI.Home.runLatestSongs");
-				var reference = {"input":input, "callback":MCPi.GUI.Home.runLatestSongs, "chain":chain};
+			console.log("Home.GUI.showLatestSongs");
 
-				MCPi.json.call('AudioLibrary.GetRecentlyAddedSongs', {"properties":MCPi.json.const.props.audio, "sort":{"method":'dateadded', "order":'descending'}, "limits":{"end": 5}}, reference);
-			}
-			else 
+			if (MCPi.Home.panelData != null)
 			{
-				if (output && output.result && output.result.songs) 
+				$.each(MCPi.Home.panelData, function (i, data)
 				{
-					console.log("GUI.Home.runLatestSongs-Callback");
+					var content, image = data.thumbnail, titles = [], details = [];
 
-					$.each(output.result.songs, function (i, d) 
-					{
-						var item = MCPi.GUI.Home.getSongContent(d);
+					if (data.artist) titles[titles.length] = '<b>' + data.artist + '</b>';
+					if (data.title) titles[titles.length] = data.title;
+					if (data.genre && data.genre.length > 3) data.genre.splice(3);
+					if (data.genre && data.genre.length > 0) details[details.length] = data.genre.join(",");
+					if (data.year) details[details.length] = data.year;
 
-						if (i == 0) $('#rads').html(item);
-							else $('#rads').append(item);
-					});
-				}
-				else $('#rads').html("");
+					content = MCPi.Home.GUI.getTemplateContent(data.songid, "song", image, titles.join(" - "), details.join(" &bull; "));
+
+					if (i == 0) $('#rads').html(content);
+						else $('#rads').append(content);
+				});
 			}
-		},
+			else $('#rads').html("");
 
-		/**
-		 * Returns the HTML content for a song entry that has to be insert in the list
-		 *
-		 * @param data song data structure with all attributes returned by a JSON call
-		 * @returns HTML content for a song info
-		 */
-		getSongContent: function (data)
-		{
-			var image = data.thumbnail;
-			var titles = [];
-			var details = [];
-
-			if (data.artist) titles[titles.length] = '<b>' + data.artist + '</b>';
-			if (data.title) titles[titles.length] = data.title;
-			if (data.genre && data.genre.length > 3) data.genre.splice(3);
-			if (data.genre && data.genre.length > 0) details[details.length] = data.genre.join(",");
-			if (data.year) details[details.length] = data.year;
-
-			return MCPi.GUI.Home.getTemplateContent(data.songid, "song", image, titles.join(" - "), details.join(" &bull; "));
+			MCPi.Home.panelData = null;
 		},
 
 		/**
 		 * Fill in "#radm" panel the latest movies deployed in Video library
-		 *
-		 * @param input input value of structure (could be any data type).
-		 * @param output data structure received from server that should contain the callback processing details.
-		 * @param chain data structure for chained method execution, to define a process flow.
 		 */
-		runLatestMovies: function(input, output, chain)
+		showLatestMovies: function()
 		{
-			if (output == null)
-			{
-				console.log("GUI.Home.runLatestMovies");
-				var reference = {"input":input, "callback":MCPi.GUI.Home.runLatestMovies, "chain":chain};
+			console.log("Home.GUI.showLatestMovies");
 
-				MCPi.json.call('VideoLibrary.GetRecentlyAddedMovies', {"properties":MCPi.json.const.props.movie, "sort":{"method":'dateadded', "order":'descending'}, "limits":{"end":5}}, reference);
-			}
-			else 
+			if (MCPi.Home.panelData != null)
 			{
-				if(output && output.result && output.result.movies)
+				$.each(MCPi.Home.panelData, function (i, data)
 				{
-					console.log("GUI.Home.runLatestMovies-Callback");
+					var content, image = data.thumbnail, titles = [], details = [];
 
-					$.each(output.result.movies, function (i, d)
-					{
-						var item = MCPi.GUI.Home.getMovieContent(d);
-	
-						if(i == 0) $('#radm').html(item);
-							else $('#radm').append(item);
-					})
-				}
-				else $('#radm').html("");
+					if(data.title) titles[titles.length] = '<b>' + data.title + '</b>';
+					if(data.genre && data.genre.length > 3) data.genre.splice(3);
+					if(data.genre && data.genre.length > 0) details[details.length] = data.genre.join(",");
+					if(data.rating) details[details.length] = data.rating.toFixed(1);
+					if(data.year) details[details.length] = data.year;
+
+					content = MCPi.Home.GUI.getTemplateContent(data.movieid, "movie", image, titles.join(" - "), details.join(" &bull; "));
+
+					if(i == 0) $('#radm').html(content);
+						else $('#radm').append(content);
+				})
 			}
-		},
+			else $('#radm').html("");
 
-		/**
-		 * Returns the HTML content for a movie entry that has to be insert in the list
-		 *
-		 * @param data movie data structure with all attributes returned by a JSON call
-		 * @returns HTML content for a movie info
-		 */
-		getMovieContent: function(data)
-		{
-			var image = data.thumbnail;
-			var titles = [];
-			var details = [];
-
-			if(data.title) titles[titles.length] = '<b>' + data.title + '</b>';
-			if(data.genre && data.genre.length > 3) data.genre.splice(3);
-			if(data.genre && data.genre.length > 0) details[details.length] = data.genre.join(",");
-			if(data.rating) details[details.length] = data.rating.toFixed(1);
-			if(data.year) details[details.length] = data.year;
-
-			return MCPi.GUI.Home.getTemplateContent(data.movieid, "movie", image, titles.join(" - "), details.join(" &bull; "));
+			MCPi.Home.panelData = null;
 		},
 
 		/**
 		 * Fill in "#rade" panel the latest showTV episode deployed in Video library
-		 *
-		 * @param input input value of structure (could be any data type).
-		 * @param output data structure received from server that should contain the callback processing details.
-		 * @param chain data structure for chained method execution, to define a process flow.
 		 */
-		runLatestEpisodes: function (input, output, chain)
+		showLatestEpisodes: function ()
 		{
-			if (output == null)
-			{
-				console.log("GUI.Home.runLatestEpisodes");
-				var reference = {"input":input, "callback":MCPi.GUI.Home.runLatestEpisodes, "chain":chain};
+			console.log("Home.GUI.showLatestEpisodes");
 
-				MCPi.json.call('VideoLibrary.GetRecentlyAddedEpisodes', {"properties":MCPi.json.const.props.episode, "sort":{"method":'dateadded', "order":'descending'}, "limits":{"end":5}}, reference);
-			}
-			else
+			if (MCPi.Home.panelData != null)
 			{
-				if (output && output.result && output.result.episodes)
+				$.each(MCPi.Home.panelData, function (i, data)
 				{
-					console.log("GUI.Home.runLatestEpisodes-Callback");
+					var content, image = data.thumbnail, titles = [], details = [];
 
-					$.each(output.result.episodes, function (i, d)
-					{
-						var item = MCPi.GUI.Home.getEpisodeContent(d);
+					if (data.title) titles[titles.length] = '<b>' + data.title + '</b>';
+					if (data.showtitle) titles[titles.length] = data.showtitle;
+					if (data.season) details[details.length] = "Season " + data.season;
+					if (data.episode) details[details.length] = "Episode " + data.episode;
+					if (data.rating) details[details.length] = data.rating.toFixed(1);
 
-						if (i == 0) $('#rade').html(item);
-							else $('#rade').append(item);
-					})
-				}
-				else $('#rade').html("");
+					content = MCPi.Home.GUI.getTemplateContent(data.episodeid, "episode", image, titles.join(" - "), details.join(" &bull; "));
+
+					if (i == 0) $('#rade').html(content);
+						else $('#rade').append(content);
+				})
 			}
+			else $('#rade').html("");
 		},
-
-		/**
-		 * Returns the HTML content for a movie entry that has to be insert in the list
-		 *
-		 * @param data movie data structure with all attributes returned by a JSON call
-		 * @returns HTML content for a movie info
-		 */
-		getEpisodeContent: function (data)
-		{
-			var image = data.thumbnail;
-			var titles = [];
-			var details = [];
-
-			if (data.title) titles[titles.length] = '<b>' + data.title + '</b>';
-			if (data.showtitle) titles[titles.length] = data.showtitle;
-			if (data.season) details[details.length] = "Season " + data.season;
-			if (data.episode) details[details.length] = "Episode " + data.episode;
-			if (data.rating) details[details.length] = data.rating.toFixed(1);
-
-			return MCPi.GUI.Home.getTemplateContent(data.episodeid, "episode", image, titles.join(" - "), details.join(" &bull; "));
-		},
-
 
 		/**
 		 * Build the HTML content related to a media object provided from JSON list of objects.
@@ -291,10 +302,10 @@
 
 		runExtraContent: function()
 		{
-			console.log("GUI.Home.runExtraContent");
+			console.log("Home.GUI.runExtraContent");
 
 			$.ajax({
-				url: MCPi.GUI.Home.const.tmdburl,
+				url: MCPi.Home.GUI.const.tmdburl,
 				crossDomain: true,
 				dataType: 'json'
 			}).done(function (output) {
