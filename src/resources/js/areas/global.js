@@ -269,7 +269,7 @@
 			vars:
 			{
 				/* Time interval (in ms) to run reference queue */
-				timerInterval: 3500,
+				timerInterval: 5000,
 				/* Timer process id - if this is not null means that the reference queue has been scheduled */
 				timerProcessId: null,
 				/* Current screen name */
@@ -321,9 +321,13 @@
 			{
 				var obj, text = '<div class="text-center wait-overlay"><i class="fa fa-spinner fa-spin fa-5x"></i></div>';
 
-				if(jQuery.type(id) === "string") obj = $(id);
-						else if(jQuery.type(id) === "object") obj = id;
-							else obj = null;
+                if(id == null) obj = $('body');
+                else
+                {
+                    if(jQuery.type(id) === "string") obj = $(id);
+                            else if(jQuery.type(id) === "object") obj = id;
+                                else obj = null;
+                }
 
 				if(obj && obj.children('.wait-overlay').length == 0)
 				{
@@ -389,11 +393,13 @@
 
 			/**
 			 * This is the MCPi method that is able to refresh/renew the graphical content for all visible GUI objects.
-			 * Typically this method is launched by <code>MCPi.init</conde> method into a clock interval sequence
+			 * Typically this method is launched by <code>MCPi.init</conde> method into a clock interval sequence.
+             *
+             * @param workflow define a specific chain workflow and its parametrization in case of you want to run a custom workflow
 			 */
-			refresh: function()
+			refresh: function(workflow)
 			{
-				console.log("MCPi.GUI.referesh");
+				console.log("MCPi.GUI.refresh");
 				var remoteControlVisible=false, nowPlayingVisible=false, audioVisible=false, videoVisible=false;
 
 				remoteControlVisible = $('#remoteControlModal').is(":visible");
@@ -401,20 +407,20 @@
 				audioVisible = $('#audio').is(":visible");
 				videoVisible = $('#video').is(":visible");
 
-				if(remoteControlVisible)
-				{
-					nowPlayingVisible = false;
-					audioVisible = false;
-					videoVisible = false;
-				}
-				else
-				{
-					//if NowPlaying panel (Player GUI panel) is visible refresh the content
-					if(nowPlayingVisible)
-					{
-						MCPi.Player.getId(null,null, {"nextcall":MCPi.Player.getProperties, "chain":{"nextcall":MCPi.Player.getPlayingItemDetails, "chain":{"nextcall":MCPi.Player.GUI.display}}});
-					}
-				}
+				if(remoteControlVisible || nowPlayingVisible || audioVisible || videoVisible)
+                {
+                    if(workflow == null || workflow.skip == null || workflow.skip == false)
+                    {
+                        if(workflow != null && workflow.chain != null) MCPi.Player.getId(null,null, {"nextcall":MCPi.Player.getProperties, "chain":workflow.chain});
+                           else if(workflow != null && workflow.call != null) workflow.call();
+                                else MCPi.Player.getId(null,null, {"nextcall":MCPi.Player.getProperties, "chain":{"nextcall":MCPi.Player.getPlayingItemDetails}});
+                    }
+
+                    if(remoteControlVisible) MCPi.RemoteControl.GUI.display();
+                    if(nowPlayingVisible) MCPi.Player.GUI.display();
+                    //if(audioVisible) MCPi.Player.GUI.display();
+                    //if(videoVisible) MCPi.Player.GUI.display();
+                }
 			}
 		},
 
@@ -458,6 +464,7 @@
 	/** NOWPLAYING - Register event handlers for NowPlaying panel*/
 		$('#nowPlayingContainer').on('show.bs.collapse', MCPi.Player.GUI.show);
 		$('#nowPlayingContainer').on('hide.bs.collapse', MCPi.Player.GUI.hide);
+        $('#nowPlayingContainer').on('click', '[data-clickthrough=player]', MCPi.Player.GUI.onClick);
 
 		//expand event of recentsongs list from home screen panel
 		//$('#recentsongs').on('show.bs.collapse',function (e)

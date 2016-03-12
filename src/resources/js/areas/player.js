@@ -515,6 +515,7 @@
 					MCPi.Player.props.volume = output.result;
 					MCPi.Player.props.mute = false;
 				}
+                else MCPi.Player.props.volume = -1;
 			}
 		},
 
@@ -645,7 +646,7 @@
 			console.log("Player.GUI.show");
 			$('#nowPlayingButton span').removeClass("text-primary");
 
-			MCPi.Player.getId(null,null, {"nextcall":MCPi.Player.getProperties, "chain":{"nextcall":MCPi.Player.getPlayingItemDetails, "chain":{"nextcall":MCPi.Player.GUI.display}}});
+			MCPi.Player.getProperties(null, null, {"nextcall":MCPi.Player.getPlayingItemDetails, "chain":{"nextcall":MCPi.Player.GUI.display}});
 		},
 
 		/**
@@ -687,7 +688,7 @@
 					else $('#nowPlayingItemDetails').html("&nbsp;");
 
 				$('#nowPlayingItemProgress').css('width', MCPi.Player.props.percentage + '%').attr("aria-valuenow", MCPi.Player.props.percentage);
-				$('#nowPlayingItemProgress').html(MCPi.Player.props.percentage + "% ( " + MCPi.libs.durationToString(MCPi.Player.props.time) + " / " + MCPi.libs.durationToString(MCPi.Player.props.totalTime) + ")");
+				$('#nowPlayingItemProgress').html(MCPi.Player.props.percentage + "%");
 
 				$('#nowPlayingItemFanart').attr("src", MCPi.Player.data.thumbnail);
 			}
@@ -714,7 +715,129 @@
 			{
 				play.html('<span class="fa fa-pause" aria-hidden="true"></span>');
 			}
-		}
+		},
+
+        /**
+		 * Handles click events all buttons and links.
+		 *
+		 * @param e click event.
+		 */
+		onClick: function (e)
+		{
+			e.preventDefault();
+
+			var obj = $(this);
+			var id = obj.attr('id');
+
+			console.log("MCPi.Player.GUI.onClick(#" + id + ")");
+            MCPi.GUI.runWaitOn();
+
+            switch (id)
+            {
+				case 'nowPlayingRewind':
+					MCPi.Player.GUI.runRewind();
+					break;
+				case 'nowPlayingFastRewind':
+					MCPi.Player.GUI.runFastRewind();
+					break;
+				case 'nowPlayingStop':
+					MCPi.Player.GUI.runStop();
+					break;
+				case 'nowPlayingPlay':
+					MCPi.Player.GUI.runPlay();
+					break;
+				case 'nowPlayingFastForward':
+					MCPi.Player.GUI.runFastForward();
+					break;
+				case 'nowPlayingForward':
+                    MCPi.Player.GUI.runForward();
+					break;
+            }
+
+            MCPi.GUI.runWaitOff();
+		},
+
+        /**
+         * This is the synchrony workflow implementation for Rewind action in Player or RemoteControl.
+         *
+         * @param parentContainer this is the container control that will be used to block all user actions during execution fo this workflow
+         */
+        runRewind: function(parentContainer)
+        {
+            console.log("Player.GUI.runRewind");
+
+            MCPi.GUI.runWaitOn(parentContainer);
+            MCPi.Player.setRewind();
+
+            MCPi.Player.props.position = 0;
+            MCPi.Player.props.percentage = 0;
+
+            MCPi.GUI.refresh();
+            MCPi.GUI.runWaitOff(parentContainer);
+        },
+
+        /**
+         * This is the synchrony workflow implementation for Forward action in Player or RemoteControl.
+         *
+         * @param parentContainer this is the container control that will be used to block all user actions during execution fo this workflow
+         */
+        runForward: function(parentContainer)
+        {
+            console.log("Player.GUI.runForward");
+
+            MCPi.GUI.runWaitOn(parentContainer);
+            MCPi.Player.setForward();
+
+            MCPi.Player.props.position = 0;
+            MCPi.Player.props.percentage = 0;
+
+            MCPi.GUI.refresh();
+            MCPi.GUI.runWaitOff(parentContainer);
+        },
+
+        runStop: function(parentContainer)
+        {
+            console.log("Player.GUI.runStop");
+
+            MCPi.GUI.runWaitOn(parentContainer);
+            MCPi.Player.setStop();
+
+            MCPi.GUI.refresh({skip:true});
+            MCPi.GUI.runWaitOff(parentContainer);
+        },
+
+        runPlay: function(parentContainer)
+        {
+            console.log("Player.GUI.runPlay");
+
+            MCPi.GUI.runWaitOn(parentContainer);
+            MCPi.Player.setPlay();
+
+            MCPi.GUI.refresh();
+            MCPi.GUI.runWaitOff(parentContainer);
+        },
+
+        runFastRewind: function(parentContainer)
+        {
+            console.log("Player.GUI.runFastRewind");
+
+            MCPi.GUI.runWaitOn(parentContainer);
+            MCPi.Player.setFastRewind();
+
+            MCPi.GUI.refresh();
+            MCPi.GUI.runWaitOff(parentContainer);
+        },
+
+        runFastForward: function(parentContainer)
+        {
+            console.log("Player.GUI.runFastForward");
+
+            MCPi.GUI.runWaitOn(parentContainer);
+            MCPi.Player.setFastForward();
+
+            MCPi.GUI.refresh();
+            MCPi.GUI.runWaitOff(parentContainer);
+        }
 	};
 
 	MCPi.Player.Queue =

@@ -82,12 +82,12 @@
 			<h3><span class="fa fa-play-circle-o"></span> Now Playing</h3>
 			<div id="nowPlayingNone" class="label label-primary center-block">Nothing is playing</div>
 			<div id="nowPlayingCtrl" class="btn-group btn-group-justified btn-group-sm">
-				<a id="nowPlayingRewind" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-step-backward" aria-hidden="true"></span></a>
-				<a id="nowPlayingFastRewind" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-backward" aria-hidden="true"></span></a>
-				<a id="nowPlayingStop" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-stop" aria-hidden="true"></span></a>
-				<a id="nowPlayingPlay" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-play" aria-hidden="true"></span></a>
-				<a id="nowPlayingFastForward" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-forward" aria-hidden="true"></span></a>
-				<a id="nowPlayingForward" class="btn btn-default" data-clickthrough="remote"><span class="fa fa-step-forward" aria-hidden="true"></span></a>
+				<a id="nowPlayingRewind" class="btn btn-default" data-clickthrough="player"><span class="fa fa-step-backward" aria-hidden="true"></span></a>
+				<a id="nowPlayingFastRewind" class="btn btn-default" data-clickthrough="player"><span class="fa fa-backward" aria-hidden="true"></span></a>
+				<a id="nowPlayingStop" class="btn btn-default" data-clickthrough="player"><span class="fa fa-stop" aria-hidden="true"></span></a>
+				<a id="nowPlayingPlay" class="btn btn-default" data-clickthrough="player"><span class="fa fa-play" aria-hidden="true"></span></a>
+				<a id="nowPlayingFastForward" class="btn btn-default" data-clickthrough="player"><span class="fa fa-forward" aria-hidden="true"></span></a>
+				<a id="nowPlayingForward" class="btn btn-default" data-clickthrough="player"><span class="fa fa-step-forward" aria-hidden="true"></span></a>
 			</div>
 			<br/>
 		</div>
@@ -100,7 +100,7 @@
 					<h3 id="nowPlayingItemTitle" class="media-heading text-primary">Name</h3>
 					<div id="nowPlayingItemDetails">Details</div>
 					<div class="progress">
-						<div id="nowPlayingItemProgress" class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0%</div>
+						<div id="nowPlayingItemProgress" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0%</div>
 					</div>
 				</div>
 			</div>
@@ -349,8 +349,8 @@
 					<div class="row">
 						<div class="col-xs-12">
 							<div class="btn-group btn-group-sm btn-group-justified btn-group-lg">
-								<a id="remoteMusic" class="btn btn-primary" data-clickthrough="remote" title="Open Music screen"><span class="fa fa-music fa-lg" aria-hidden="true"></span></a>
 								<a id="remoteVideo" class="btn btn-primary" data-clickthrough="remote" title="Open Video screen"><span class="fa fa-video-camera fa-lg" aria-hidden="true"></span></a>
+								<a id="remoteMusic" class="btn btn-primary" data-clickthrough="remote" title="Open Music screen"><span class="fa fa-music fa-lg" aria-hidden="true"></span></a>
 								<a id="remotePictures" class="btn btn-primary" data-clickthrough="remote" title="Open Photo screen"><span class="fa fa-camera fa-lg" aria-hidden="true"></span></a>
 								<a id="remoteSettings" class="btn btn-primary" data-clickthrough="remote" title="Open Settings screen"><span class="fa fa-cog fa-lg" aria-hidden="true"></span></a>
 							</div>
@@ -454,6 +454,7 @@
 	</div>
 </div>
 
+
 <!-- Error message dialog -->
 <div class="modal" id="errorMessageDialog" tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog">
@@ -467,6 +468,7 @@
 		</div>
 	</div>
 </div>
+
 
 <!-- Footer content -->
 <hr>

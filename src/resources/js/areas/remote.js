@@ -292,7 +292,7 @@
 		{
 			console.log("RemoteControl.GUI.open");
 
-			MCPi.Player.getId(null, null, {"onsuccess":MCPi.Player.getProperties, "chain":{"nextcall":MCPi.Player.getVolume, "chain":{"nextcall":MCPi.RemoteControl.GUI.display}}});
+			MCPi.Player.getProperties(null, null, {"nextcall":MCPi.Player.getVolume, "chain":{"nextcall":MCPi.RemoteControl.GUI.display}});
 		},
 
 		/**
@@ -386,6 +386,8 @@
 		 */
 		runIncreaseVolume: function()
 		{
+            var hdmi = false;
+
 			if(!MCPi.RemoteControl.GUI.vars.lockingFlag)
 			{
 				console.log("RemoteControl.GUI.runIncreaseVolume");
@@ -397,6 +399,7 @@
 				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
 
 				MCPi.Player.setIncreaseVolume();
+                if(MCPi.libs.getHashcode("volume", MCPi.Player.props.volume) == MCPi.RemoteControl.GUI.vars.oldPropHash && MCPi.Player.props.volume == 100) hdmi = true;
 			}
 
 			if((MCPi.RemoteControl.GUI.vars.oldPropHash == MCPi.RemoteControl.GUI.vars.newPropHash) && MCPi.RemoteControl.GUI.vars.lockingCounter < 60 )
@@ -407,7 +410,8 @@
 				setTimeout(MCPi.RemoteControl.GUI.runIncreaseVolume, 250);
 
 				MCPi.RemoteControl.GUI.vars.lockingCounter++;
-				MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("volume", MCPi.Player.props.volume);
+				if(!hdmi) MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("volume", MCPi.Player.props.volume);
+                    else MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("volume", MCPi.Player.props.volume + 1);
 			}
 			else
 			{
@@ -427,6 +431,8 @@
 		 */
 		runDecreaseVolume: function()
 		{
+            var hdmi = false;
+
 			if(!MCPi.RemoteControl.GUI.vars.lockingFlag)
 			{
 				console.log("RemoteControl.GUI.runDecreaseVolume");
@@ -437,7 +443,8 @@
 				MCPi.RemoteControl.GUI.vars.lockingFlag = true;
 				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
 
-				MCPi.Player.setDecreaseVolume();
+                MCPi.Player.setDecreaseVolume();
+                if(MCPi.libs.getHashcode("volume", MCPi.Player.props.volume) == MCPi.RemoteControl.GUI.vars.oldPropHash && MCPi.Player.props.volume == 100) hdmi = true;
 			}
 
 			if((MCPi.RemoteControl.GUI.vars.oldPropHash == MCPi.RemoteControl.GUI.vars.newPropHash) && MCPi.RemoteControl.GUI.vars.lockingCounter < 60 )
@@ -448,7 +455,8 @@
 				setTimeout(MCPi.RemoteControl.GUI.runDecreaseVolume, 250);
 
 				MCPi.RemoteControl.GUI.vars.lockingCounter++;
-				MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("volume", MCPi.Player.props.volume);
+				if(!hdmi) MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("volume", MCPi.Player.props.volume);
+                    else MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("volume", MCPi.Player.props.volume - 1);
 			}
 			else
 			{
@@ -500,7 +508,7 @@
 				MCPi.RemoteControl.GUI.vars.lockingFlag = false;
 				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
 
-				MCPi.RemoteControl.GUI.display();
+				MCPi.GUI.refresh();
 				MCPi.GUI.runWaitOff('#remoteContainer');
 			}
 		},
@@ -664,22 +672,22 @@
 					MCPi.RemoteControl.setContextKey();
 					break;
 				case 'remoteFastRewind':
-					MCPi.Player.setFastRewind(null, null, MCPi.RemoteControl.GUI.display);
+					MCPi.Player.GUI.runFastRewind('#remoteContainer');
 					break;
 				case 'remoteRewind':
-					MCPi.Player.setRewind();
+					MCPi.Player.GUI.runRewind('#remoteContainer');
 					break;
 				case 'remoteStop':
-					MCPi.Player.setStop(null, null, MCPi.RemoteControl.GUI.display);
+					MCPi.Player.GUI.runStop('#remoteContainer');
 					break;
 				case 'remotePlay':
-					MCPi.Player.setPlay(null, null, MCPi.RemoteControl.GUI.display);
+					MCPi.Player.GUI.runPlay('#remoteContainer');
 					break;
 				case 'remoteFastForward':
-					MCPi.Player.setFastForward(null, null, MCPi.RemoteControl.GUI.display);
+					MCPi.Player.GUI.runFastForward('#remoteContainer');
 					break;
 				case 'remoteForward':
-					MCPi.Player.setForward();
+					MCPi.Player.GUI.runForward('#remoteContainer');
 					break;
 				case 'remotePartyMode':
 					MCPi.RemoteControl.GUI.runPartyMode();
