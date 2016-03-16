@@ -101,7 +101,7 @@
 
 		const:
 		{
-			mdbUrl: "http://api.themoviedb.org/3/movie/upcoming?api_key=13711e14126f77f8f9ab5fe7937bf6bc"
+			tmdbUrl: "http://api.themoviedb.org/3/movie/upcoming?api_key=13711e14126f77f8f9ab5fe7937bf6bc"
 		},
 
 		/**
@@ -305,7 +305,7 @@
 			console.log("Home.GUI.runExtraContent");
 
 			$.ajax({
-				url: MCPi.Home.GUI.const.mdbUrl,
+				url: MCPi.Home.GUI.const.tmdbUrl,
 				crossDomain: true,
 				dataType: 'json'
 			}).done(function (output) {

@@ -33,9 +33,10 @@
 			 * @param method JSON method
 			 * @param params JSON parameters
 			 * @param reference method or parameter to transfer it through to the callback method
+			 * @param async if this parameter is null or false then the call is executed asynchronous
 			 * @returns the status of JSON call
 			 */
-			call: function (method, params, reference)
+			call: function (method, params, reference, async)
 			{
 				var request, data =
 				{
@@ -45,13 +46,15 @@
 					'params': params
 				};
 
+				if(async == null) async = false;
+
 				if(reference != null && reference.callback != null)
 				{
 					request = jQuery.extend({}, MCPi.json.const.header,
 					{
 						url:'jsonrpc' + (MCPi.json.const.header.type.toLowerCase() == "get" ? '?request=' + JSON.stringify(data) : ''),
 						data:JSON.stringify(data),
-						async:false,
+						async:async,
 						success: function (output)
 						{
 							var method, callback, subreference, subchain;
@@ -268,11 +271,11 @@
 		{
 			vars:
 			{
-				/* Time interval (in ms) to run reference queue */
-				timerInterval: 5000,
-				/* Timer process id - if this is not null means that the reference queue has been scheduled */
+				/** Time interval (in ms) to run reference queue */
+				timerInterval: 25000,
+				/** Timer process id - if this is not null means that the reference queue has been scheduled */
 				timerProcessId: null,
-				/* Current screen name */
+				/** Current screen name */
 				currentScreen: "#home"
 			},
 
@@ -399,13 +402,12 @@
 			 */
 			refresh: function(workflow)
 			{
-				console.log("MCPi.GUI.refresh");
-				var remoteControlVisible=false, nowPlayingVisible=false, audioVisible=false, videoVisible=false;
+				console.log("GUI.refresh");
 
-				remoteControlVisible = $('#remoteControlModal').is(":visible");
-				nowPlayingVisible = $('#nowPlayingContainer').is(":visible");
-				audioVisible = $('#audio').is(":visible");
-				videoVisible = $('#video').is(":visible");
+				var remoteControlVisible = $('#remoteControlModal').is(":visible");
+				var nowPlayingVisible = $('#nowPlayingContainer').is(":visible");
+				var audioVisible = $('#audio').is(":visible");
+				var videoVisible = $('#video').is(":visible");
 
 				if(remoteControlVisible || nowPlayingVisible || audioVisible || videoVisible)
                 {

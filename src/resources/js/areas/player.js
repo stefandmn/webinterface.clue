@@ -9,9 +9,9 @@
 
 		vars:
 		{
-			/* Check if valid properties have been found (about what media content is playing now) and if is true will allow to detected GUI data for rendering */
+			/** Check if valid properties have been found (about what media content is playing now) and if is true will allow to detected GUI data for rendering */
 			allowData: false,
-			/* Used especially to identify the video content type (movie or tvshow episode) in order to now what JSON query to use to get the playing data */
+			/** Used especially to identify the video content type (movie or tvshow episode) in order to now what JSON query to use to get the playing data */
 			contentType: null
 		},
 
@@ -41,7 +41,7 @@
 
 		const:
 		{
-			/* Details of now playing screen/control */
+			/** Details of now playing screen/control */
 			properties: ["speed", "shuffled", "repeat", "time", "totaltime", "position", "percentage", "partymode", "playlistid", "type"]
 		},
 
@@ -140,6 +140,7 @@
 					MCPi.Player.props.type = output.result.type;
 
 					MCPi.Player.vars.allowData = true;
+					console.log("Player Properties: " + JSON.stringify(output.result));
 				}
 				else MCPi.Player.vars.allowData = false;
 			}
@@ -750,7 +751,7 @@
 					MCPi.Player.GUI.runFastForward();
 					break;
 				case 'nowPlayingForward':
-                    MCPi.Player.GUI.runForward();
+					MCPi.RemoteControl.GUI.runForward('#mainContent');
 					break;
             }
 
@@ -768,25 +769,6 @@
 
             MCPi.GUI.runWaitOn(parentContainer);
             MCPi.Player.setRewind();
-
-            MCPi.Player.props.position = 0;
-            MCPi.Player.props.percentage = 0;
-
-            MCPi.GUI.refresh();
-            MCPi.GUI.runWaitOff(parentContainer);
-        },
-
-        /**
-         * This is the synchrony workflow implementation for Forward action in Player or RemoteControl.
-         *
-         * @param parentContainer this is the container control that will be used to block all user actions during execution fo this workflow
-         */
-        runForward: function(parentContainer)
-        {
-            console.log("Player.GUI.runForward");
-
-            MCPi.GUI.runWaitOn(parentContainer);
-            MCPi.Player.setForward();
 
             MCPi.Player.props.position = 0;
             MCPi.Player.props.percentage = 0;

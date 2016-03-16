@@ -5,6 +5,16 @@
 
 	MCPi.RemoteControl =
 	{
+        vars:
+        {
+            /** Remote screen id displayed by MCPi player */
+            remoteScreenId: null,
+             /** Remote screen label displayed by MCPi player */
+            remoteScreenLabel: null,
+             /** Control label currently managed by the remote control and displayed by MCPi player */
+            remoteControlLabel: null
+        },
+
 		/**
 		 * Set a remote control command to display on media center a specific screen.
 		 *
@@ -262,22 +272,51 @@
 			if((typeof done === 'undefined') || (done == null)) done = false;
 
 			MCPi.json.call("Input.SendText", {"text":text, "done":done});
-		}
+		},
+
+        /**
+         * Get MCPi screen details (id, label and current control label) managed through remote control actions.
+         *
+		 * @param input input value of structure (could be any data type).
+		 * @param output data structure received from server that should contain the callback processing details.
+		 * @param chain data structure for chained method execution, to define a process flow.
+         */
+        getRemoteScreen: function(input, output, chain)
+        {
+			if(output == null)
+			{
+				console.log("RemoteControl.getRemoteScreen");
+				var reference = {"input":input, "callback":MCPi.RemoteControl.getRemoteScreen, "chain":chain};
+
+				MCPi.json.call("GUI.GetProperties", {"properties":["currentwindow", "currentcontrol"]}, reference);
+			}
+			else
+			{
+				console.log("RemoteControl.getRemoteScreen-Callback");
+				if (output && output.result != null)
+                {
+                    MCPi.RemoteControl.vars.remoteScreenId = output.result.currentwindow.id;
+                    MCPi.RemoteControl.vars.remoteScreenLabel = output.result.currentwindow.label;
+                    MCPi.RemoteControl.vars.remoteControlLabel = output.result.currentcontrol.label;
+                }
+			}
+        }
+
 	};
 
 	MCPi.RemoteControl.GUI =
 	{
 		vars:
 		{
-			/* Store key pressed on keyboard just to integrate keyboard input device into remote control interface */
+			/** Store key pressed on keyboard just to integrate keyboard input device into remote control interface */
 			keyText: '',
-			/* It is the hashcode of now playing data in order to know if the data has been changed to render it again or not, or for other comparing actions */
+			/** It is the hashcode of now playing data in order to know if the data has been changed to render it again or not, or for other comparing actions */
 			newPropHash: null,
-			/* It is the hashcode of previous playing data in order to know if the data has been changed to render it again or not, or for other comparing actions */
+			/** It is the hashcode of previous playing data in order to know if the data has been changed to render it again or not, or for other comparing actions */
 			oldPropHash: null,
-			/* Flag to allow evaluation of player properties. This is usually used when the add-on will read from player the specific function property and the GUI is not synchronized with the player properties */
+			/** Flag to allow evaluation of player properties. This is usually used when the add-on will read from player the specific function property and the GUI is not synchronized with the player properties */
 			lockingFlag: false,
-			/* Counter for locking mechanism. With this variable it is possible to unlock the player properties even if the GUI is not synchronized with the player */
+			/** Counter for locking mechanism. With this variable it is possible to unlock the player properties even if the GUI is not synchronized with the player */
 			lockingCounter: 0
 		},
 
@@ -292,7 +331,7 @@
 		{
 			console.log("RemoteControl.GUI.open");
 
-			MCPi.Player.getProperties(null, null, {"nextcall":MCPi.Player.getVolume, "chain":{"nextcall":MCPi.RemoteControl.GUI.display}});
+			MCPi.Player.getProperties(null, null, {"nextcall":MCPi.Player.getVolume, "chain":{"nextcall":MCPi.RemoteControl.getRemoteScreen, "chain":{"nextcall":MCPi.RemoteControl.GUI.display}}});
 		},
 
 		/**
@@ -308,6 +347,7 @@
 			var play = $('#remotePlay');
 			var mute = $('#remoteVolumeMute');
 			var party = $('#remotePartyMode');
+            var screen = $('#remoteScreen');
 
 			if (MCPi.Player.props.speed <= 0 || MCPi.Player.props.speed > 1)
 			{
@@ -337,180 +377,21 @@
 				mute.html('<span class="fa fa-volume-up fa-lg" aria-hidden="true"></span>  <span class="badge">' + MCPi.Player.props.volume + '</span>');
 				mute.removeClass("active");
 			}
-		},
 
-		/**
-		 * Run action to set player in <code>Mute/Unmute</code> mode and waits the synchronization with the GUI.
-		 * This action typically is located on the remote control.
-		 */
-		runMute: function()
-		{
-			if(!MCPi.RemoteControl.GUI.vars.lockingFlag)
-			{
-				console.log("RemoteControl.GUI.runMute");
-				MCPi.GUI.runWaitOn('#remoteContainer');
-
-				MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("mute", MCPi.Player.props.mute);
-				MCPi.RemoteControl.GUI.vars.oldPropHash = MCPi.RemoteControl.GUI.vars.newPropHash;
-				MCPi.RemoteControl.GUI.vars.lockingFlag = true;
-				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
-
-				MCPi.Player.setMute();
-			}
-
-			if((MCPi.RemoteControl.GUI.vars.oldPropHash == MCPi.RemoteControl.GUI.vars.newPropHash) && MCPi.RemoteControl.GUI.vars.lockingCounter < 60 )
-			{
-				console.log("RemoteControl.GUI.runMute-Timercall");
-
-				MCPi.Player.getVolume();
-				setTimeout(MCPi.RemoteControl.GUI.runMute, 250);
-
-				MCPi.RemoteControl.GUI.vars.lockingCounter++;
-				MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("mute", MCPi.Player.props.mute);
-			}
-			else
-			{
-				MCPi.RemoteControl.GUI.vars.oldPropHash = null;
-				MCPi.RemoteControl.GUI.vars.newPropHash = null;
-				MCPi.RemoteControl.GUI.vars.lockingFlag = false;
-				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
-
-				MCPi.RemoteControl.GUI.display();
-				MCPi.GUI.runWaitOff('#remoteContainer');
-			}
-		},
-
-		/**
-		 * Start action execution from remote control to <code>increase</code> player volume and waits the synchronization
-		 * with the GUI.
-		 */
-		runIncreaseVolume: function()
-		{
-            var hdmi = false;
-
-			if(!MCPi.RemoteControl.GUI.vars.lockingFlag)
-			{
-				console.log("RemoteControl.GUI.runIncreaseVolume");
-				MCPi.GUI.runWaitOn('#remoteContainer');
-
-				MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("volume", MCPi.Player.props.volume);
-				MCPi.RemoteControl.GUI.vars.oldPropHash = MCPi.RemoteControl.GUI.vars.newPropHash;
-				MCPi.RemoteControl.GUI.vars.lockingFlag = true;
-				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
-
-				MCPi.Player.setIncreaseVolume();
-                if(MCPi.libs.getHashcode("volume", MCPi.Player.props.volume) == MCPi.RemoteControl.GUI.vars.oldPropHash && MCPi.Player.props.volume == 100) hdmi = true;
-			}
-
-			if((MCPi.RemoteControl.GUI.vars.oldPropHash == MCPi.RemoteControl.GUI.vars.newPropHash) && MCPi.RemoteControl.GUI.vars.lockingCounter < 60 )
-			{
-				console.log("RemoteControl.GUI.runIncreaseVolume-Timercall");
-
-				MCPi.Player.getVolume();
-				setTimeout(MCPi.RemoteControl.GUI.runIncreaseVolume, 250);
-
-				MCPi.RemoteControl.GUI.vars.lockingCounter++;
-				if(!hdmi) MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("volume", MCPi.Player.props.volume);
-                    else MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("volume", MCPi.Player.props.volume + 1);
-			}
-			else
-			{
-				MCPi.RemoteControl.GUI.vars.oldPropHash = null;
-				MCPi.RemoteControl.GUI.vars.newPropHash = null;
-				MCPi.RemoteControl.GUI.vars.lockingFlag = false;
-				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
-
-				MCPi.RemoteControl.GUI.display();
-				MCPi.GUI.runWaitOff('#remoteContainer');
-			}
-		},
-
-		/**
-		 * Start action execution from remote control to <code>decrease</code> player volume and waits the synchronization
-		 * with the GUI.
-		 */
-		runDecreaseVolume: function()
-		{
-            var hdmi = false;
-
-			if(!MCPi.RemoteControl.GUI.vars.lockingFlag)
-			{
-				console.log("RemoteControl.GUI.runDecreaseVolume");
-				MCPi.GUI.runWaitOn('#remoteContainer');
-
-				MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("volume", MCPi.Player.props.volume);
-				MCPi.RemoteControl.GUI.vars.oldPropHash = MCPi.RemoteControl.GUI.vars.newPropHash;
-				MCPi.RemoteControl.GUI.vars.lockingFlag = true;
-				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
-
-                MCPi.Player.setDecreaseVolume();
-                if(MCPi.libs.getHashcode("volume", MCPi.Player.props.volume) == MCPi.RemoteControl.GUI.vars.oldPropHash && MCPi.Player.props.volume == 100) hdmi = true;
-			}
-
-			if((MCPi.RemoteControl.GUI.vars.oldPropHash == MCPi.RemoteControl.GUI.vars.newPropHash) && MCPi.RemoteControl.GUI.vars.lockingCounter < 60 )
-			{
-				console.log("RemoteControl.GUI.runDecreaseVolume-Timercall");
-
-				MCPi.Player.getVolume();
-				setTimeout(MCPi.RemoteControl.GUI.runDecreaseVolume, 250);
-
-				MCPi.RemoteControl.GUI.vars.lockingCounter++;
-				if(!hdmi) MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("volume", MCPi.Player.props.volume);
-                    else MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("volume", MCPi.Player.props.volume - 1);
-			}
-			else
-			{
-				MCPi.RemoteControl.GUI.vars.oldPropHash = null;
-				MCPi.RemoteControl.GUI.vars.newPropHash = null;
-				MCPi.RemoteControl.GUI.vars.lockingFlag = false;
-				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
-
-				MCPi.RemoteControl.GUI.display();
-				MCPi.GUI.runWaitOff('#remoteContainer');
-			}
-		},
-
-		/**
-		 * Start action execution from remote control to set player in <code>party-mode</code> and waits the synchronization
-		 * with the GUI.
-		 */
-		runPartyMode: function()
-		{
-			if(!MCPi.RemoteControl.GUI.vars.lockingFlag)
-			{
-				console.log("RemoteControl.GUI.runPartyMode");
-				MCPi.GUI.runWaitOn('#remoteContainer');
-
-				MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("partymode", MCPi.Player.props.partymode);
-				MCPi.RemoteControl.GUI.vars.oldPropHash = MCPi.RemoteControl.GUI.vars.newPropHash;
-				MCPi.RemoteControl.GUI.vars.lockingFlag = true;
-				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
-
-				if(MCPi.Player.id < 0) MCPi.Player.id = 0;
-
-				MCPi.Player.setPartyMode();
-			}
-
-			if((MCPi.RemoteControl.GUI.vars.oldPropHash == MCPi.RemoteControl.GUI.vars.newPropHash) && MCPi.RemoteControl.GUI.vars.lockingCounter < 60 )
-			{
-				console.log("RemoteControl.GUI.runPartyMode-Timercall");
-
-				MCPi.Player.getProperties();
-				setTimeout(MCPi.RemoteControl.GUI.runPartyMode, 1000);
-
-				MCPi.RemoteControl.GUI.vars.lockingCounter++;
-				MCPi.RemoteControl.GUI.vars.newPropHash = MCPi.libs.getHashcode("partymode", MCPi.Player.props.partymode);
-			}
-			else
-			{
-				MCPi.RemoteControl.GUI.vars.oldPropHash = null;
-				MCPi.RemoteControl.GUI.vars.newPropHash = null;
-				MCPi.RemoteControl.GUI.vars.lockingFlag = false;
-				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
-
-				MCPi.GUI.refresh();
-				MCPi.GUI.runWaitOff('#remoteContainer');
-			}
+            if(MCPi.RemoteControl.vars.remoteScreenLabel != null && MCPi.RemoteControl.vars.remoteControlLabel != null)
+            {
+                screen.html(MCPi.RemoteControl.vars.remoteScreenLabel +
+                    '&nbsp;<span class="fa fa-angle-double-right" aria-hidden="true"></span>&nbsp;' +
+                    MCPi.RemoteControl.vars.remoteControlLabel);
+            }
+            else if(MCPi.RemoteControl.vars.remoteScreenLabel != null && MCPi.RemoteControl.vars.remoteControlLabel == null)
+            {
+                screen.html(MCPi.RemoteControl.vars.remoteScreenLabel);
+            }
+            else if(MCPi.RemoteControl.vars.remoteScreenLabel == null && MCPi.RemoteControl.vars.remoteControlLabel == null)
+            {
+                screen.html(" ");
+            }
 		},
 
 		/**
@@ -613,91 +494,469 @@
 		},
 
 		/**
+		 * This is an internal method/function, able to provide to the GUI callers specific routines to make the
+		 * calling action asynchronous but in the same time synchronous by linking GUI events into a single flow and
+		 * making the GUI to show you one single action with a lag but hided by an waiting cursor.
+		 *
+		 * @param key return execution routines for a specific execution key provided by the remote control.
+		 *
+		 * @returns {{runner: *, checker: *, pointer: *, timer: number, loop: number, wfcall: *, wfskip: *}}
+		 * 	- runner	- executes the command that have to be executed by pressing selected remote control key
+		 * 	- checker	- call server routines just to refresh local (browser) environment to be used by <code>pointer</code> routine
+		 * 	- pointer	- it is a routine that checks if something has been changed after <code>runner</code> execution and if it was changed the asynch process must be stopped
+		 * 	- timer		- integer value that tells how long should wait the process for another function/runner call through timeout routine
+		 * 	- loop		- integer value that specifies how many max loops could be executed through timeout routine
+		 * 	- wfcall	- specific route that could be executed before refreshing the GUI
+		 * 	- wfskip	- boolean value that can activate/deactivate routines to run before GUI refresh
+		 */
+		getCallerData: function(key)
+		{
+			var runner, checker, pointer, timer = 500, loop = 5, wfcall, wfskip;
+
+			switch (key)
+			{
+				case 'remoteMusic':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setMusicScreen()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+						if(MCPi.RemoteControl.vars.remoteScreenId == 10502) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
+					};
+					break;
+				case 'remoteVideo':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setVideoScreen()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+						if(MCPi.RemoteControl.vars.remoteScreenId == 10025) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
+					};
+					break;
+				case 'remotePictures':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setPhotoScreen()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+						if(MCPi.RemoteControl.vars.remoteScreenId == 10002) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
+					};
+					break;
+				case 'remoteSettings':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setSettingsScreen()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+						if(MCPi.RemoteControl.vars.remoteScreenId == 10004) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
+					};
+					break;
+				case 'remoteVolumeMute':
+					runner = function ()
+					{
+						MCPi.Player.setMute();
+					};
+					checker = function ()
+					{
+						MCPi.Player.getVolume();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("mute", MCPi.Player.props.mute);
+					};
+					break;
+				case 'remoteVolumeUp':
+					runner = function ()
+					{
+						MCPi.Player.setIncreaseVolume();
+					};
+					checker = function ()
+					{
+						MCPi.Player.getVolume();
+						if(MCPi.libs.getHashcode("volume", MCPi.Player.props.volume) == MCPi.RemoteControl.GUI.vars.oldPropHash && MCPi.Player.props.volume == 100) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("volume", MCPi.Player.props.volume);
+					};
+					break;
+				case 'remoteVolumeDown':
+					runner = function ()
+					{
+						MCPi.Player.setDecreaseVolume();
+					};
+					checker = function ()
+					{
+						MCPi.Player.getVolume();
+						if(MCPi.libs.getHashcode("volume", MCPi.Player.props.volume) == MCPi.RemoteControl.GUI.vars.oldPropHash && MCPi.Player.props.volume == 100) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("volume", MCPi.Player.props.volume);
+					};
+					break;
+				case 'remoteHome':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setHomeKey()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+						if(MCPi.RemoteControl.vars.remoteScreenId == 10000) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
+					};
+					break;
+				case 'remoteUp':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setUpKey()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+					};
+					loop = 3;
+					break;
+				case 'remoteDown':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setDownKey()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+					};
+					loop = 3;
+					break;
+				case 'remoteLeft':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setLeftKey()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+					};
+					loop = 3;
+					break;
+				case 'remoteRight':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setRightKey()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+					};
+					loop = 3;
+					break;
+				case 'remoteSelect':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setSelectKey()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+					};
+					loop = 3;
+					break;
+				case 'remoteBack':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setBackKey()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+					};
+					loop = 3;
+					break;
+				case 'remoteInfo':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setInfoKey()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+					};
+					loop = 3;
+					break;
+				case 'remoteContext':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setContextKey()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+					};
+					loop = 3;
+					break;
+				case 'remoteRewind':
+					runner = function ()
+					{
+						MCPi.Player.setRewind()
+					};
+					checker = function ()
+					{
+						MCPi.Player.getProperties(null, null, {"onsuccess":MCPi.Player.getPlayingItemDetails});
+						if(MCPi.Player.props.percentage < 1) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("title", MCPi.Player.data.title);
+					};
+					loop = 3;
+					break;
+				case 'remoteFastRewind':
+					runner = function ()
+					{
+						MCPi.Player.setFastRewind()
+					};
+					checker = function ()
+					{
+						MCPi.Player.getProperties(null, null, {"onsuccess":MCPi.Player.getPlayingItemDetails});
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+					};
+					loop = 3;
+					break;
+				case 'remoteStop':
+					runner = function ()
+					{
+						MCPi.Player.setStop()
+					};
+					checker = function ()
+					{
+						MCPi.Player.getProperties(null, null, {"onsuccess":MCPi.Player.getPlayingItemDetails});
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+					};
+					loop = 3;
+					break;
+				case 'remotePlay':
+					runner = function ()
+					{
+						MCPi.Player.setPlay()
+					};
+					checker = function ()
+					{
+						MCPi.Player.getProperties(null, null, {"onsuccess":MCPi.Player.getPlayingItemDetails});
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+					};
+					loop = 3;
+					break;
+				case 'remoteFastForward':
+					runner = function ()
+					{
+						MCPi.Player.setFastForward()
+					};
+					checker = function ()
+					{
+						MCPi.Player.getProperties(null, null, {"onsuccess":MCPi.Player.getPlayingItemDetails});
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+					};
+					loop = 3;
+					break;
+				case 'remoteForward':
+					runner = function ()
+					{
+						MCPi.Player.setForward()
+					};
+					checker = function ()
+					{
+						MCPi.Player.getProperties(null, null, {"onsuccess":MCPi.Player.getPlayingItemDetails});
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("title", MCPi.Player.data.title);
+					};
+					loop = 3;
+					break;
+				case 'remotePartyMode':
+					runner = function ()
+					{
+						if(MCPi.Player.id < 0) MCPi.Player.id = 0;
+						MCPi.Player.setPartyMode();
+					};
+					checker = function ()
+					{
+						MCPi.Player.getProperties();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("partymode", MCPi.Player.props.partymode)
+					};
+					wfcall = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+					};
+					timer = 1000;
+					loop = 30;
+					break;
+				case 'remoteFullscreen':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setFullscreen()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+						if(MCPi.RemoteControl.vars.remoteScreenId == 12006) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
+					};
+					break;
+				case 'remotePlaylist':
+					runner = function ()
+					{
+						MCPi.RemoteControl.setShowPlaylist()
+					};
+					checker = function ()
+					{
+						MCPi.RemoteControl.getRemoteScreen();
+						if(MCPi.RemoteControl.vars.remoteScreenId == 10500) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
+					};
+					break;
+			}
+
+			return {"runner":runner, "checker":checker, "pointer":pointer, "timer": timer, "loop":loop, "wfcall":wfcall, "wfskip":wfskip};
+		},
+
+		/**
 		 * Execute related command to the keydown or click event.
 		 *
 		 * @param key application key code to select the action to be executed.
 		 */
 		call: function(key)
 		{
-			console.log("RemoteControl.GUI.call(" + key + ")");
+			var run = MCPi.RemoteControl.GUI.getCallerData(key);
 
-			switch (key)
+			if(!MCPi.RemoteControl.GUI.vars.lockingFlag)
+            {
+                console.log("RemoteControl.GUI.call(" + key + ")");
+                MCPi.GUI.runWaitOn('#remoteContainer');
+
+                MCPi.RemoteControl.GUI.vars.newPropHash = run.pointer();
+				MCPi.RemoteControl.GUI.vars.oldPropHash = MCPi.RemoteControl.GUI.vars.newPropHash;
+				MCPi.RemoteControl.GUI.vars.lockingFlag = true;
+				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
+
+				run.runner();
+			}
+
+			if((MCPi.RemoteControl.GUI.vars.oldPropHash == MCPi.RemoteControl.GUI.vars.newPropHash) && MCPi.RemoteControl.GUI.vars.lockingCounter < run.loop )
 			{
-				case 'remoteMusic':
-					MCPi.RemoteControl.setMusicScreen();
-					break;
-				case 'remoteVideo':
-					MCPi.RemoteControl.setVideoScreen();
-					break;
-				case 'remotePictures':
-					MCPi.RemoteControl.setPhotoScreen();
-					break;
-				case 'remoteSettings':
-					MCPi.RemoteControl.setSettingsScreen();
-					break;
-				case 'remoteVolumeMute':
-					MCPi.RemoteControl.GUI.runMute();
-					break;
-				case 'remoteVolumeUp':
-					MCPi.RemoteControl.GUI.runIncreaseVolume();
-					break;
-				case 'remoteVolumeDown':
-					MCPi.RemoteControl.GUI.runDecreaseVolume();
-					break;
-				case 'remoteHome':
-					MCPi.RemoteControl.setHomeKey();
-					break;
-				case 'remoteUp':
-					MCPi.RemoteControl.setUpKey();
-					break;
-				case 'remoteDown':
-					MCPi.RemoteControl.setDownKey();
-					break;
-				case 'remoteLeft':
-					MCPi.RemoteControl.setLeftKey();
-					break;
-				case 'remoteRight':
-					MCPi.RemoteControl.setRightKey();
-					break;
-				case 'remoteSelect':
-					MCPi.RemoteControl.setSelectKey();
-					break;
-				case 'remoteBack':
-					MCPi.RemoteControl.setBackKey();
-					break;
-				case 'remoteInfo':
-					MCPi.RemoteControl.setInfoKey();
-					break;
-				case 'remoteContext':
-					MCPi.RemoteControl.setContextKey();
-					break;
-				case 'remoteFastRewind':
-					MCPi.Player.GUI.runFastRewind('#remoteContainer');
-					break;
-				case 'remoteRewind':
-					MCPi.Player.GUI.runRewind('#remoteContainer');
-					break;
-				case 'remoteStop':
-					MCPi.Player.GUI.runStop('#remoteContainer');
-					break;
-				case 'remotePlay':
-					MCPi.Player.GUI.runPlay('#remoteContainer');
-					break;
-				case 'remoteFastForward':
-					MCPi.Player.GUI.runFastForward('#remoteContainer');
-					break;
-				case 'remoteForward':
-					MCPi.Player.GUI.runForward('#remoteContainer');
-					break;
-				case 'remotePartyMode':
-					MCPi.RemoteControl.GUI.runPartyMode();
-					break;
-				case 'remoteFullscreen':
-					MCPi.RemoteControl.setFullscreen();
-					break;
-				case 'remotePlaylist':
-					MCPi.RemoteControl.setShowPlaylist();
-					break;
+				console.log("RemoteControl.GUI.call-Timercall");
+				run.checker();
+
+				setTimeout(function()
+				{
+					MCPi.RemoteControl.GUI.call(key);
+				}, run.timer);
+
+				MCPi.RemoteControl.GUI.vars.lockingCounter++;
+				MCPi.RemoteControl.GUI.vars.newPropHash = run.pointer();
+			}
+			else
+			{
+				MCPi.RemoteControl.GUI.vars.oldPropHash = null;
+				MCPi.RemoteControl.GUI.vars.newPropHash = null;
+				MCPi.RemoteControl.GUI.vars.lockingFlag = false;
+				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
+
+				if(run.wfcall != null)
+				{
+					MCPi.GUI.refresh({"call":run.wfcall});
+				}
+				else if(run.wfskip != null)
+				{
+					MCPi.GUI.refresh({"skip":run.wfskip});
+				}
+				else
+				{
+					MCPi.GUI.refresh({"skip":true});
+				}
+
+				MCPi.GUI.runWaitOff('#remoteContainer');
 			}
 		}
 	};
