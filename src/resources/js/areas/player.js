@@ -139,8 +139,8 @@
 					MCPi.Player.props.speed = output.result.speed;
 					MCPi.Player.props.type = output.result.type;
 
+					//console.log("Player Properties: " + JSON.stringify(output.result));
 					MCPi.Player.vars.allowData = true;
-					console.log("Player Properties: " + JSON.stringify(output.result));
 				}
 				else MCPi.Player.vars.allowData = false;
 			}
