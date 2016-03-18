@@ -440,13 +440,12 @@
 
 			var which = e.which;
 			var key = keys[which];
-			var keyControl = $('#' + key);
 
-			console.log("RemoteControl.GUI.onKeyPress(" + key + ")");
+			console.log("RemoteControl.GUI.onKeyPress(" + (key != null ? which + "/" + key : which) + ")");
 
 			e.data = {key: key};
 
-			if (!key)
+			if (!key || (MCPi.RemoteControl.vars.remoteScreenId == 10103 && key == "remoteContext"))
 			{
 				// Digits
 				if (which >= 48 && which <= 57)
@@ -471,13 +470,18 @@
 				e.data.key = 'text';
 			}
 
-			if(which == 13 && MCPi.RemoteControl.GUI.vars.keyText != "")
+			if(which == 13 && MCPi.RemoteControl.GUI.vars.keyText != "" && MCPi.RemoteControl.vars.remoteControlLabel == "Done")
 			{
 				e.data.key = 'text';
 				e.data.text = MCPi.RemoteControl.GUI.vars.keyText;
 				MCPi.RemoteControl.GUI.vars.keyText = '';
-
 				return MCPi.RemoteControl.sendText(e.data.text, true);
+			}
+			else if((which == 13 && MCPi.RemoteControl.GUI.vars.keyText != "" && MCPi.RemoteControl.vars.remoteControlLabel == "Backspace") || which == 8)
+			{
+				e.data.key = 'text';
+				e.data.text = MCPi.RemoteControl.GUI.vars.keyText.substr(0, MCPi.RemoteControl.GUI.vars.keyText.length -1);
+				return MCPi.RemoteControl.sendText(e.data.text, false);
 			}
 			else if(e.data.key == "text")
 			{
@@ -485,11 +489,7 @@
 			}
 			else
 			{
-				keyControl.addClass("active");
-				var outcall = MCPi.RemoteControl.GUI.call(e.data.key);
-				keyControl.removeClass("active");
-
-				return outcall;
+				return MCPi.RemoteControl.GUI.call(e.data.key);
 			}
 		},
 
@@ -633,6 +633,8 @@
 					{
 						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
 					};
+					loop = 3;
+					timer = 250;
 					break;
 				case 'remoteUp':
 					runner = function ()
@@ -648,6 +650,7 @@
 						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
 					};
 					loop = 3;
+					timer = 250;
 					break;
 				case 'remoteDown':
 					runner = function ()
@@ -663,6 +666,7 @@
 						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
 					};
 					loop = 3;
+					timer = 250;
 					break;
 				case 'remoteLeft':
 					runner = function ()
@@ -678,6 +682,7 @@
 						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
 					};
 					loop = 3;
+					timer = 250;
 					break;
 				case 'remoteRight':
 					runner = function ()
@@ -693,6 +698,7 @@
 						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
 					};
 					loop = 3;
+					timer = 250;
 					break;
 				case 'remoteSelect':
 					runner = function ()
@@ -708,6 +714,7 @@
 						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
 					};
 					loop = 3;
+					timer = 250;
 					break;
 				case 'remoteBack':
 					runner = function ()
@@ -913,7 +920,9 @@
 			if(!MCPi.RemoteControl.GUI.vars.lockingFlag)
             {
                 console.log("RemoteControl.GUI.call(" + key + ")");
-                MCPi.GUI.runWaitOn('#remoteContainer');
+
+				$('#' + key).addClass("active");
+				MCPi.GUI.runWaitOn('#remoteContainer');
 
                 MCPi.RemoteControl.GUI.vars.newPropHash = run.pointer();
 				MCPi.RemoteControl.GUI.vars.oldPropHash = MCPi.RemoteControl.GUI.vars.newPropHash;
@@ -956,6 +965,7 @@
 					MCPi.GUI.refresh({"skip":true});
 				}
 
+				$('#' + key).removeClass("active");
 				MCPi.GUI.runWaitOff('#remoteContainer');
 			}
 		}
