@@ -454,6 +454,7 @@
 
 	/* REMOTECONTROL - Register event handlers for RemoteControl modal dialog  */
 		$('#remoteControlModal').on('show.bs.modal', MCPi.RemoteControl.GUI.open);
+		$('#remoteControlModal').on('hide.bs.modal', MCPi.GUI.refresh);
 		$('#remoteControlModal').on('keydown', jQuery.proxy(MCPi.RemoteControl.GUI.onKeyPress, this));
 		$('#remoteControlModal').on('click', '[data-clickthrough=remote]', MCPi.RemoteControl.GUI.onClick);
 

@@ -615,7 +615,7 @@
 				input = MCPi.Player.getMediaStructure(input);
 				console.log("Player.setOpen");
 
-				var parameters, reference = {"input":input, "callback":MCPi.Player.setOpen, "chain":chain};
+				var parameters, reference = {"input":input, "callback":MCPi.Player.setOpenMedia, "chain":chain};
 
 				if(input.mediatype == "song") parameters ={"item":{"songid":input.mediaid}};
 					else if(input.mediatype == "movie") parameters = {"item":{"movieid":input.mediaid}};
@@ -730,96 +730,170 @@
 			var obj = $(this);
 			var id = obj.attr('id');
 
-			console.log("MCPi.Player.GUI.onClick(#" + id + ")");
-            MCPi.GUI.runWaitOn();
-
-            switch (id)
-            {
-				case 'nowPlayingRewind':
-					MCPi.Player.GUI.runRewind();
-					break;
-				case 'nowPlayingFastRewind':
-					MCPi.Player.GUI.runFastRewind();
-					break;
-				case 'nowPlayingStop':
-					MCPi.Player.GUI.runStop();
-					break;
-				case 'nowPlayingPlay':
-					MCPi.Player.GUI.runPlay();
-					break;
-				case 'nowPlayingFastForward':
-					MCPi.Player.GUI.runFastForward();
-					break;
-				case 'nowPlayingForward':
-					MCPi.RemoteControl.GUI.runForward('#mainContent');
-					break;
-            }
-
-            MCPi.GUI.runWaitOff();
+			console.log("Player.GUI.onClick(#" + id + ")");
+            MCPi.Player.GUI.call(id);
 		},
 
-        /**
-         * This is the synchrony workflow implementation for Rewind action in Player or RemoteControl.
-         *
-         * @param parentContainer this is the container control that will be used to block all user actions during execution fo this workflow
-         */
-        runRewind: function(parentContainer)
-        {
-            console.log("Player.GUI.runRewind");
+		/**
+		 * This is an internal method/function, able to provide to the GUI callers specific routines to make the
+		 * calling action asynchronous but in the same time synchronous by linking GUI events into a single flow and
+		 * making the GUI to show you one single action with a lag but hided by an waiting cursor.
+		 *
+		 * @param eid return execution routines for a specific execution key provided by the remote control.
+		 *
+		 * @returns {{runner: *, checker: *, pointer: *}}
+		 * 	- runner	- executes the command that have to be executed by pressing selected remote control key
+		 * 	- checker	- call server routines just to refresh local (browser) environment to be used by
+		 * 				<code>pointer</code> routine
+		 * 	- pointer	- it is a routine that checks if something has been changed after <code>runner</code>
+		 * 				execution and if it was changed the asynch process must be stopped
+		 */
+		getCallerData: function(eid)
+		{
+			var runner, checker, pointer;
 
-            MCPi.GUI.runWaitOn(parentContainer);
-            MCPi.Player.setRewind();
+			switch (eid)
+			{
+				case 'nowPlayingRewind':
+					runner = function ()
+					{
+						MCPi.Player.setRewind();
+					};
+					checker = function ()
+					{
+						MCPi.Player.getPlayingItemDetails();
+						if(MCPi.Player.props.percentage < 1) MCPi.RemoteControl.GUI.vars.lockingCounter = 3;
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("title", MCPi.Player.data.title);
+					};
+					break;
+				case 'nowPlayingFastRewind':
+					runner = function ()
+					{
+						MCPi.Player.setFastRewind();
+					};
+					checker = function ()
+					{
+						MCPi.Player.getProperties();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+					};
+					break;
+				case 'nowPlayingStop':
+					runner = function ()
+					{
+						MCPi.Player.setStop();
+					};
+					checker = function ()
+					{
+						MCPi.Player.getProperties();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+					};
+					break;
+				case 'nowPlayingPlay':
+					runner = function ()
+					{
+						MCPi.Player.setPlay();
+					};
+					checker = function ()
+					{
+						MCPi.Player.getProperties();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+					};
+					break;
+				case 'nowPlayingFastForward':
+					runner = function ()
+					{
+						MCPi.Player.setFastForward();
+					};
+					checker = function ()
+					{
+						MCPi.Player.getProperties();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+					};
+					break;
+				case 'nowPlayingForward':
+					runner = function ()
+					{
+						MCPi.Player.setForward();
+					};
+					checker = function ()
+					{
+						MCPi.Player.getPlayingItemDetails();
+					};
+					pointer = function ()
+					{
+						return MCPi.libs.getHashcode("title", MCPi.Player.data.title);
+					};
+					break;
+			}
 
-            MCPi.Player.props.position = 0;
-            MCPi.Player.props.percentage = 0;
+			return {"runner":runner, "checker":checker, "pointer":pointer};
+		},
 
-            MCPi.GUI.refresh();
-            MCPi.GUI.runWaitOff(parentContainer);
-        },
+		/**
+		 * Execute related command to the click event on a specific player button.
+		 *
+		 * @param eid control identifier that runs the action.
+		 */
+		call: function(eid)
+		{
+			var run = MCPi.Player.GUI.getCallerData(eid);
 
-        runStop: function(parentContainer)
-        {
-            console.log("Player.GUI.runStop");
+			if(!MCPi.RemoteControl.GUI.vars.lockingFlag)
+            {
+                console.log("Player.GUI.call(" + eid + ")");
 
-            MCPi.GUI.runWaitOn(parentContainer);
-            MCPi.Player.setStop();
+				$('#' + eid).addClass("active");
+				MCPi.GUI.runWaitOn();
 
-            MCPi.GUI.refresh({skip:true});
-            MCPi.GUI.runWaitOff(parentContainer);
-        },
+                MCPi.RemoteControl.GUI.vars.newPropHash = run.pointer();
+				MCPi.RemoteControl.GUI.vars.oldPropHash = MCPi.RemoteControl.GUI.vars.newPropHash;
+				MCPi.RemoteControl.GUI.vars.lockingFlag = true;
+				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
 
-        runPlay: function(parentContainer)
-        {
-            console.log("Player.GUI.runPlay");
+				run.runner();
+			}
 
-            MCPi.GUI.runWaitOn(parentContainer);
-            MCPi.Player.setPlay();
+			if((MCPi.RemoteControl.GUI.vars.oldPropHash == MCPi.RemoteControl.GUI.vars.newPropHash) && MCPi.RemoteControl.GUI.vars.lockingCounter < 3)
+			{
+				console.log("Player.GUI.call-Timercall");
+				run.checker();
 
-            MCPi.GUI.refresh();
-            MCPi.GUI.runWaitOff(parentContainer);
-        },
+				setTimeout(function()
+				{
+					MCPi.Player.GUI.call(eid);
+				}, 250);
 
-        runFastRewind: function(parentContainer)
-        {
-            console.log("Player.GUI.runFastRewind");
+				MCPi.RemoteControl.GUI.vars.lockingCounter++;
+				MCPi.RemoteControl.GUI.vars.newPropHash = run.pointer();
+			}
+			else
+			{
+				MCPi.RemoteControl.GUI.vars.oldPropHash = null;
+				MCPi.RemoteControl.GUI.vars.newPropHash = null;
+				MCPi.RemoteControl.GUI.vars.lockingFlag = false;
+				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
 
-            MCPi.GUI.runWaitOn(parentContainer);
-            MCPi.Player.setFastRewind();
+				MCPi.GUI.refresh();
 
-            MCPi.GUI.refresh();
-            MCPi.GUI.runWaitOff(parentContainer);
-        },
-
-        runFastForward: function(parentContainer)
-        {
-            console.log("Player.GUI.runFastForward");
-
-            MCPi.GUI.runWaitOn(parentContainer);
-            MCPi.Player.setFastForward();
-
-            MCPi.GUI.refresh();
-            MCPi.GUI.runWaitOff(parentContainer);
-        }
+				$('#' + eid).removeClass("active");
+				MCPi.GUI.runWaitOff();
+			}
+		}
 	};
 
 	MCPi.Player.Queue =
@@ -839,7 +913,7 @@
 				input = MCPi.Player.getMediaStructure(input);
 				console.log("Player.Queue.setInsertMedia");
 
-				var parameters, reference = {"input":input, "callback":MCPi.Playlist.setInsertMedia, "chain":chain};
+				var parameters, reference = {"input":input, "callback":MCPi.Player.Queue.setInsertMedia, "chain":chain};
 
 				if(input.mediatype == "song") parameters ={"item":{"songid":input.mediaid}, "position":1, "playlistid":MCPi.Player.id};
 					else if(input.mediatype == "movie") parameters = {"item":{"movieid":input.mediaid}, "position":1, "playlistid":MCPi.Player.id};
@@ -871,7 +945,7 @@
 				input = MCPi.Player.getMediaStructure(input);
 				console.log("Player.Queue.setAppendMedia");
 
-				var parameters, reference = {"input":input, "callback":MCPi.Playlist.setAppendMedia, "chain":chain};
+				var parameters, reference = {"input":input, "callback":MCPi.Player.Queue.setAppendMedia, "chain":chain};
 
 				if(input.mediatype == "song") parameters ={"item":{"songid":input.mediaid}, "playlistid":MCPi.Player.id};
 					else if(input.mediatype == "movie") parameters = {"item":{"movieid":input.mediaid}, "playlistid":MCPi.Player.id};

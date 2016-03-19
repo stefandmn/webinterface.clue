@@ -502,9 +502,12 @@
 		 *
 		 * @returns {{runner: *, checker: *, pointer: *, timer: number, loop: number, wfcall: *, wfskip: *}}
 		 * 	- runner	- executes the command that have to be executed by pressing selected remote control key
-		 * 	- checker	- call server routines just to refresh local (browser) environment to be used by <code>pointer</code> routine
-		 * 	- pointer	- it is a routine that checks if something has been changed after <code>runner</code> execution and if it was changed the asynch process must be stopped
-		 * 	- timer		- integer value that tells how long should wait the process for another function/runner call through timeout routine
+		 * 	- checker	- call server routines just to refresh local (browser) environment to be used by
+		 * 				<code>pointer</code> routine
+		 * 	- pointer	- it is a routine that checks if something has been changed after <code>runner</code>
+		 * 				execution and if it was changed the asynch process must be stopped
+		 * 	- timer		- integer value that tells how long should wait the process for another function/runner
+		 * 				call through timeout routine
 		 * 	- loop		- integer value that specifies how many max loops could be executed through timeout routine
 		 * 	- wfcall	- specific route that could be executed before refreshing the GUI
 		 * 	- wfskip	- boolean value that can activate/deactivate routines to run before GUI refresh
@@ -518,7 +521,7 @@
 				case 'remoteMusic':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setMusicScreen()
+						MCPi.RemoteControl.setMusicScreen();
 					};
 					checker = function ()
 					{
@@ -533,7 +536,7 @@
 				case 'remoteVideo':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setVideoScreen()
+						MCPi.RemoteControl.setVideoScreen();
 					};
 					checker = function ()
 					{
@@ -548,7 +551,7 @@
 				case 'remotePictures':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setPhotoScreen()
+						MCPi.RemoteControl.setPhotoScreen();
 					};
 					checker = function ()
 					{
@@ -563,7 +566,7 @@
 				case 'remoteSettings':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setSettingsScreen()
+						MCPi.RemoteControl.setSettingsScreen();
 					};
 					checker = function ()
 					{
@@ -622,7 +625,7 @@
 				case 'remoteHome':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setHomeKey()
+						MCPi.RemoteControl.setHomeKey();
 					};
 					checker = function ()
 					{
@@ -639,7 +642,7 @@
 				case 'remoteUp':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setUpKey()
+						MCPi.RemoteControl.setUpKey();
 					};
 					checker = function ()
 					{
@@ -655,7 +658,7 @@
 				case 'remoteDown':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setDownKey()
+						MCPi.RemoteControl.setDownKey();
 					};
 					checker = function ()
 					{
@@ -671,7 +674,7 @@
 				case 'remoteLeft':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setLeftKey()
+						MCPi.RemoteControl.setLeftKey();
 					};
 					checker = function ()
 					{
@@ -687,7 +690,7 @@
 				case 'remoteRight':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setRightKey()
+						MCPi.RemoteControl.setRightKey();
 					};
 					checker = function ()
 					{
@@ -703,7 +706,7 @@
 				case 'remoteSelect':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setSelectKey()
+						MCPi.RemoteControl.setSelectKey();
 					};
 					checker = function ()
 					{
@@ -719,7 +722,7 @@
 				case 'remoteBack':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setBackKey()
+						MCPi.RemoteControl.setBackKey();
 					};
 					checker = function ()
 					{
@@ -734,7 +737,7 @@
 				case 'remoteInfo':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setInfoKey()
+						MCPi.RemoteControl.setInfoKey();
 					};
 					checker = function ()
 					{
@@ -749,7 +752,7 @@
 				case 'remoteContext':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setContextKey()
+						MCPi.RemoteControl.setContextKey();
 					};
 					checker = function ()
 					{
@@ -764,7 +767,7 @@
 				case 'remoteRewind':
 					runner = function ()
 					{
-						MCPi.Player.setRewind()
+						MCPi.Player.setRewind();
 					};
 					checker = function ()
 					{
@@ -780,7 +783,7 @@
 				case 'remoteFastRewind':
 					runner = function ()
 					{
-						MCPi.Player.setFastRewind()
+						MCPi.Player.setFastRewind();
 					};
 					checker = function ()
 					{
@@ -795,7 +798,7 @@
 				case 'remoteStop':
 					runner = function ()
 					{
-						MCPi.Player.setStop()
+						MCPi.Player.setStop();
 					};
 					checker = function ()
 					{
@@ -810,7 +813,7 @@
 				case 'remotePlay':
 					runner = function ()
 					{
-						MCPi.Player.setPlay()
+						MCPi.Player.setPlay();
 					};
 					checker = function ()
 					{
@@ -825,7 +828,7 @@
 				case 'remoteFastForward':
 					runner = function ()
 					{
-						MCPi.Player.setFastForward()
+						MCPi.Player.setFastForward();
 					};
 					checker = function ()
 					{
@@ -840,7 +843,7 @@
 				case 'remoteForward':
 					runner = function ()
 					{
-						MCPi.Player.setForward()
+						MCPi.Player.setForward();
 					};
 					checker = function ()
 					{
@@ -876,7 +879,7 @@
 				case 'remoteFullscreen':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setFullscreen()
+						MCPi.RemoteControl.setFullscreen();
 					};
 					checker = function ()
 					{
