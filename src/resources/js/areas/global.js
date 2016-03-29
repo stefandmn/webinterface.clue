@@ -271,6 +271,8 @@
 		{
 			vars:
 			{
+				/** Synchronize business action with GUI's reaction */
+				syncAction: false,
 				/** Time interval (in ms) to run reference queue */
 				timerInterval: 25000,
 				/** Timer process id - if this is not null means that the reference queue has been scheduled */
@@ -454,7 +456,7 @@
 
 	/* REMOTECONTROL - Register event handlers for RemoteControl modal dialog  */
 		$('#remoteControlModal').on('show.bs.modal', MCPi.RemoteControl.GUI.open);
-		$('#remoteControlModal').on('hide.bs.modal', MCPi.GUI.refresh);
+		$('#remoteControlModal').on('hidden.bs.modal', MCPi.GUI.refresh);
 		$('#remoteControlModal').on('keydown', jQuery.proxy(MCPi.RemoteControl.GUI.onKeyPress, this));
 		$('#remoteControlModal').on('click', '[data-clickthrough=remote]', MCPi.RemoteControl.GUI.onClick);
 
@@ -464,8 +466,8 @@
 		$('#home').on('shown.bs.collapse', '[data-collapse=home]', MCPi.Home.GUI.show);
 
 
-	/** NOWPLAYING - Register event handlers for NowPlaying panel*/
-		$('#nowPlayingContainer').on('show.bs.collapse', MCPi.Player.GUI.show);
+	/* NOWPLAYING - Register event handlers for NowPlaying panel */
+		$('#nowPlayingContainer').on('shown.bs.collapse', MCPi.Player.GUI.show);
 		$('#nowPlayingContainer').on('hide.bs.collapse', MCPi.Player.GUI.hide);
         $('#nowPlayingContainer').on('click', '[data-clickthrough=player]', MCPi.Player.GUI.onClick);
 

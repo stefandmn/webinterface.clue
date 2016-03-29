@@ -866,6 +866,7 @@
 				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
 
 				run.runner();
+				if(!MCPi.GUI.vars.syncAction) MCPi.RemoteControl.GUI.vars.lockingCounter = 3;
 			}
 
 			if((MCPi.RemoteControl.GUI.vars.oldPropHash == MCPi.RemoteControl.GUI.vars.newPropHash) && MCPi.RemoteControl.GUI.vars.lockingCounter < 3)
