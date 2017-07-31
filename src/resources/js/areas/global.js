@@ -272,7 +272,7 @@
 			vars:
 			{
 				/** Synchronize business action with GUI's reaction */
-				syncAction: false,
+				syncAction: true,
 				/** Time interval (in ms) to run reference queue */
 				timerInterval: 25000,
 				/** Timer process id - if this is not null means that the reference queue has been scheduled */
