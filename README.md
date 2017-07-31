@@ -1,4 +1,4 @@
-# Clue WebInterface
+# Clue WebInterface for MCPi or Kodi
 
 _**This project is under development and the release that have been issued are only for testing purposes!**_
 
