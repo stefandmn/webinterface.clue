@@ -6,7 +6,7 @@
 	<extension point="xbmc.webinterface"/>
 	<extension point="xbmc.addon.metadata">
 		<summary>Web Interface for MCPi</summary>
-		<description lang="en">You can use this web interface to control remotely most of the functions provided: play/pause/stop/skip, show artists/albums/movies/tv shows and play them or add them to the playlist. It's designed for use on PCs or laptops with a browser which supports JavaScript</description>
+		<description>You can use this web interface to control remotely most of the functions provided: play/pause/stop/skip, show artists/albums/movies/tv shows and play them or add them to the playlist. It's designed for use on PCs or laptops with a browser which supports JavaScript</description>
 		<platform>all</platform>
 		<language>en</language>
 	</extension>
