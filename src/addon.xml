@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="webinterface.clue" name="Clue Web Interface" version="1.0.2" provider-name="AMSD">
+<addon id="webinterface.clue" name="Clue Web Interface" version="1.0.3" provider-name="AMSD">
 	<requires>
 		<import addon="xbmc.json" version="6.25.2"/>
 	</requires>
 	<extension point="xbmc.webinterface"/>
 	<extension point="xbmc.addon.metadata">
-		<summary>Web Interface for MCPi</summary>
-		<description>You can use this web interface to control remotely most of the functions provided by the media player.</description>
-		<platform>all</platform>
-		<language>en</language>
+		<summary lang="en">Web Interface for MCPi</summary>
+		<description lang="en">Web interface to control remotely most of the functions provided by the media player</description>
 	</extension>
 </addon>
