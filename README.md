@@ -1,4 +1,4 @@
-# Clue WebInterface for Kodi
+# Clue Web Interface for Kodi
 
 _**This project is under development and all releases that have been issued are 
 only for testing purposes!**_
