@@ -1,9 +1,9 @@
 (function (window)
 {
 	'use strict';
-	var MCPi = window.MCPi;
+	var Clue = window.Clue;
 
-	MCPi.Home =
+	Clue.Home =
 	{
 		vars:
 		{
@@ -22,18 +22,18 @@
 			if (output == null)
 			{
 				console.log("Home.getLatestSongs");
-				var reference = {"input":input, "callback":MCPi.Home.getLatestSongs, "chain":chain};
+				var reference = {"input":input, "callback":Clue.Home.getLatestSongs, "chain":chain};
 
-				MCPi.json.call('AudioLibrary.GetRecentlyAddedSongs', {"properties":MCPi.json.const.props.audio, "sort":{"method":'dateadded', "order":'descending'}, "limits":{"end": 5}}, reference);
+				Clue.json.call('AudioLibrary.GetRecentlyAddedSongs', {"properties":Clue.json.const.props.audio, "sort":{"method":'dateadded', "order":'descending'}, "limits":{"end": 5}}, reference);
 			}
 			else
 			{
 				if (output && output.result && output.result.songs)
 				{
 					console.log("Home.getLatestSongs-Callback");
-					MCPi.Home.panelData = output.result.songs;
+					Clue.Home.panelData = output.result.songs;
 				}
-				else MCPi.Home.panelData = null;
+				else Clue.Home.panelData = null;
 			}
 		},
 
@@ -49,18 +49,18 @@
 			if (output == null)
 			{
 				console.log("Home.getLatestMovies");
-				var reference = {"input":input, "callback":MCPi.Home.getLatestMovies, "chain":chain};
+				var reference = {"input":input, "callback":Clue.Home.getLatestMovies, "chain":chain};
 
-				MCPi.json.call('VideoLibrary.GetRecentlyAddedMovies', {"properties":MCPi.json.const.props.movie, "sort":{"method":'dateadded', "order":'descending'}, "limits":{"end":5}}, reference);
+				Clue.json.call('VideoLibrary.GetRecentlyAddedMovies', {"properties":Clue.json.const.props.movie, "sort":{"method":'dateadded', "order":'descending'}, "limits":{"end":5}}, reference);
 			}
 			else
 			{
 				if(output && output.result && output.result.movies)
 				{
 					console.log("Home.getLatestMovies-Callback");
-					MCPi.Home.panelData = output.result.movies;
+					Clue.Home.panelData = output.result.movies;
 				}
-				else MCPi.Home.panelData = null;
+				else Clue.Home.panelData = null;
 			}
 		},
 
@@ -76,23 +76,23 @@
 			if (output == null)
 			{
 				console.log("Home.getLatestEpisodes");
-				var reference = {"input":input, "callback":MCPi.Home.getLatestEpisodes, "chain":chain};
+				var reference = {"input":input, "callback":Clue.Home.getLatestEpisodes, "chain":chain};
 
-				MCPi.json.call('VideoLibrary.GetRecentlyAddedEpisodes', {"properties":MCPi.json.const.props.episode, "sort":{"method":'dateadded', "order":'descending'}, "limits":{"end":5}}, reference);
+				Clue.json.call('VideoLibrary.GetRecentlyAddedEpisodes', {"properties":Clue.json.const.props.episode, "sort":{"method":'dateadded', "order":'descending'}, "limits":{"end":5}}, reference);
 			}
 			else
 			{
 				if (output && output.result && output.result.episodes)
 				{
 					console.log("Home.getLatestEpisodes-Callback");
-					MCPi.Home.panelData = output.result.episodes;
+					Clue.Home.panelData = output.result.episodes;
 				}
-				else MCPi.Home.panelData = null;
+				else Clue.Home.panelData = null;
 			}
 		}
 	};
 
-	MCPi.Home.GUI =
+	Clue.Home.GUI =
 	{
 		vars:
 		{
@@ -117,19 +117,19 @@
 			switch (panel)
 			{
 				case "recentsongs":
-					MCPi.Home.getLatestSongs(null, null, MCPi.Home.GUI.showLatestSongs);
+					Clue.Home.getLatestSongs(null, null, Clue.Home.GUI.showLatestSongs);
 					break;
 				case "recentmovies":
-					MCPi.Home.getLatestMovies(null, null, MCPi.Home.GUI.showLatestMovies);
+					Clue.Home.getLatestMovies(null, null, Clue.Home.GUI.showLatestMovies);
 					break;
 				case "recentepisodes":
-					MCPi.Home.getLatestEpisodes(null, null, MCPi.Home.GUI.showLatestEpisodes);
+					Clue.Home.getLatestEpisodes(null, null, Clue.Home.GUI.showLatestEpisodes);
 					break;
 				case "home":
-					if(!MCPi.Home.GUI.vars.showPanel)
+					if(!Clue.Home.GUI.vars.showPanel)
 					{
-						MCPi.Home.GUI.runExtraContent();
-						MCPi.Home.GUI.vars.showPanel = true;
+						Clue.Home.GUI.runExtraContent();
+						Clue.Home.GUI.vars.showPanel = true;
 					}
 					break;
 			}
@@ -149,21 +149,21 @@
 			var type = obj.attr("data-type");
 			var refid = obj.attr("data-refid");
 
-			MCPi.Player.vars.contentType = type;
+			Clue.Player.vars.contentType = type;
 			console.log("Home.GUI.onClick (" + exec + "(" + type + "))");
 
 			switch (exec)
 			{
 				case "playnow":
-					MCPi.Player.setOpenMedia(refid);
+					Clue.Player.setOpenMedia(refid);
 					break;
 
 				case "playnext":
-					MCPi.Player.Queue.setInsertMedia(refid);
+					Clue.Player.Queue.setInsertMedia(refid);
 					break;
 
 				case "enqueue":
-					MCPi.Player.Queue.setAppendMedia(refid);
+					Clue.Player.Queue.setAppendMedia(refid);
 					break;
 			}
 		},
@@ -175,9 +175,9 @@
 		{
 			console.log("Home.GUI.showLatestSongs");
 
-			if (MCPi.Home.panelData != null)
+			if (Clue.Home.panelData != null)
 			{
-				$.each(MCPi.Home.panelData, function (i, data)
+				$.each(Clue.Home.panelData, function (i, data)
 				{
 					var content, image = data.thumbnail, titles = [], details = [];
 
@@ -187,7 +187,7 @@
 					if (data.genre && data.genre.length > 0) details[details.length] = data.genre.join(",");
 					if (data.year) details[details.length] = data.year;
 
-					content = MCPi.Home.GUI.getTemplateContent(data.songid, "song", image, titles.join(" - "), details.join(" &bull; "));
+					content = Clue.Home.GUI.getTemplateContent(data.songid, "song", image, titles.join(" - "), details.join(" &bull; "));
 
 					if (i == 0) $('#rads').html(content);
 						else $('#rads').append(content);
@@ -195,7 +195,7 @@
 			}
 			else $('#rads').html("");
 
-			MCPi.Home.panelData = null;
+			Clue.Home.panelData = null;
 		},
 
 		/**
@@ -205,9 +205,9 @@
 		{
 			console.log("Home.GUI.showLatestMovies");
 
-			if (MCPi.Home.panelData != null)
+			if (Clue.Home.panelData != null)
 			{
-				$.each(MCPi.Home.panelData, function (i, data)
+				$.each(Clue.Home.panelData, function (i, data)
 				{
 					var content, image = data.thumbnail, titles = [], details = [];
 
@@ -217,7 +217,7 @@
 					if(data.rating) details[details.length] = data.rating.toFixed(1);
 					if(data.year) details[details.length] = data.year;
 
-					content = MCPi.Home.GUI.getTemplateContent(data.movieid, "movie", image, titles.join(" - "), details.join(" &bull; "));
+					content = Clue.Home.GUI.getTemplateContent(data.movieid, "movie", image, titles.join(" - "), details.join(" &bull; "));
 
 					if(i == 0) $('#radm').html(content);
 						else $('#radm').append(content);
@@ -225,7 +225,7 @@
 			}
 			else $('#radm').html("");
 
-			MCPi.Home.panelData = null;
+			Clue.Home.panelData = null;
 		},
 
 		/**
@@ -235,9 +235,9 @@
 		{
 			console.log("Home.GUI.showLatestEpisodes");
 
-			if (MCPi.Home.panelData != null)
+			if (Clue.Home.panelData != null)
 			{
-				$.each(MCPi.Home.panelData, function (i, data)
+				$.each(Clue.Home.panelData, function (i, data)
 				{
 					var content, image = data.thumbnail, titles = [], details = [];
 
@@ -247,7 +247,7 @@
 					if (data.episode) details[details.length] = "Episode " + data.episode;
 					if (data.rating) details[details.length] = data.rating.toFixed(1);
 
-					content = MCPi.Home.GUI.getTemplateContent(data.episodeid, "episode", image, titles.join(" - "), details.join(" &bull; "));
+					content = Clue.Home.GUI.getTemplateContent(data.episodeid, "episode", image, titles.join(" - "), details.join(" &bull; "));
 
 					if (i == 0) $('#rade').html(content);
 						else $('#rade').append(content);
@@ -273,7 +273,7 @@
 				if(type.indexOf("song" >= 0)) image = "/resources/images/album.png";
 					else image = "/resources/images/video.png";
 			}
-			else image = MCPi.libs.formatAssetURL(image);
+			else image = Clue.libs.formatAssetURL(image);
 
 			return $([
 				'<div class="row" style="cursor:default;">' +
@@ -305,7 +305,7 @@
 			console.log("Home.GUI.runExtraContent");
 
 			$.ajax({
-				url: MCPi.Home.GUI.const.tmdbUrl,
+				url: Clue.Home.GUI.const.tmdbUrl,
 				crossDomain: true,
 				dataType: 'json'
 			}).done(function (output) {

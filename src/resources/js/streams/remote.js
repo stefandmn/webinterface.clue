@@ -1,17 +1,17 @@
 (function (window)
 {
 	'use strict';
-	var MCPi = window.MCPi;
+	var Clue = window.Clue;
 
-	MCPi.RemoteControl =
+	Clue.RemoteControl =
 	{
         vars:
         {
-            /** Remote screen id displayed by MCPi player */
+            /** Remote screen id displayed by Clue player */
             remoteScreenId: null,
-             /** Remote screen label displayed by MCPi player */
+             /** Remote screen label displayed by Clue player */
             remoteScreenLabel: null,
-             /** Control label currently managed by the remote control and displayed by MCPi player */
+             /** Control label currently managed by the remote control and displayed by Clue player */
             remoteControlLabel: null
         },
 
@@ -27,7 +27,7 @@
 			console.log("RemoteControl.setScreen");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("GUI.ActivateWindow", {"window":input}, reference);
+			Clue.json.call("GUI.ActivateWindow", {"window":input}, reference);
 		},
 
 		/**
@@ -40,7 +40,7 @@
 		setMusicScreen: function(input, output, chain)
 		{
 			console.log("RemoteControl.setMusicScreen");
-			MCPi.RemoteControl.setScreen("music", null, chain);
+			Clue.RemoteControl.setScreen("music", null, chain);
 		},
 
 		/**
@@ -53,7 +53,7 @@
 		setVideoScreen: function(input, output, chain)
 		{
 			console.log("RemoteControl.setVideoScreen");
-			MCPi.RemoteControl.setScreen("video", null, chain);
+			Clue.RemoteControl.setScreen("video", null, chain);
 		},
 
 		/**
@@ -66,7 +66,7 @@
 		setPhotoScreen: function(input, output, chain)
 		{
 			console.log("RemoteControl.setPhotoScreen");
-			MCPi.RemoteControl.setScreen("pictures", null, chain);
+			Clue.RemoteControl.setScreen("pictures", null, chain);
 		},
 
 		/**
@@ -79,7 +79,7 @@
 		setSettingsScreen: function(input, output, chain)
 		{
 			console.log("RemoteControl.setSettingsScreen");
-			MCPi.RemoteControl.setScreen("settings", null, chain);
+			Clue.RemoteControl.setScreen("settings", null, chain);
 		},
 
 		/**
@@ -94,7 +94,7 @@
 			console.log("RemoteControl.setHomeKey");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("Input.Home", {}, reference);
+			Clue.json.call("Input.Home", {}, reference);
 		},
 
 		/**
@@ -109,7 +109,7 @@
 			console.log("RemoteControl.setUpKey");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("Input.Up", {}, reference);
+			Clue.json.call("Input.Up", {}, reference);
 		},
 
 		/**
@@ -124,7 +124,7 @@
 			console.log("RemoteControl.setDownKey");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("Input.Down", {}, reference);
+			Clue.json.call("Input.Down", {}, reference);
 		},
 
 		/**
@@ -139,7 +139,7 @@
 			console.log("RemoteControl.setLeftKey");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("Input.Left", {}, reference);
+			Clue.json.call("Input.Left", {}, reference);
 		},
 
 		/**
@@ -154,7 +154,7 @@
 			console.log("RemoteControl.setRightKey");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("Input.Right", {}, reference);
+			Clue.json.call("Input.Right", {}, reference);
 		},
 
 		/**
@@ -169,7 +169,7 @@
 			console.log("RemoteControl.setSelectKey");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("Input.Select", {}, reference);
+			Clue.json.call("Input.Select", {}, reference);
 		},
 
 		/**
@@ -184,7 +184,7 @@
 			console.log("RemoteControl.setInfoKey");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("Input.Info", {}, reference);
+			Clue.json.call("Input.Info", {}, reference);
 		},
 
 		/**
@@ -199,7 +199,7 @@
 			console.log("RemoteControl.setBackKey");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("Input.Back", {}, reference);
+			Clue.json.call("Input.Back", {}, reference);
 		},
 
 		/**
@@ -214,7 +214,7 @@
 			console.log("RemoteControl.setContextKey");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("Input.ContextMenu", {}, reference);
+			Clue.json.call("Input.ContextMenu", {}, reference);
 		},
 
 		/**
@@ -230,7 +230,7 @@
 			var reference = {"input":input, "chain":chain};
 
 			if(input == null) input="toggle";
-			MCPi.json.call("GUI.SetFullscreen", {"fullscreen":input}, reference);
+			Clue.json.call("GUI.SetFullscreen", {"fullscreen":input}, reference);
 		},
 
 		/**
@@ -245,7 +245,7 @@
 			console.log("RemoteControl.setStandardAction");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("Input.ExecuteAction", {"action":input}, reference);
+			Clue.json.call("Input.ExecuteAction", {"action":input}, reference);
 		},
 
 		/**
@@ -258,24 +258,24 @@
 		setShowPlaylist: function(input, output, chain)
 		{
 			console.log("RemoteControl.setShowPlaylist");
-			MCPi.RemoteControl.setStandardAction("playlist", null, chain);
+			Clue.RemoteControl.setStandardAction("playlist", null, chain);
 		},
 
 		/**
 		 * Send keydown character when the keyboard is used.
 		 *
-		 * @param text key character or text message to be sent to MCPi server through a JSON message
+		 * @param text key character or text message to be sent to Clue server through a JSON message
 		 * @param done when was sent the last letter/message to be processed by the player
 		 */
 		sendText: function(text, done)
 		{
 			if((typeof done === 'undefined') || (done == null)) done = false;
 
-			MCPi.json.call("Input.SendText", {"text":text, "done":done});
+			Clue.json.call("Input.SendText", {"text":text, "done":done});
 		},
 
         /**
-         * Get MCPi screen details (id, label and current control label) managed through remote control actions.
+         * Get Clue screen details (id, label and current control label) managed through remote control actions.
          *
 		 * @param input input value of structure (could be any data type).
 		 * @param output data structure received from server that should contain the callback processing details.
@@ -286,25 +286,25 @@
 			if(output == null)
 			{
 				console.log("RemoteControl.getRemoteScreen");
-				var reference = {"input":input, "callback":MCPi.RemoteControl.getRemoteScreen, "chain":chain};
+				var reference = {"input":input, "callback":Clue.RemoteControl.getRemoteScreen, "chain":chain};
 
-				MCPi.json.call("GUI.GetProperties", {"properties":["currentwindow", "currentcontrol"]}, reference);
+				Clue.json.call("GUI.GetProperties", {"properties":["currentwindow", "currentcontrol"]}, reference);
 			}
 			else
 			{
 				console.log("RemoteControl.getRemoteScreen-Callback");
 				if (output && output.result != null)
                 {
-                    MCPi.RemoteControl.vars.remoteScreenId = output.result.currentwindow.id;
-                    MCPi.RemoteControl.vars.remoteScreenLabel = output.result.currentwindow.label;
-                    MCPi.RemoteControl.vars.remoteControlLabel = output.result.currentcontrol.label;
+                    Clue.RemoteControl.vars.remoteScreenId = output.result.currentwindow.id;
+                    Clue.RemoteControl.vars.remoteScreenLabel = output.result.currentwindow.label;
+                    Clue.RemoteControl.vars.remoteControlLabel = output.result.currentcontrol.label;
                 }
 			}
         }
 
 	};
 
-	MCPi.RemoteControl.GUI =
+	Clue.RemoteControl.GUI =
 	{
 		vars:
 		{
@@ -331,7 +331,7 @@
 		{
 			console.log("RemoteControl.GUI.open");
 
-			MCPi.Player.getProperties(null, null, {"nextcall":MCPi.Player.getVolume, "chain":{"nextcall":MCPi.RemoteControl.getRemoteScreen, "chain":{"nextcall":MCPi.RemoteControl.GUI.display}}});
+			Clue.Player.getProperties(null, null, {"nextcall":Clue.Player.getVolume, "chain":{"nextcall":Clue.RemoteControl.getRemoteScreen, "chain":{"nextcall":Clue.RemoteControl.GUI.display}}});
 		},
 
 		/**
@@ -349,16 +349,16 @@
 			var party = $('#remotePartyMode');
             var screen = $('#remoteScreen');
 
-			if (MCPi.Player.props.speed <= 0 || MCPi.Player.props.speed > 1)
+			if (Clue.Player.props.speed <= 0 || Clue.Player.props.speed > 1)
 			{
 				play.html('<span class="fa fa-play" aria-hidden="true"></span>');
 			}
-			else if(MCPi.Player.props.speed == 1)
+			else if(Clue.Player.props.speed == 1)
 			{
 				play.html('<span class="fa fa-pause" aria-hidden="true"></span>');
 			}
 
-			if(MCPi.Player.props.partymode == true)
+			if(Clue.Player.props.partymode == true)
 			{
 				party.addClass("active");
 			}
@@ -367,28 +367,28 @@
 				party.removeClass("active");
 			}
 
-			if(MCPi.Player.props.mute == true)
+			if(Clue.Player.props.mute == true)
 			{
-				mute.html('<span class="fa fa-volume-off fa-lg" aria-hidden="true"></span>  <span class="badge">' + MCPi.Player.props.volume + '</span>');
+				mute.html('<span class="fa fa-volume-off fa-lg" aria-hidden="true"></span>  <span class="badge">' + Clue.Player.props.volume + '</span>');
 				mute.addClass("active");
 			}
 			else
 			{
-				mute.html('<span class="fa fa-volume-up fa-lg" aria-hidden="true"></span>  <span class="badge">' + MCPi.Player.props.volume + '</span>');
+				mute.html('<span class="fa fa-volume-up fa-lg" aria-hidden="true"></span>  <span class="badge">' + Clue.Player.props.volume + '</span>');
 				mute.removeClass("active");
 			}
 
-            if(MCPi.RemoteControl.vars.remoteScreenLabel != null && MCPi.RemoteControl.vars.remoteControlLabel != null)
+            if(Clue.RemoteControl.vars.remoteScreenLabel != null && Clue.RemoteControl.vars.remoteControlLabel != null)
             {
-                screen.html(MCPi.RemoteControl.vars.remoteScreenLabel +
+                screen.html(Clue.RemoteControl.vars.remoteScreenLabel +
                     '&nbsp;<span class="fa fa-angle-double-right" aria-hidden="true"></span>&nbsp;' +
-                    MCPi.RemoteControl.vars.remoteControlLabel);
+                    Clue.RemoteControl.vars.remoteControlLabel);
             }
-            else if(MCPi.RemoteControl.vars.remoteScreenLabel != null && MCPi.RemoteControl.vars.remoteControlLabel == null)
+            else if(Clue.RemoteControl.vars.remoteScreenLabel != null && Clue.RemoteControl.vars.remoteControlLabel == null)
             {
-                screen.html(MCPi.RemoteControl.vars.remoteScreenLabel);
+                screen.html(Clue.RemoteControl.vars.remoteScreenLabel);
             }
-            else if(MCPi.RemoteControl.vars.remoteScreenLabel == null && MCPi.RemoteControl.vars.remoteControlLabel == null)
+            else if(Clue.RemoteControl.vars.remoteScreenLabel == null && Clue.RemoteControl.vars.remoteControlLabel == null)
             {
                 screen.html(" ");
             }
@@ -407,7 +407,7 @@
 			var id = obj.attr('id');
 
 			console.log("RemoteControl.GUI.onClick(#" + id + ")");
-			MCPi.RemoteControl.GUI.call(id);
+			Clue.RemoteControl.GUI.call(id);
 		},
 
 		/**
@@ -445,51 +445,51 @@
 
 			e.data = {key: key};
 
-			if (!key || (MCPi.RemoteControl.vars.remoteScreenId == 10103 && key == "remoteContext"))
+			if (!key || (Clue.RemoteControl.vars.remoteScreenId == 10103 && key == "remoteContext"))
 			{
 				// Digits
 				if (which >= 48 && which <= 57)
 				{
-					MCPi.RemoteControl.GUI.vars.keyText += (which - 48) + "";
+					Clue.RemoteControl.GUI.vars.keyText += (which - 48) + "";
 				}
 
 				// Letters
 				if (which >= 65 && which <= 90)
 				{
 					var offset = e.shiftKey ? 0 : 32;
-					MCPi.RemoteControl.GUI.vars.keyText += String.fromCharCode(which + offset);
+					Clue.RemoteControl.GUI.vars.keyText += String.fromCharCode(which + offset);
 				}
 
 				// Digits
 				if (which >= 96 && which <= 105)
 				{
-					MCPi.RemoteControl.GUI.vars.keyText += (which - 96) + "";
+					Clue.RemoteControl.GUI.vars.keyText += (which - 96) + "";
 				}
 
-				e.data.text = MCPi.RemoteControl.GUI.vars.keyText;
+				e.data.text = Clue.RemoteControl.GUI.vars.keyText;
 				e.data.key = 'text';
 			}
 
-			if(which == 13 && MCPi.RemoteControl.GUI.vars.keyText != "" && MCPi.RemoteControl.vars.remoteControlLabel == "Done")
+			if(which == 13 && Clue.RemoteControl.GUI.vars.keyText != "" && Clue.RemoteControl.vars.remoteControlLabel == "Done")
 			{
 				e.data.key = 'text';
-				e.data.text = MCPi.RemoteControl.GUI.vars.keyText;
-				MCPi.RemoteControl.GUI.vars.keyText = '';
-				return MCPi.RemoteControl.sendText(e.data.text, true);
+				e.data.text = Clue.RemoteControl.GUI.vars.keyText;
+				Clue.RemoteControl.GUI.vars.keyText = '';
+				return Clue.RemoteControl.sendText(e.data.text, true);
 			}
-			else if((which == 13 && MCPi.RemoteControl.GUI.vars.keyText != "" && MCPi.RemoteControl.vars.remoteControlLabel == "Backspace") || which == 8)
+			else if((which == 13 && Clue.RemoteControl.GUI.vars.keyText != "" && Clue.RemoteControl.vars.remoteControlLabel == "Backspace") || which == 8)
 			{
 				e.data.key = 'text';
-				e.data.text = MCPi.RemoteControl.GUI.vars.keyText.substr(0, MCPi.RemoteControl.GUI.vars.keyText.length -1);
-				return MCPi.RemoteControl.sendText(e.data.text, false);
+				e.data.text = Clue.RemoteControl.GUI.vars.keyText.substr(0, Clue.RemoteControl.GUI.vars.keyText.length -1);
+				return Clue.RemoteControl.sendText(e.data.text, false);
 			}
 			else if(e.data.key == "text")
 			{
-				return MCPi.RemoteControl.sendText(e.data.text, false);
+				return Clue.RemoteControl.sendText(e.data.text, false);
 			}
 			else
 			{
-				return MCPi.RemoteControl.GUI.call(e.data.key);
+				return Clue.RemoteControl.GUI.call(e.data.key);
 			}
 		},
 
@@ -521,120 +521,120 @@
 				case 'remoteMusic':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setMusicScreen();
+						Clue.RemoteControl.setMusicScreen();
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
-						if(MCPi.RemoteControl.vars.remoteScreenId == 10502) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+						Clue.RemoteControl.getRemoteScreen();
+						if(Clue.RemoteControl.vars.remoteScreenId == 10502) Clue.RemoteControl.GUI.vars.lockingCounter = loop;
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
+						return Clue.libs.getHashcode("screen", Clue.RemoteControl.vars.remoteScreenId);
 					};
 					break;
 				case 'remoteVideo':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setVideoScreen();
+						Clue.RemoteControl.setVideoScreen();
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
-						if(MCPi.RemoteControl.vars.remoteScreenId == 10025) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+						Clue.RemoteControl.getRemoteScreen();
+						if(Clue.RemoteControl.vars.remoteScreenId == 10025) Clue.RemoteControl.GUI.vars.lockingCounter = loop;
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
+						return Clue.libs.getHashcode("screen", Clue.RemoteControl.vars.remoteScreenId);
 					};
 					break;
 				case 'remotePictures':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setPhotoScreen();
+						Clue.RemoteControl.setPhotoScreen();
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
-						if(MCPi.RemoteControl.vars.remoteScreenId == 10002) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+						Clue.RemoteControl.getRemoteScreen();
+						if(Clue.RemoteControl.vars.remoteScreenId == 10002) Clue.RemoteControl.GUI.vars.lockingCounter = loop;
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
+						return Clue.libs.getHashcode("screen", Clue.RemoteControl.vars.remoteScreenId);
 					};
 					break;
 				case 'remoteSettings':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setSettingsScreen();
+						Clue.RemoteControl.setSettingsScreen();
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
-						if(MCPi.RemoteControl.vars.remoteScreenId == 10004) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+						Clue.RemoteControl.getRemoteScreen();
+						if(Clue.RemoteControl.vars.remoteScreenId == 10004) Clue.RemoteControl.GUI.vars.lockingCounter = loop;
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
+						return Clue.libs.getHashcode("screen", Clue.RemoteControl.vars.remoteScreenId);
 					};
 					break;
 				case 'remoteVolumeMute':
 					runner = function ()
 					{
-						MCPi.Player.setMute();
+						Clue.Player.setMute();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getVolume();
+						Clue.Player.getVolume();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("mute", MCPi.Player.props.mute);
+						return Clue.libs.getHashcode("mute", Clue.Player.props.mute);
 					};
 					break;
 				case 'remoteVolumeUp':
 					runner = function ()
 					{
-						MCPi.Player.setIncreaseVolume();
+						Clue.Player.setIncreaseVolume();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getVolume();
-						if(MCPi.libs.getHashcode("volume", MCPi.Player.props.volume) == MCPi.RemoteControl.GUI.vars.oldPropHash && MCPi.Player.props.volume == 100) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+						Clue.Player.getVolume();
+						if(Clue.libs.getHashcode("volume", Clue.Player.props.volume) == Clue.RemoteControl.GUI.vars.oldPropHash && Clue.Player.props.volume == 100) Clue.RemoteControl.GUI.vars.lockingCounter = loop;
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("volume", MCPi.Player.props.volume);
+						return Clue.libs.getHashcode("volume", Clue.Player.props.volume);
 					};
 					break;
 				case 'remoteVolumeDown':
 					runner = function ()
 					{
-						MCPi.Player.setDecreaseVolume();
+						Clue.Player.setDecreaseVolume();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getVolume();
-						if(MCPi.libs.getHashcode("volume", MCPi.Player.props.volume) == MCPi.RemoteControl.GUI.vars.oldPropHash && MCPi.Player.props.volume == 100) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+						Clue.Player.getVolume();
+						if(Clue.libs.getHashcode("volume", Clue.Player.props.volume) == Clue.RemoteControl.GUI.vars.oldPropHash && Clue.Player.props.volume == 100) Clue.RemoteControl.GUI.vars.lockingCounter = loop;
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("volume", MCPi.Player.props.volume);
+						return Clue.libs.getHashcode("volume", Clue.Player.props.volume);
 					};
 					break;
 				case 'remoteHome':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setHomeKey();
+						Clue.RemoteControl.setHomeKey();
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
-						if(MCPi.RemoteControl.vars.remoteScreenId == 10000) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+						Clue.RemoteControl.getRemoteScreen();
+						if(Clue.RemoteControl.vars.remoteScreenId == 10000) Clue.RemoteControl.GUI.vars.lockingCounter = loop;
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
+						return Clue.libs.getHashcode("screen", Clue.RemoteControl.vars.remoteScreenId);
 					};
 					loop = 3;
 					timer = 250;
@@ -642,15 +642,15 @@
 				case 'remoteUp':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setUpKey();
+						Clue.RemoteControl.setUpKey();
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
+						Clue.RemoteControl.getRemoteScreen();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+						return Clue.libs.getHashcode("screen-control", Clue.RemoteControl.vars.remoteScreenId + "-" + Clue.RemoteControl.vars.remoteControlLabel);
 					};
 					loop = 3;
 					timer = 250;
@@ -658,15 +658,15 @@
 				case 'remoteDown':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setDownKey();
+						Clue.RemoteControl.setDownKey();
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
+						Clue.RemoteControl.getRemoteScreen();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+						return Clue.libs.getHashcode("screen-control", Clue.RemoteControl.vars.remoteScreenId + "-" + Clue.RemoteControl.vars.remoteControlLabel);
 					};
 					loop = 3;
 					timer = 250;
@@ -674,15 +674,15 @@
 				case 'remoteLeft':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setLeftKey();
+						Clue.RemoteControl.setLeftKey();
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
+						Clue.RemoteControl.getRemoteScreen();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+						return Clue.libs.getHashcode("screen-control", Clue.RemoteControl.vars.remoteScreenId + "-" + Clue.RemoteControl.vars.remoteControlLabel);
 					};
 					loop = 3;
 					timer = 250;
@@ -690,15 +690,15 @@
 				case 'remoteRight':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setRightKey();
+						Clue.RemoteControl.setRightKey();
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
+						Clue.RemoteControl.getRemoteScreen();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+						return Clue.libs.getHashcode("screen-control", Clue.RemoteControl.vars.remoteScreenId + "-" + Clue.RemoteControl.vars.remoteControlLabel);
 					};
 					loop = 3;
 					timer = 250;
@@ -706,15 +706,15 @@
 				case 'remoteSelect':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setSelectKey();
+						Clue.RemoteControl.setSelectKey();
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
+						Clue.RemoteControl.getRemoteScreen();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+						return Clue.libs.getHashcode("screen-control", Clue.RemoteControl.vars.remoteScreenId + "-" + Clue.RemoteControl.vars.remoteControlLabel);
 					};
 					loop = 3;
 					timer = 250;
@@ -722,156 +722,156 @@
 				case 'remoteBack':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setBackKey();
+						Clue.RemoteControl.setBackKey();
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
+						Clue.RemoteControl.getRemoteScreen();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+						return Clue.libs.getHashcode("screen-control", Clue.RemoteControl.vars.remoteScreenId + "-" + Clue.RemoteControl.vars.remoteControlLabel);
 					};
 					loop = 3;
 					break;
 				case 'remoteInfo':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setInfoKey();
+						Clue.RemoteControl.setInfoKey();
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
+						Clue.RemoteControl.getRemoteScreen();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+						return Clue.libs.getHashcode("screen-control", Clue.RemoteControl.vars.remoteScreenId + "-" + Clue.RemoteControl.vars.remoteControlLabel);
 					};
 					loop = 3;
 					break;
 				case 'remoteContext':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setContextKey();
+						Clue.RemoteControl.setContextKey();
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
+						Clue.RemoteControl.getRemoteScreen();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen-control", MCPi.RemoteControl.vars.remoteScreenId + "-" + MCPi.RemoteControl.vars.remoteControlLabel);
+						return Clue.libs.getHashcode("screen-control", Clue.RemoteControl.vars.remoteScreenId + "-" + Clue.RemoteControl.vars.remoteControlLabel);
 					};
 					loop = 3;
 					break;
 				case 'remoteRewind':
 					runner = function ()
 					{
-						MCPi.Player.setRewind();
+						Clue.Player.setRewind();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getProperties(null, null, {"onsuccess":MCPi.Player.getPlayingItemDetails});
-						if(MCPi.Player.props.percentage < 1) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+						Clue.Player.getProperties(null, null, {"onsuccess":Clue.Player.getPlayingItemDetails});
+						if(Clue.Player.props.percentage < 1) Clue.RemoteControl.GUI.vars.lockingCounter = loop;
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("title", MCPi.Player.data.title);
+						return Clue.libs.getHashcode("title", Clue.Player.data.title);
 					};
 					loop = 3;
 					break;
 				case 'remoteFastRewind':
 					runner = function ()
 					{
-						MCPi.Player.setFastRewind();
+						Clue.Player.setFastRewind();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getProperties(null, null, {"onsuccess":MCPi.Player.getPlayingItemDetails});
+						Clue.Player.getProperties(null, null, {"onsuccess":Clue.Player.getPlayingItemDetails});
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+						return Clue.libs.getHashcode("speed", Clue.Player.props.speed);
 					};
 					loop = 3;
 					break;
 				case 'remoteStop':
 					runner = function ()
 					{
-						MCPi.Player.setStop();
+						Clue.Player.setStop();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getProperties(null, null, {"onsuccess":MCPi.Player.getPlayingItemDetails});
+						Clue.Player.getProperties(null, null, {"onsuccess":Clue.Player.getPlayingItemDetails});
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+						return Clue.libs.getHashcode("speed", Clue.Player.props.speed);
 					};
 					loop = 3;
 					break;
 				case 'remotePlay':
 					runner = function ()
 					{
-						MCPi.Player.setPlay();
+						Clue.Player.setPlay();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getProperties(null, null, {"onsuccess":MCPi.Player.getPlayingItemDetails});
+						Clue.Player.getProperties(null, null, {"onsuccess":Clue.Player.getPlayingItemDetails});
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+						return Clue.libs.getHashcode("speed", Clue.Player.props.speed);
 					};
 					loop = 3;
 					break;
 				case 'remoteFastForward':
 					runner = function ()
 					{
-						MCPi.Player.setFastForward();
+						Clue.Player.setFastForward();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getProperties(null, null, {"onsuccess":MCPi.Player.getPlayingItemDetails});
+						Clue.Player.getProperties(null, null, {"onsuccess":Clue.Player.getPlayingItemDetails});
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+						return Clue.libs.getHashcode("speed", Clue.Player.props.speed);
 					};
 					loop = 3;
 					break;
 				case 'remoteForward':
 					runner = function ()
 					{
-						MCPi.Player.setForward();
+						Clue.Player.setForward();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getProperties(null, null, {"onsuccess":MCPi.Player.getPlayingItemDetails});
+						Clue.Player.getProperties(null, null, {"onsuccess":Clue.Player.getPlayingItemDetails});
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("title", MCPi.Player.data.title);
+						return Clue.libs.getHashcode("title", Clue.Player.data.title);
 					};
 					loop = 3;
 					break;
 				case 'remotePartyMode':
 					runner = function ()
 					{
-						if(MCPi.Player.id < 0) MCPi.Player.id = 0;
-						MCPi.Player.setPartyMode();
+						if(Clue.Player.id < 0) Clue.Player.id = 0;
+						Clue.Player.setPartyMode();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getProperties();
+						Clue.Player.getProperties();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("partymode", MCPi.Player.props.partymode)
+						return Clue.libs.getHashcode("partymode", Clue.Player.props.partymode)
 					};
 					wfcall = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
+						Clue.RemoteControl.getRemoteScreen();
 					};
 					timer = 1000;
 					loop = 30;
@@ -879,31 +879,31 @@
 				case 'remoteFullscreen':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setFullscreen();
+						Clue.RemoteControl.setFullscreen();
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
-						if(MCPi.RemoteControl.vars.remoteScreenId == 12006) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+						Clue.RemoteControl.getRemoteScreen();
+						if(Clue.RemoteControl.vars.remoteScreenId == 12006) Clue.RemoteControl.GUI.vars.lockingCounter = loop;
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
+						return Clue.libs.getHashcode("screen", Clue.RemoteControl.vars.remoteScreenId);
 					};
 					break;
 				case 'remotePlaylist':
 					runner = function ()
 					{
-						MCPi.RemoteControl.setShowPlaylist()
+						Clue.RemoteControl.setShowPlaylist()
 					};
 					checker = function ()
 					{
-						MCPi.RemoteControl.getRemoteScreen();
-						if(MCPi.RemoteControl.vars.remoteScreenId == 10500) MCPi.RemoteControl.GUI.vars.lockingCounter = loop;
+						Clue.RemoteControl.getRemoteScreen();
+						if(Clue.RemoteControl.vars.remoteScreenId == 10500) Clue.RemoteControl.GUI.vars.lockingCounter = loop;
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("screen", MCPi.RemoteControl.vars.remoteScreenId);
+						return Clue.libs.getHashcode("screen", Clue.RemoteControl.vars.remoteScreenId);
 					};
 					break;
 			}
@@ -918,59 +918,59 @@
 		 */
 		call: function(key)
 		{
-			var run = MCPi.RemoteControl.GUI.getCallerData(key);
+			var run = Clue.RemoteControl.GUI.getCallerData(key);
 
-			if(!MCPi.RemoteControl.GUI.vars.lockingFlag)
+			if(!Clue.RemoteControl.GUI.vars.lockingFlag)
             {
                 console.log("RemoteControl.GUI.call(" + key + ")");
 
 				$('#' + key).addClass("active");
-				MCPi.GUI.runWaitOn('#remoteContainer');
+				Clue.GUI.runWaitOn('#remoteContainer');
 
-                MCPi.RemoteControl.GUI.vars.newPropHash = run.pointer();
-				MCPi.RemoteControl.GUI.vars.oldPropHash = MCPi.RemoteControl.GUI.vars.newPropHash;
-				MCPi.RemoteControl.GUI.vars.lockingFlag = true;
-				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
+                Clue.RemoteControl.GUI.vars.newPropHash = run.pointer();
+				Clue.RemoteControl.GUI.vars.oldPropHash = Clue.RemoteControl.GUI.vars.newPropHash;
+				Clue.RemoteControl.GUI.vars.lockingFlag = true;
+				Clue.RemoteControl.GUI.vars.lockingCounter = 0;
 
 				run.runner();
-				if(!MCPi.GUI.vars.syncAction) MCPi.RemoteControl.GUI.vars.lockingCounter = run.loop;
+				if(!Clue.GUI.vars.syncAction) Clue.RemoteControl.GUI.vars.lockingCounter = run.loop;
 			}
 
-			if((MCPi.RemoteControl.GUI.vars.oldPropHash == MCPi.RemoteControl.GUI.vars.newPropHash) && MCPi.RemoteControl.GUI.vars.lockingCounter < run.loop )
+			if((Clue.RemoteControl.GUI.vars.oldPropHash == Clue.RemoteControl.GUI.vars.newPropHash) && Clue.RemoteControl.GUI.vars.lockingCounter < run.loop )
 			{
 				console.log("RemoteControl.GUI.call-Timercall");
 				run.checker();
 
 				setTimeout(function()
 				{
-					MCPi.RemoteControl.GUI.call(key);
+					Clue.RemoteControl.GUI.call(key);
 				}, run.timer);
 
-				MCPi.RemoteControl.GUI.vars.lockingCounter++;
-				MCPi.RemoteControl.GUI.vars.newPropHash = run.pointer();
+				Clue.RemoteControl.GUI.vars.lockingCounter++;
+				Clue.RemoteControl.GUI.vars.newPropHash = run.pointer();
 			}
 			else
 			{
-				MCPi.RemoteControl.GUI.vars.oldPropHash = null;
-				MCPi.RemoteControl.GUI.vars.newPropHash = null;
-				MCPi.RemoteControl.GUI.vars.lockingFlag = false;
-				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
+				Clue.RemoteControl.GUI.vars.oldPropHash = null;
+				Clue.RemoteControl.GUI.vars.newPropHash = null;
+				Clue.RemoteControl.GUI.vars.lockingFlag = false;
+				Clue.RemoteControl.GUI.vars.lockingCounter = 0;
 
 				if(run.wfcall != null)
 				{
-					MCPi.GUI.refresh({"call":run.wfcall});
+					Clue.GUI.refresh({"call":run.wfcall});
 				}
 				else if(run.wfskip != null)
 				{
-					MCPi.GUI.refresh({"skip":run.wfskip});
+					Clue.GUI.refresh({"skip":run.wfskip});
 				}
 				else
 				{
-					MCPi.GUI.refresh({"skip":true});
+					Clue.GUI.refresh({"skip":true});
 				}
 
 				$('#' + key).removeClass("active");
-				MCPi.GUI.runWaitOff('#remoteContainer');
+				Clue.GUI.runWaitOff('#remoteContainer');
 			}
 		}
 	};

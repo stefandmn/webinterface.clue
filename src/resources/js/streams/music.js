@@ -1,9 +1,9 @@
 (function (window)
 {
 	'use strict';
-	var MCPi = window.MCPi;
+	var Clue = window.Clue;
 
-	MCPi.music =
+	Clue.music =
 	{
 		vars:
 		{
@@ -27,14 +27,14 @@
 		scope:
 		{
 			/**
-			 * Ask MCPi server for the list of NowPlaying items. This is a JSON command that will be processed by callback function.
+			 * Ask Clue server for the list of NowPlaying items. This is a JSON command that will be processed by callback function.
 			 */
 			setNowPlayingQueue: function()
 			{
 				console.log("music.scope.setNowPlayingQueue");
 
-				MCPi.music.vars.showNowPlaying = true;
-				MCPi.json.call("Playlist.GetItems", { "properties": MCPi.music.vars.nowPlayingProperties, "playlistid": 0 }, MCPi.music.scope.setNowPlayingQueueCallback, '#musicListItems');
+				Clue.music.vars.showNowPlaying = true;
+				Clue.json.call("Playlist.GetItems", { "properties": Clue.music.vars.nowPlayingProperties, "playlistid": 0 }, Clue.music.scope.setNowPlayingQueueCallback, '#musicListItems');
 			},
 
 			/**
@@ -52,23 +52,23 @@
 				{
 					hashcode = JSON.stringify(data).hashCode();
 
-					if(hashcode != MCPi.music.vars.hashcodeNowPlayingQueue)
+					if(hashcode != Clue.music.vars.hashcodeNowPlayingQueue)
 					{
-						MCPi.music.vars.hashcodeNowPlayingQueue = hashcode;
-						MCPi.music.vars.fillInNowPlayingQueue = true;
+						Clue.music.vars.hashcodeNowPlayingQueue = hashcode;
+						Clue.music.vars.fillInNowPlayingQueue = true;
 
 						$.each(data.result.items, function (i, d)
 						{
-							var item = MCPi.music.model.getNowPlayingTemplate(i, d);
+							var item = Clue.music.model.getNowPlayingTemplate(i, d);
 
 							if(i == 0) $(id).html(item);
 								else $(id).append(item);
 						});
 
-						MCPi.music.vars.fillInNowPlayingQueue = false;
+						Clue.music.vars.fillInNowPlayingQueue = false;
 
 						//in case of Now Playing panel is visible you have to refresh it
-						if(MCPi.player.model.isVisible()) MCPi.player.scope.setId(MCPi.player.model.setContent);
+						if(Clue.player.model.isVisible()) Clue.player.scope.setId(Clue.player.model.setContent);
 					}
 				}
 				else
@@ -91,7 +91,7 @@
 
 				if(ref == null || ref == '')
 				{
-					MCPi.music.scope.setNowPlayingQueue();
+					Clue.music.scope.setNowPlayingQueue();
 				}
 				else
 				{
@@ -100,7 +100,7 @@
 					if(values.length == 1)
 					{
 						index = parseInt(values[0]);
-						MCPi.json.call("Playlist.Remove", {"position": index, "playlistid": 0}, MCPi.music.scope.setNowPlayingQueue);
+						Clue.json.call("Playlist.Remove", {"position": index, "playlistid": 0}, Clue.music.scope.setNowPlayingQueue);
 					}
 					else if(values.length >= 3)
 					{
@@ -108,11 +108,11 @@
 						var params = values[1] + ":" + values[2];
 
 						//remove from cursor
-						MCPi.json.call("Playlist.Remove", {"position": index, "playlistid": 0}, MCPi.music.scope.runInsertNowPlayingQueue, params);
+						Clue.json.call("Playlist.Remove", {"position": index, "playlistid": 0}, Clue.music.scope.runInsertNowPlayingQueue, params);
 					}
 					else
 					{
-						MCPi.music.scope.setNowPlayingQueue();
+						Clue.music.scope.setNowPlayingQueue();
 					}
 				}
 			},
@@ -129,7 +129,7 @@
 
 				if(!data || !data.result || ref == null || ref.indexOf(":") < 0)
 				{
-					MCPi.music.scope.setNowPlayingQueue();
+					Clue.music.scope.setNowPlayingQueue();
 				}
 				else
 				{
@@ -139,7 +139,7 @@
 					var songid = parseInt(values[1]);
 
 					//insert to index
-					MCPi.json.call("Playlist.Insert", {"position": parseInt(index), "item":{"songid":parseInt(songid)}, "playlistid": 0}, MCPi.music.scope.setNowPlayingQueue);
+					Clue.json.call("Playlist.Insert", {"position": parseInt(index), "item":{"songid":parseInt(songid)}, "playlistid": 0}, Clue.music.scope.setNowPlayingQueue);
 				}
 			},
 
@@ -154,12 +154,12 @@
 
 				if(ref == null || ref == '')
 				{
-					MCPi.music.scope.setNowPlayingQueue();
+					Clue.music.scope.setNowPlayingQueue();
 				}
 				else
 				{
 					var index = parseInt(ref);
-					MCPi.json.call("Player.Open", {"item": {"position": index, "playlistid": 0}}, MCPi.music.scope.setNowPlayingQueue);
+					Clue.json.call("Player.Open", {"item": {"position": index, "playlistid": 0}}, Clue.music.scope.setNowPlayingQueue);
 				}
 			},
 
@@ -170,9 +170,9 @@
 			{
 				console.log("music.scope.setGenres");
 
-				if(MCPi.music.vars.genres == null)
+				if(Clue.music.vars.genres == null)
 				{
-					MCPi.json.call("AudioLibrary.GetGenres", {}, MCPi.music.scope.setGenresCallback);
+					Clue.json.call("AudioLibrary.GetGenres", {}, Clue.music.scope.setGenresCallback);
 				}
 			},
 
@@ -185,7 +185,7 @@
 			{
 				console.log("music.scope.setGenresCallback");
 
-				if(data && data.result) MCPi.music.vars.genres = data.result.genres;
+				if(data && data.result) Clue.music.vars.genres = data.result.genres;
 			},
 
 			/**
@@ -200,8 +200,8 @@
 
 				if(refid != null)
 				{
-					properties = properties.concat(MCPi.json.const.props.audio);
-					MCPi.json.call("AudioLibrary.GetSongDetails", {"songid":parseInt(refid), "properties":properties}, MCPi.music.scope.setSongDetailsCallback);
+					properties = properties.concat(Clue.json.const.props.audio);
+					Clue.json.call("AudioLibrary.GetSongDetails", {"songid":parseInt(refid), "properties":properties}, Clue.music.scope.setSongDetailsCallback);
 				}
 			},
 
@@ -227,7 +227,7 @@
 					output.genre = data.result.songdetails.genre != null ? data.result.songdetails.genre[0] : null;
 					output.rating = data.result.songdetails.rating != null ? data.result.songdetails.rating : 0;
 
-					MCPi.music.model.openShowDetailsModalDialogCallback(output);
+					Clue.music.model.openShowDetailsModalDialogCallback(output);
 				}
 			},
 
@@ -243,7 +243,7 @@
 
 				if(input != null)
 				{
-					MCPi.music.scope.saveSongArtist(input);
+					Clue.music.scope.saveSongArtist(input);
 				}
 			},
 
@@ -264,9 +264,9 @@
 				if(input != null && refid != null && input.artist != null && input.artistall)
 				{
 					properties = {"artistid":parseInt(refid), "artist":input.artist};
-					MCPi.json.call("AudioLibrary.SetArtistDetails", properties, MCPi.music.scope.saveSongArtistCallback, {params:input});
+					Clue.json.call("AudioLibrary.SetArtistDetails", properties, Clue.music.scope.saveSongArtistCallback, {params:input});
 				}
-				else MCPi.music.scope.saveSongAlbum(input);
+				else Clue.music.scope.saveSongAlbum(input);
 			},
 
 			/**
@@ -282,7 +282,7 @@
 
 				if(data && data.result)
 				{
-					MCPi.music.scope.saveSongAlbum(reference.params);
+					Clue.music.scope.saveSongAlbum(reference.params);
 				}
 			},
 
@@ -303,9 +303,9 @@
 				if(input != null && refid != null && input.album != null && input.albumall)
 				{
 					properties = {"albumid":parseInt(refid), "title":input.album};
-					MCPi.json.call("AudioLibrary.SetAlbumDetails", properties, MCPi.music.scope.saveSongAlbumCallback, {params:input});
+					Clue.json.call("AudioLibrary.SetAlbumDetails", properties, Clue.music.scope.saveSongAlbumCallback, {params:input});
 				}
-				else MCPi.music.scope.saveSongDetails(input);
+				else Clue.music.scope.saveSongDetails(input);
 			},
 
 			/**
@@ -321,7 +321,7 @@
 
 				if(data && data.result)
 				{
-					MCPi.music.scope.saveSongDetails(reference.params);
+					Clue.music.scope.saveSongDetails(reference.params);
 				}
 			},
 
@@ -342,7 +342,7 @@
 						"year":input.year, "comment":input.comment, "rating":input.rating,
 						"album":input.album, "artist":[input.artist], "genre":[input.genre]};
 
-					MCPi.json.call("AudioLibrary.SetSongDetails", properties, MCPi.music.scope.saveSongDetailsCallback, {params:input});
+					Clue.json.call("AudioLibrary.SetSongDetails", properties, Clue.music.scope.saveSongDetailsCallback, {params:input});
 				}
 			},
 
@@ -365,13 +365,13 @@
 						var elem = $('#musicListItems [data-refid=' + refid + ']');
 						var index = parseInt(elem.attr("id").substring("listitem-".length));
 
-						MCPi.music.scope.runDeleteNowPlayingQueue(index + ":" + index + ":" + refid);
+						Clue.music.scope.runDeleteNowPlayingQueue(index + ":" + index + ":" + refid);
 					}
 				}
 			},
 
 			/**
-			 * Display the list of existing music playlists (read from playlist location from the MCPi file system).
+			 * Display the list of existing music playlists (read from playlist location from the Clue file system).
 			 * The answer of this call and the data fetching in the list are managed by callback function.
 			 * This scope method is triggered by a "model" method called <code>setShowPlaylists</code>
 			 */
@@ -380,7 +380,7 @@
 				var properties = {"directory": "special://profile/playlists/music/", "media": "music", "sort": { "method": "label" } };
 				console.log("music.scope.setPlaylists");
 
-				MCPi.json.call("Files.GetDirectory", properties, MCPi.music.scope.setPlaylistsCallback);
+				Clue.json.call("Files.GetDirectory", properties, Clue.music.scope.setPlaylistsCallback);
 			},
 
 			/**
@@ -396,16 +396,16 @@
 
 				if(data && data.result && data.result.files)
 				{
-					$(id).html( MCPi.music.model.getRootPlaylistTemplate(ref) );
+					$(id).html( Clue.music.model.getRootPlaylistTemplate(ref) );
 
 					$.each(data.result.files, function (i, d)
 					{
-						$(id).append( MCPi.music.model.getPlaylistTemplate(i, d, ref) );
+						$(id).append( Clue.music.model.getPlaylistTemplate(i, d, ref) );
 					});
 				}
 				else
 				{
-					$(id).html( MCPi.music.model.getRootPlaylistTemplate() );
+					$(id).html( Clue.music.model.getRootPlaylistTemplate() );
 				}
 			},
 
@@ -421,7 +421,7 @@
 			{
 				console.log("music.scope.runPlaylistPlay");
 
-				MCPi.json.call("Files.GetDirectory", {"directory":ref, "media":"music", "properties": MCPi.music.vars.nowPlayingProperties}, MCPi.music.scope.setPlaylistsCallback, ref);
+				Clue.json.call("Files.GetDirectory", {"directory":ref, "media":"music", "properties": Clue.music.vars.nowPlayingProperties}, Clue.music.scope.setPlaylistsCallback, ref);
 			},
 
 			runPlaylistEnqueue: function(ref)
@@ -441,8 +441,8 @@
 
 				if(ref != null && ref != '')
 				{
-					MCPi.music.model.initDataList(label);
-					MCPi.json.call("Files.GetDirectory", {"directory":ref, "media":"music", "properties": MCPi.music.vars.nowPlayingProperties}, MCPi.music.scope.setPlaylistsCallback, ref);
+					Clue.music.model.initDataList(label);
+					Clue.json.call("Files.GetDirectory", {"directory":ref, "media":"music", "properties": Clue.music.vars.nowPlayingProperties}, Clue.music.scope.setPlaylistsCallback, ref);
 				}
 			},
 
@@ -450,7 +450,7 @@
 			{
 				console.log("music.scope.cleanNowPlayingQueue");
 
-				MCPi.json.call("Playlist.Clear", {"playlistid": MCPi.player.scope.props.playlistid}, MCPi.player.scope.setPartyModeCallback, reference);
+				Clue.json.call("Playlist.Clear", {"playlistid": Clue.player.scope.props.playlistid}, Clue.player.scope.setPartyModeCallback, reference);
 			},
 
 			cleanNowPlayingQueueCallback: function(data, reference)
@@ -460,7 +460,7 @@
 				if(data && data.result == "OK")
 				{
 					//call chain reference
-					MCPi.json.chain(reference);
+					Clue.json.chain(reference);
 				}
 			},
 
@@ -479,8 +479,8 @@
 			{
 				console.log("music.model.show");
 
-				MCPi.music.vars.visible = true;
-				MCPi.global.scope.addReference(MCPi.music.model.setContent);
+				Clue.music.vars.visible = true;
+				Clue.global.scope.addReference(Clue.music.model.setContent);
 			},
 
 			/**
@@ -490,8 +490,8 @@
 			{
 				console.log("music.model.show");
 
-				MCPi.music.vars.visible = false;
-				MCPi.global.scope.delReference(MCPi.music.scope.setContent);
+				Clue.music.vars.visible = false;
+				Clue.global.scope.delReference(Clue.music.scope.setContent);
 			},
 
 			/**
@@ -501,7 +501,7 @@
 			 */
 			isVisible: function()
 			{
-				return MCPi.music.vars.visible;
+				return Clue.music.vars.visible;
 			},
 
 			/**
@@ -511,7 +511,7 @@
 			 */
 			isNowPlayingVisible: function()
 			{
-				return MCPi.music.model.isVisible() && MCPi.music.vars.showNowPlaying;
+				return Clue.music.model.isVisible() && Clue.music.vars.showNowPlaying;
 			},
 
 			/**
@@ -520,7 +520,7 @@
 			setContent: function()
 			{
 				console.log("music.model.setContent");
-				if(MCPi.music.model.isNowPlayingVisible()) MCPi.music.scope.setNowPlayingQueue();
+				if(Clue.music.model.isNowPlayingVisible()) Clue.music.scope.setNowPlayingQueue();
 			},
 
 			/**
@@ -565,7 +565,7 @@
 			 */
 			setShowNowPlayingQueue: function()
 			{
-				var prev = MCPi.music.vars.currentData;
+				var prev = Clue.music.vars.currentData;
 				console.log("music.model.setShowNowPlayingQueue");
 
 				if(prev != null)
@@ -576,11 +576,11 @@
 					$(prev).children('span').addClass("text-primary");
 				}
 
-				MCPi.music.vars.hashcodeNowPlayingQueue = null;
-				MCPi.music.vars.currentData = null;
+				Clue.music.vars.hashcodeNowPlayingQueue = null;
+				Clue.music.vars.currentData = null;
 
-				MCPi.music.model.initDataList("Now Playing");
-				MCPi.music.scope.setNowPlayingQueue();
+				Clue.music.model.initDataList("Now Playing");
+				Clue.music.scope.setNowPlayingQueue();
 			},
 
 			/**
@@ -590,8 +590,8 @@
 			{
 				console.log("music.scope.setShowPlaylists");
 
-				MCPi.music.model.initDataList("Playlists");
-				MCPi.music.scope.setPlaylists();
+				Clue.music.model.initDataList("Playlists");
+				Clue.music.scope.setPlaylists();
 			},
 
 			/**
@@ -623,7 +623,7 @@
 					var songid = $('#listitem-' + value).attr("data-refid");
 					var params = value + ":" + cursor + ":" + songid;
 
-					MCPi.music.scope.runDeleteNowPlayingQueue(params);
+					Clue.music.scope.runDeleteNowPlayingQueue(params);
 				}
 			},
 
@@ -648,15 +648,15 @@
 				if(data.album) details[details.length] = data.album;
 				if(data.genre && data.genre.length > 0) details[details.length] = data.genre[0];
 				if(data.year) details[details.length] = data.year;
-				if(data.duration) details[details.length] = MCPi.libs.durationToString(data.duration);
+				if(data.duration) details[details.length] = Clue.libs.durationToString(data.duration);
 
-				var showFixed = (MCPi.player.scope.props.partymode && index == 0) || (!MCPi.player.scope.props.partymode && MCPi.player.vars.fileReference == file);
-				var showPlayNow = (MCPi.player.scope.props.partymode && index > 0) || MCPi.player.id  < 0;
+				var showFixed = (Clue.player.scope.props.partymode && index == 0) || (!Clue.player.scope.props.partymode && Clue.player.vars.fileReference == file);
+				var showPlayNow = (Clue.player.scope.props.partymode && index > 0) || Clue.player.id  < 0;
 				var showDetails = songid != null;
 				var showDelete = index > 0;
 
 				if(image == null || image == "" || image.indexOf("DefaultAlbumCover") >= 0) image = "/resources/images/album.png";
-					else image = MCPi.libs.formatAssetURL(image);
+					else image = Clue.libs.formatAssetURL(image);
 				return $([
 					'<div class="row' + (!showFixed ? ' item' : '') + '" id="listitem-' + index + '" data-refid="' + songid + '"' + (showFixed ? ' style="cursor:default;"' : '') + '>' +
 					'	<div class="col-md-12">' +
@@ -666,7 +666,7 @@
 					'					<img class="media-object" src="' + image + '" style="height:2.9em;' + (index > 0 ? 'cursor:move;' : 'cursor:default;') + '"/>' +
 					'				</a>' +
 					'				<div class="media-body">' +
-					'					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><h5 class="media-heading">' + (showFixed ? '<span class="fa fa-play-circle text-primary"></span> ' : '') + title + ' ' + MCPi.music.model.getSongRatingSign(rating) + '</h5></a>' +
+					'					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><h5 class="media-heading">' + (showFixed ? '<span class="fa fa-play-circle text-primary"></span> ' : '') + title + ' ' + Clue.music.model.getSongRatingSign(rating) + '</h5></a>' +
 					'					<ul class="dropdown-menu" role="menu">' +
 	(showPlayNow ?	'						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="playnow" data-refid="' + songid + '" data-index="' + index + '"><span class="fa fa-play-circle text-primary"></span> Play now</a></li>' : '') +
 	(showDetails ?	'						<li><a data-clickthrough="music" data-type="menu-nowplaying" data-exec="details" data-refid="' + songid + '" data-index="' + index + '"><span class="fa fa-info-circle"></span> Details</a></li>' : '') +
@@ -698,10 +698,10 @@
 
 				if(type)
 				{
-					if(type == "area") MCPi.music.model.setSelectedArea(obj);
-					else if(type == "filter") MCPi.music.model.setSelectedFilter(obj);
-					else if(type == "menu-nowplaying") MCPi.music.model.runActionOnNowPlayingMenuItem(obj);
-					else if(type == "menu-playlists") MCPi.music.model.runActionOnPlaylistsMenuItem(obj);
+					if(type == "area") Clue.music.model.setSelectedArea(obj);
+					else if(type == "filter") Clue.music.model.setSelectedFilter(obj);
+					else if(type == "menu-nowplaying") Clue.music.model.runActionOnNowPlayingMenuItem(obj);
+					else if(type == "menu-playlists") Clue.music.model.runActionOnPlaylistsMenuItem(obj);
 				}
 				else
 				{
@@ -710,13 +710,13 @@
 					switch(name)
 					{
 						case 'saveDetailsModal':
-							MCPi.music.model.saveShowDetailsModalDialog();
+							Clue.music.model.saveShowDetailsModalDialog();
 							break;
 						case 'showNowPlaying':
-							MCPi.music.model.setShowNowPlayingQueue();
+							Clue.music.model.setShowNowPlayingQueue();
 							break;
 						case 'showPlaylists':
-							MCPi.music.model.setShowPlaylists();
+							Clue.music.model.setShowPlaylists();
 							break
 					}
 				}
@@ -730,7 +730,7 @@
 			 */
 			setSelectedArea: function(obj)
 			{
-				var prev = MCPi.music.vars.currentData;
+				var prev = Clue.music.vars.currentData;
 				var type = obj.attr('id').toLowerCase().slice(5);
 
 				console.log("music.model.setSelectedArea(" + type + ")");
@@ -748,28 +748,28 @@
 				obj.removeClass('btn-default');
 				obj.children('span').removeClass("text-primary");
 
-				MCPi.music.vars.showNowPlaying = false;
-				MCPi.music.vars.currentData = "#" + obj.attr('id');
+				Clue.music.vars.showNowPlaying = false;
+				Clue.music.vars.currentData = "#" + obj.attr('id');
 
-				if(type != "playlists" && type != "files" && !MCPi.music.vars.showFilterPanel)
+				if(type != "playlists" && type != "files" && !Clue.music.vars.showFilterPanel)
 				{
 					$('#musicFiltersPanel').collapse('show');
-					MCPi.music.vars.showFilterPanel = true;
+					Clue.music.vars.showFilterPanel = true;
 				}
-				else if((type == "playlists" || type == "files") && MCPi.music.vars.showFilterPanel)
+				else if((type == "playlists" || type == "files") && Clue.music.vars.showFilterPanel)
 				{
 					$('#musicFiltersPanel').collapse('hide');
-					MCPi.music.vars.showFilterPanel = false;
+					Clue.music.vars.showFilterPanel = false;
 				}
 
 				//delete refresh option from NowPlaying list
-				if(MCPi.music.vars.timerProcessId) MCPi.music.scope.delRefresh();
+				if(Clue.music.vars.timerProcessId) Clue.music.scope.delRefresh();
 
 				//handle area option
 				switch(type)
 				{
 					case 'playlists':
-						MCPi.music.model.setShowPlaylists();
+						Clue.music.model.setShowPlaylists();
 						break;
 					case 'files':
 						break;
@@ -784,13 +784,13 @@
 
 			/**
 			 * This is the first workflow that is executed when an user is selecting a specific filter
-			 * from Music page/screen. THe filter panel is available only for specific areas (artists, albums, songs).
+			 * from Music page/screen. THe filter panel is available only for specific streams (artists, albums, songs).
 			 *
 			 * @param obj selected filter option provided by <code>onClick</code> method
 			 */
 			setSelectedFilter: function(obj)
 			{
-				var prev = MCPi.music.vars.currentFilter;
+				var prev = Clue.music.vars.currentFilter;
 
 				console.log("music.model.setSelectedFilter");
 
@@ -802,7 +802,7 @@
 				obj.addClass('btn-info');
 				obj.removeClass('btn-default');
 
-				MCPi.music.vars.currentFilter = "#" + obj.attr('id');
+				Clue.music.vars.currentFilter = "#" + obj.attr('id');
 			},
 
 			/**
@@ -821,15 +821,15 @@
 				switch (exec)
 				{
 					case "playnow":
-						MCPi.music.scope.runPlayEntryNowPlayingQueue(index);
+						Clue.music.scope.runPlayEntryNowPlayingQueue(index);
 						break;
 
 					case "details":
-						MCPi.music.model.openShowDetailsModalDialog(index, refid);
+						Clue.music.model.openShowDetailsModalDialog(index, refid);
 						break;
 
 					case "delete":
-						MCPi.music.scope.runDeleteNowPlayingQueue(index);
+						Clue.music.scope.runDeleteNowPlayingQueue(index);
 						break;
 				}
 			},
@@ -851,10 +851,10 @@
 					$('#saveDetailsModal').attr("data-clickthrough", "music");
 					$('#showDetailsReferenceId').val(refid);
 
-					if(index == 0 && MCPi.music.model.isNowPlayingVisible()) $('#saveDetailsModal').attr("disabled", "disabled");
+					if(index == 0 && Clue.music.model.isNowPlayingVisible()) $('#saveDetailsModal').attr("disabled", "disabled");
 						else $('#saveDetailsModal').removeAttr("disabled");
 
-					MCPi.music.scope.setSongDetails(refid);
+					Clue.music.scope.setSongDetails(refid);
 				}
 			},
 
@@ -911,7 +911,7 @@
 				output.artistall = $("#musicArtistAll").is(":checked") ? true : false;
 				output.albumall = $("#musicAlbumAll").is(":checked") ? true : false;
 
-				MCPi.music.scope.saveSongRelatedData(output);
+				Clue.music.scope.saveSongRelatedData(output);
 
 				$('#showDetailsModal').modal('hide');
 			},
@@ -999,10 +999,10 @@
 					if(data.album) details[details.length] = data.album;
 					if(data.genre && data.genre.length > 0) details[details.length] = data.genre[0];
 					if(data.year) details[details.length] = data.year;
-					if(data.duration) details[details.length] = MCPi.libs.durationToString(data.duration);
+					if(data.duration) details[details.length] = Clue.libs.durationToString(data.duration);
 
 					if(image == null || image == "" || image.indexOf("Default") >= 0) image = "/resources/images/album.png";
-						else image = MCPi.libs.formatAssetURL(image);
+						else image = Clue.libs.formatAssetURL(image);
 
 					return $([
 						'<div class="row" id="listitem-' + index + '" data-refid="' + refid + '" style="cursor:default;">' +
@@ -1013,7 +1013,7 @@
 						'					<img class="media-object" src="' + image + '" style="height:2.9em;"/>' +
 						'				</a>' +
 						'				<div class="media-body">' +
-						'					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><h5 class="media-heading">' + title + ' ' + MCPi.music.model.getSongRatingSign(rating) + '</h5></a>' +
+						'					<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><h5 class="media-heading">' + title + ' ' + Clue.music.model.getSongRatingSign(rating) + '</h5></a>' +
 						'					<ul class="dropdown-menu" role="menu">' +
 						'						<li><a data-clickthrough="music" data-type="menu-playlists" data-exec="playnow" data-refid="' + refid + '" data-index="' + index + '"><span class="fa fa-play-circle"></span> Play now</a></li>' +
 						'						<li class="divider"></li>' +
@@ -1046,15 +1046,15 @@
 				switch (exec)
 				{
 					case "play":
-						MCPi.music.scope.runPlaylistPlay(refid);
+						Clue.music.scope.runPlaylistPlay(refid);
 						break;
 
 					case "enqueue":
-						MCPi.music.scope.runPlaylistEnqueue(refid);
+						Clue.music.scope.runPlaylistEnqueue(refid);
 						break;
 
 					case "browse":
-						MCPi.music.scope.runPlaylistBrowseInto(refid, label);
+						Clue.music.scope.runPlaylistBrowseInto(refid, label);
 						break;
 				}
 			}

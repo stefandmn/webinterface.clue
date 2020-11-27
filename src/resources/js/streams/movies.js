@@ -1,9 +1,9 @@
 (function (window)
 {
 	'use strict';
-	var MCPi = window.MCPi;
+	var Clue = window.Clue;
 
-	MCPi.movies =
+	Clue.movies =
 	{
 		vars:
 		{
@@ -78,7 +78,7 @@
 			 */
 			isVisible: function()
 			{
-				return MCPi.movies.vars.visible;
+				return Clue.movies.vars.visible;
 			}
 		}
 	}

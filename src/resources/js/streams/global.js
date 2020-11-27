@@ -1,12 +1,12 @@
 /**
- * JavaScript component for MCPi
- * Main script that implements MCPi object and related methods
+ * JavaScript component for Kodi
+ * Main script that implements Clue/Kodi object and related methods
  */
 
 
 (function (window, jQuery)
 {
-	var MCPi =
+	var Clue =
 	{
 		json:
 		{
@@ -50,15 +50,15 @@
 
 				if(reference != null && reference.callback != null)
 				{
-					request = jQuery.extend({}, MCPi.json.const.header,
+					request = jQuery.extend({}, Clue.json.const.header,
 					{
-						url:'jsonrpc' + (MCPi.json.const.header.type.toLowerCase() == "get" ? '?request=' + JSON.stringify(data) : ''),
+						url:'jsonrpc' + (Clue.json.const.header.type.toLowerCase() == "get" ? '?request=' + JSON.stringify(data) : ''),
 						data:JSON.stringify(data),
 						async:async,
 						success: function (output)
 						{
 							var method, callback, subreference, subchain;
-							MCPi.GUI.showOkStatus();
+							Clue.GUI.showOkStatus();
 
 							callback = reference.callback;
 							callback(reference.input, output, reference);
@@ -84,8 +84,8 @@
 						},
 						error: function(output)
 						{
-							var method, subreference, subchain, errmessage = MCPi.json.getErrorMessage(output);
-							MCPi.GUI.showErrorStatus(errmessage);
+							var method, subreference, subchain, errmessage = Clue.json.getErrorMessage(output);
+							Clue.GUI.showErrorStatus(errmessage);
 
 							subreference = reference.chain;
 							subchain = subreference != null ? subreference.chain : null;
@@ -110,15 +110,15 @@
 				}
 				else if(reference != null && reference.callback == null)
 				{
-					request = jQuery.extend({}, MCPi.json.const.header,
+					request = jQuery.extend({}, Clue.json.const.header,
 					{
-						url:'jsonrpc' + (MCPi.json.const.header.type.toLowerCase() == "get" ? '?request=' + JSON.stringify(data) : ''),
+						url:'jsonrpc' + (Clue.json.const.header.type.toLowerCase() == "get" ? '?request=' + JSON.stringify(data) : ''),
 						data:JSON.stringify(data),
 						async:false,
 						success: function (output)
 						{
 							var method, subreference, subchain;
-							MCPi.GUI.showOkStatus();
+							Clue.GUI.showOkStatus();
 
 							subreference = reference.chain;
 							subchain = subreference != null ? subreference.chain : null;
@@ -141,8 +141,8 @@
 						},
 						error: function(output)
 						{
-							var method, subreference, subchain, errmessage = MCPi.json.getErrorMessage(output);
-							MCPi.GUI.showErrorStatus(errmessage);
+							var method, subreference, subchain, errmessage = Clue.json.getErrorMessage(output);
+							Clue.GUI.showErrorStatus(errmessage);
 
 							subreference = reference.chain;
 							subchain = subreference != null ? subreference.chain : null;
@@ -167,9 +167,9 @@
 				}
 				else
 				{
-					request = jQuery.extend({}, MCPi.json.const.header,
+					request = jQuery.extend({}, Clue.json.const.header,
 					{
-						url:'jsonrpc' + (MCPi.json.const.header.type.toLowerCase() == "get" ? '?request=' + JSON.stringify(data) : ''),
+						url:'jsonrpc' + (Clue.json.const.header.type.toLowerCase() == "get" ? '?request=' + JSON.stringify(data) : ''),
 						data:JSON.stringify(data),
 						async:false
 					});
@@ -290,13 +290,13 @@
 			{
 				console.log("GUI.open(" + name + ")");
 
-				if(MCPi.GUI.vars.currentScreen != name)
+				if(Clue.GUI.vars.currentScreen != name)
 				{
-					$(MCPi.GUI.vars.currentScreen).collapse('hide');
+					$(Clue.GUI.vars.currentScreen).collapse('hide');
 				}
 
-				MCPi.GUI.vars.currentScreen = name;
-				$(MCPi.GUI.vars.currentScreen).collapse('show');
+				Clue.GUI.vars.currentScreen = name;
+				$(Clue.GUI.vars.currentScreen).collapse('show');
 			},
 
 			/**
@@ -313,7 +313,7 @@
 				var name = id.slice(6).toLowerCase();
 
 				console.log("GUI.onClick(#" + id + ")");
-				MCPi.GUI.open("#" + name);
+				Clue.GUI.open("#" + name);
 			},
 
 			/**
@@ -397,8 +397,8 @@
 			},
 
 			/**
-			 * This is the MCPi method that is able to refresh/renew the graphical content for all visible GUI objects.
-			 * Typically this method is launched by <code>MCPi.init</conde> method into a clock interval sequence.
+			 * This is the Clue method that is able to refresh/renew the graphical content for all visible GUI objects.
+			 * Typically this method is launched by <code>Clue.init</conde> method into a clock interval sequence.
              *
              * @param workflow define a specific chain workflow and its parametrization in case of you want to run a custom workflow
 			 */
@@ -415,104 +415,104 @@
                 {
                     if(workflow == null || workflow.skip == null || workflow.skip == false)
                     {
-                        if(workflow != null && workflow.chain != null) MCPi.Player.getId(null,null, {"nextcall":MCPi.Player.getProperties, "chain":workflow.chain});
+                        if(workflow != null && workflow.chain != null) Clue.Player.getId(null,null, {"nextcall":Clue.Player.getProperties, "chain":workflow.chain});
                            else if(workflow != null && workflow.call != null) workflow.call();
-                                else MCPi.Player.getId(null,null, {"nextcall":MCPi.Player.getProperties, "chain":{"nextcall":MCPi.Player.getPlayingItemDetails}});
+                                else Clue.Player.getId(null,null, {"nextcall":Clue.Player.getProperties, "chain":{"nextcall":Clue.Player.getPlayingItemDetails}});
                     }
 
-                    if(remoteControlVisible) MCPi.RemoteControl.GUI.display();
-                    if(nowPlayingVisible) MCPi.Player.GUI.display();
-                    //if(audioVisible) MCPi.Player.GUI.display();
-                    //if(videoVisible) MCPi.Player.GUI.display();
+                    if(remoteControlVisible) Clue.RemoteControl.GUI.display();
+                    if(nowPlayingVisible) Clue.Player.GUI.display();
+                    //if(audioVisible) Clue.Player.GUI.display();
+                    //if(videoVisible) Clue.Player.GUI.display();
                 }
 			}
 		},
 
 		/**
-		 * Initialize Clue MCPi web interface add-on.
+		 * Initialize Clue Clue web interface add-on.
 		 */
 		init: function()
 		{
-			console.log("MCPi.init");
+			console.log("Clue.init");
 
-			MCPi.GUI.open(this.GUI.vars.currentScreen);
-			MCPi.Player.getId(null,null, {"onsuccess":MCPi.Player.getProperties, "chain":{"onsuccess":MCPi.Player.getVolume, "chain":{"onsuccess":MCPi.Player.getPlayingItemDetails}}});
+			Clue.GUI.open(this.GUI.vars.currentScreen);
+			Clue.Player.getId(null,null, {"onsuccess":Clue.Player.getProperties, "chain":{"onsuccess":Clue.Player.getVolume, "chain":{"onsuccess":Clue.Player.getPlayingItemDetails}}});
 
 			//schedule GUI refresh method execution.
-			if(MCPi.GUI.vars.timerInterval > 0 && MCPi.GUI.vars.timerProcessId == null)
+			if(Clue.GUI.vars.timerInterval > 0 && Clue.GUI.vars.timerProcessId == null)
 			{
-				MCPi.GUI.vars.timerProcessId = setInterval(MCPi.GUI.refresh, MCPi.GUI.vars.timerInterval);
+				Clue.GUI.vars.timerProcessId = setInterval(Clue.GUI.refresh, Clue.GUI.vars.timerInterval);
 			}
 		}
 	};
 
-	window.MCPi = MCPi;
+	window.Clue = Clue;
 
 	$(function ()
 	{
 	/* GLOBAL - Register event handlers for Main and System options */
-		$(document).on('click', '[data-clickthrough=main]', MCPi.GUI.onClick);
-		$(document).on('click', '[data-clickthrough=system]', MCPi.System.GUI.onClick);
+		$(document).on('click', '[data-clickthrough=main]', Clue.GUI.onClick);
+		$(document).on('click', '[data-clickthrough=system]', Clue.System.GUI.onClick);
 
 	/* REMOTECONTROL - Register event handlers for RemoteControl modal dialog  */
-		$('#remoteControlModal').on('show.bs.modal', MCPi.RemoteControl.GUI.open);
-		$('#remoteControlModal').on('hidden.bs.modal', MCPi.GUI.refresh);
-		$('#remoteControlModal').on('keydown', jQuery.proxy(MCPi.RemoteControl.GUI.onKeyPress, this));
-		$('#remoteControlModal').on('click', '[data-clickthrough=remote]', MCPi.RemoteControl.GUI.onClick);
+		$('#remoteControlModal').on('show.bs.modal', Clue.RemoteControl.GUI.open);
+		$('#remoteControlModal').on('hidden.bs.modal', Clue.GUI.refresh);
+		$('#remoteControlModal').on('keydown', jQuery.proxy(Clue.RemoteControl.GUI.onKeyPress, this));
+		$('#remoteControlModal').on('click', '[data-clickthrough=remote]', Clue.RemoteControl.GUI.onClick);
 
 	/* HOME - Register event handlers for Home screen (panel) */
-		$('#home').on('shown.bs.collapse', MCPi.Home.GUI.show);
-		$('#home').on('click', '[data-clickthrough=home]', MCPi.Home.GUI.onClick);
-		$('#home').on('shown.bs.collapse', '[data-collapse=home]', MCPi.Home.GUI.show);
+		$('#home').on('shown.bs.collapse', Clue.Home.GUI.show);
+		$('#home').on('click', '[data-clickthrough=home]', Clue.Home.GUI.onClick);
+		$('#home').on('shown.bs.collapse', '[data-collapse=home]', Clue.Home.GUI.show);
 
 
 	/* NOWPLAYING - Register event handlers for NowPlaying panel */
-		$('#nowPlayingContainer').on('shown.bs.collapse', MCPi.Player.GUI.show);
-		$('#nowPlayingContainer').on('hide.bs.collapse', MCPi.Player.GUI.hide);
-        $('#nowPlayingContainer').on('click', '[data-clickthrough=player]', MCPi.Player.GUI.onClick);
+		$('#nowPlayingContainer').on('shown.bs.collapse', Clue.Player.GUI.show);
+		$('#nowPlayingContainer').on('hide.bs.collapse', Clue.Player.GUI.hide);
+        $('#nowPlayingContainer').on('click', '[data-clickthrough=player]', Clue.Player.GUI.onClick);
 
 		//expand event of recentsongs list from home screen panel
 		//$('#recentsongs').on('show.bs.collapse',function (e)
 		//{
-			//MCPi.home.scope.setLatestSongs();
+			//Clue.home.scope.setLatestSongs();
 		//});
 
 		//expand event of recentmovies list from home screen panel
 		//$('#recentmovies').on('show.bs.collapse',function (e)
 		//{
-			//MCPi.home.scope.setLatestMovies();
+			//Clue.home.scope.setLatestMovies();
 		//});
 
 		//expand event of recentepisodes list from home screen panel
 		$('#recentepisodes').on('show.bs.collapse',function (e)
 		{
-			//MCPi.home.scope.setLatestEpisodes()
+			//Clue.home.scope.setLatestEpisodes()
 		});
 
 		//expand audio screen panel
 		$('#audio').on('show.bs.collapse', function(e)
 		{
-			//MCPi.music.model.show();
+			//Clue.music.model.show();
 		});
 
 		//collapse audio screen panel
 		$('#audio').on('hide.bs.collapse', function(e)
 		{
-			//MCPi.music.model.hide();
+			//Clue.music.model.hide();
 		});
 
 		//sort items from nowplaying queue in music screen
 		$('#musicListItems').sortable({items:'div.item', handle:'.media-object'});
 		$('#musicListItems').on('sortable:update', function(e)
 		{
-			if(MCPi.music.vars.fillInNowPlayingQueue == false)
+			if(Clue.music.vars.fillInNowPlayingQueue == false)
 			{
-				//MCPi.music.model.onSortNowPlayingQueue();
+				//Clue.music.model.onSortNowPlayingQueue();
 			}
 		});
 
 		//register and then handle the click events for all buttons and links from music screen panel
-		//$(document).on('click', '[data-clickthrough=music]', MCPi.music.model.onClick);
+		//$(document).on('click', '[data-clickthrough=music]', Clue.music.model.onClick);
 
 		//expand video screen panel
 		$('#video').on('show.bs.collapse', function(e)
@@ -535,8 +535,8 @@
 			}
 		});
 
-		/** Initialize Clue MCPi WebInterface module */
-		MCPi.init();
+		/** Initialize Clue Clue WebInterface module */
+		Clue.init();
 	})
 
 }(window, jQuery));

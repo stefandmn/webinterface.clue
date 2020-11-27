@@ -1,3 +1,8 @@
+v2.0
+- Built-up Clue JS main class and orchestration instance
+- Adapted the addon structure to Kodi 18+
+- Adopted the new CCM process
+
 v1.0
 - New code optimization and reorganization and define addon API
 - Update bootstrap and jquery to the latest versions (3.3.6 and 1.11.3)

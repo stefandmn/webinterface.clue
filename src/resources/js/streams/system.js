@@ -1,9 +1,9 @@
 (function (window)
 {
 	'use strict';
-	var MCPi = window.MCPi;
+	var Clue = window.Clue;
 
-	MCPi.System =
+	Clue.System =
 	{
 		/**
 		 * Execute scan operation for audio library
@@ -17,7 +17,7 @@
 			console.log("System.setAudioScan");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("AudioLibrary.Scan", {}, reference);
+			Clue.json.call("AudioLibrary.Scan", {}, reference);
 		},
 
 		/**
@@ -32,7 +32,7 @@
 			console.log("System.setAudioClean");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("AudioLibrary.Clean", {}, reference);
+			Clue.json.call("AudioLibrary.Clean", {}, reference);
 		},
 
 		/**
@@ -47,7 +47,7 @@
 			console.log("System.setVideoScan");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("VideoLibrary.Scan", {}, reference);
+			Clue.json.call("VideoLibrary.Scan", {}, reference);
 		},
 
 		/**
@@ -62,11 +62,11 @@
 			console.log("System.setVideoClean");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("VideoLibrary.Clean", {}, reference);
+			Clue.json.call("VideoLibrary.Clean", {}, reference);
 		},
 
 		/**
-		 * Execute shutdown on the machine or HDMI channel related to MCPi server
+		 * Execute shutdown on the machine or HDMI channel related to Clue server
 		 *
 		 * @param input input value of structure (could be any data type).
 		 * @param output data structure received from server that should contain the callback processing details.
@@ -77,11 +77,11 @@
 			console.log("System.setShutdown");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("System.Shutdown", {}, reference);
+			Clue.json.call("System.Shutdown", {}, reference);
 		},
 
 		/**
-		 * Execute reboot operation on the machine or on HDMI channel related to MCPi server
+		 * Execute reboot operation on the machine or on HDMI channel related to Clue server
 		 *
 		 * @param input input value of structure (could be any data type).
 		 * @param output data structure received from server that should contain the callback processing details.
@@ -92,11 +92,11 @@
 			console.log("System.setReboot");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("System.Reboot", {}, reference);
+			Clue.json.call("System.Reboot", {}, reference);
 		},
 
 		/**
-		 * Execute exit operation on the machine or on HDMI channel related to MCPi server
+		 * Execute exit operation on the machine or on HDMI channel related to Clue server
 		 *
 		 * @param input input value of structure (could be any data type).
 		 * @param output data structure received from server that should contain the callback processing details.
@@ -107,7 +107,7 @@
 			console.log("System.setExit");
 			var reference = {"input":input, "chain":chain};
 
-			MCPi.json.call("Application.Quit", {}, reference);
+			Clue.json.call("Application.Quit", {}, reference);
 		},
 
 		/**
@@ -132,12 +132,12 @@
 
 			if (nMessage != null)
 			{
-				MCPi.json.call("GUI.ShowNotification", {"title": nTitle, "message": nMessage, "displaytime": nDisplayTime }, reference);
+				Clue.json.call("GUI.ShowNotification", {"title": nTitle, "message": nMessage, "displaytime": nDisplayTime }, reference);
 			}
 		}
 	};
 
-	MCPi.System.GUI =
+	Clue.System.GUI =
 	{
 		/**
 		 * Handles click events all buttons and links.
@@ -156,34 +156,34 @@
 			switch (id)
 			{
 				case 'videoLibraryUpdate':
-					MCPi.System.setVideoScan();
+					Clue.System.setVideoScan();
 					break;
 				case 'videoLibraryClean':
-					MCPi.System.setVideoClean();
+					Clue.System.setVideoClean();
 					break;
 				case 'audioLibraryUpdate':
-					MCPi.System.setAudioScan();
+					Clue.System.setAudioScan();
 					break;
 				case 'audioLibraryClean':
-					MCPi.System.setAudioClean();
+					Clue.System.setAudioClean();
 					break;
 				case 'systemPowerOff':
-					MCPi.System.setShutdown();
+					Clue.System.setShutdown();
 					break;
 				case 'systemReboot':
-					MCPi.System.setReboot();
+					Clue.System.setReboot();
 					break;
 				case 'systemExit':
-					MCPi.System.setExit();
+					Clue.System.setExit();
 					break;
 				case 'notifyInGUI':
-					MCPi.System.GUI.runNotification();
+					Clue.System.GUI.runNotification();
 					break;
 			}
 		},
 
 		/**
-		 * Send a notification message to the main console of MCPi server. This method will be executed only if any
+		 * Send a notification message to the main console of Clue server. This method will be executed only if any
 		 * text message is written in '#notification-text' edit control
 		 */
 		runNotification: function()
@@ -198,7 +198,7 @@
 			{
 				$('#notificationModal').modal('hide');
 
-				MCPi.System.setNotification({"title": nTitle, "message":nMessage, "displaytime":nDisplayTime});
+				Clue.System.setNotification({"title": nTitle, "message":nMessage, "displaytime":nDisplayTime});
 			}
 		}
 	}

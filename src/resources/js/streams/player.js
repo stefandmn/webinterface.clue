@@ -1,9 +1,9 @@
 (function (window)
 {
 	'use strict';
-	var MCPi = window.MCPi;
+	var Clue = window.Clue;
 
-	MCPi.Player =
+	Clue.Player =
 	{
 		id: -1,
 
@@ -51,29 +51,29 @@
 		reset: function ()
 		{
 			console.log("Player.reset");
-			MCPi.Player.id = -1;
+			Clue.Player.id = -1;
 
-			MCPi.Player.props.speed = 0;
-			MCPi.Player.props.shuffled = false;
-			MCPi.Player.props.repeat = "off";
-			MCPi.Player.props.time = 0;
-			MCPi.Player.props.type = null;
-			MCPi.Player.props.totalTime = 0;
-			MCPi.Player.props.position = 0;
-			MCPi.Player.props.percentage = 0;
-			MCPi.Player.props.partymode = false;
-			MCPi.Player.props.playlistid = 0;
+			Clue.Player.props.speed = 0;
+			Clue.Player.props.shuffled = false;
+			Clue.Player.props.repeat = "off";
+			Clue.Player.props.time = 0;
+			Clue.Player.props.type = null;
+			Clue.Player.props.totalTime = 0;
+			Clue.Player.props.position = 0;
+			Clue.Player.props.percentage = 0;
+			Clue.Player.props.partymode = false;
+			Clue.Player.props.playlistid = 0;
 
-			MCPi.Player.props.volume = 100;
-			MCPi.Player.props.mute = false;
+			Clue.Player.props.volume = 100;
+			Clue.Player.props.mute = false;
 
-			MCPi.Player.vars.allowData = false;
-			MCPi.Player.vars.contentType = null;
-			MCPi.Player.vars.fileReference = null;
+			Clue.Player.vars.allowData = false;
+			Clue.Player.vars.contentType = null;
+			Clue.Player.vars.fileReference = null;
 		},
 
 		/**
-		 * Get player Id. This is a standard method for a generic MCPi object. This type of method should use the
+		 * Get player Id. This is a standard method for a generic Clue object. This type of method should use the
 		 * parameters (in the function signature) described below and it is implemented in the way to be used itself
 		 * for callback procedure.
 		 *
@@ -95,14 +95,14 @@
 			if(output == null)
 			{
 				console.log("Player.getId");
-				var reference = {"input":input, "callback":MCPi.Player.getId, "chain":chain};
+				var reference = {"input":input, "callback":Clue.Player.getId, "chain":chain};
 
-				MCPi.json.call("Player.GetActivePlayers", {}, reference);
+				Clue.json.call("Player.GetActivePlayers", {}, reference);
 			}
 			else
 			{
 				console.log("Player.getId-Callback");
-				if (output && output.result != '') MCPi.Player.id = output.result[0].playerid;
+				if (output && output.result != '') Clue.Player.id = output.result[0].playerid;
 			}
 		},
 
@@ -117,10 +117,10 @@
 		{
 			if(output == null)
 			{
-				console.log("Player.getProperties(" + MCPi.Player.id + ")");
+				console.log("Player.getProperties(" + Clue.Player.id + ")");
 
-				var reference = {"input":input, "callback":MCPi.Player.getProperties, "chain":chain};
-				MCPi.json.call("Player.GetProperties", {"playerid":MCPi.Player.id, "properties":MCPi.Player.const.properties}, reference);
+				var reference = {"input":input, "callback":Clue.Player.getProperties, "chain":chain};
+				Clue.json.call("Player.GetProperties", {"playerid":Clue.Player.id, "properties":Clue.Player.const.properties}, reference);
 			}
 			else
 			{
@@ -128,26 +128,26 @@
 
 				if (output && output.result)
 				{
-					MCPi.Player.props.playlistid = output.result.playlistid;
-					MCPi.Player.props.partymode = output.result.partymode;
-					MCPi.Player.props.position = output.result.position;
-					MCPi.Player.props.percentage = Math.round(output.result.percentage);
-					MCPi.Player.props.time = MCPi.libs.timeToDuration(output.result.time);
-					MCPi.Player.props.totalTime = MCPi.libs.timeToDuration(output.result.totaltime);
-					MCPi.Player.props.repeat = output.result.repeat;
-					MCPi.Player.props.shuffled = output.result.shuffled;
-					MCPi.Player.props.speed = output.result.speed;
-					MCPi.Player.props.type = output.result.type;
+					Clue.Player.props.playlistid = output.result.playlistid;
+					Clue.Player.props.partymode = output.result.partymode;
+					Clue.Player.props.position = output.result.position;
+					Clue.Player.props.percentage = Math.round(output.result.percentage);
+					Clue.Player.props.time = Clue.libs.timeToDuration(output.result.time);
+					Clue.Player.props.totalTime = Clue.libs.timeToDuration(output.result.totaltime);
+					Clue.Player.props.repeat = output.result.repeat;
+					Clue.Player.props.shuffled = output.result.shuffled;
+					Clue.Player.props.speed = output.result.speed;
+					Clue.Player.props.type = output.result.type;
 
 					//console.log("Player Properties: " + JSON.stringify(output.result));
-					MCPi.Player.vars.allowData = true;
+					Clue.Player.vars.allowData = true;
 				}
-				else MCPi.Player.vars.allowData = false;
+				else Clue.Player.vars.allowData = false;
 			}
 		},
 
 		/**
-		 * The player read volume properties by reading data from MCPi through JSON calls
+		 * The player read volume properties by reading data from Clue through JSON calls
 		 *
 		 * @param input input value of structure (could be any data type).
 		 * @param output data structure received from server that should contain the callback processing details.
@@ -158,9 +158,9 @@
 			if(output == null)
 			{
 				console.log("Player.getVolume");
-				var reference = {"input":input, "callback":MCPi.Player.getVolume, "chain":chain};
+				var reference = {"input":input, "callback":Clue.Player.getVolume, "chain":chain};
 
-				MCPi.json.call("Application.GetProperties", {"properties":["volume", "muted"]}, reference);
+				Clue.json.call("Application.GetProperties", {"properties":["volume", "muted"]}, reference);
 			}
 			else
 			{
@@ -168,8 +168,8 @@
 
 				if (output.result)
 				{
-					MCPi.Player.props.mute = output.result.muted;
-					MCPi.Player.props.volume = output.result.volume;
+					Clue.Player.props.mute = output.result.muted;
+					Clue.Player.props.volume = output.result.volume;
 				}
 			}
 		},
@@ -188,19 +188,19 @@
 				console.log("Player.getPlayingItemDetails");
 
 				var properties = [];
-				var reference = {"input":input, "callback":MCPi.Player.getPlayingItemDetails, "chain":chain};
+				var reference = {"input":input, "callback":Clue.Player.getPlayingItemDetails, "chain":chain};
 
-				if (MCPi.Player.id == 0)
+				if (Clue.Player.id == 0)
 				{
-					properties = MCPi.json.const.props.audio;
+					properties = Clue.json.const.props.audio;
 				}
-				else if (MCPi.Player.id == 1)
+				else if (Clue.Player.id == 1)
 				{
-					if (MCPi.Player.vars.contentType == "movie") properties = MCPi.json.const.props.movie;
-						else if (MCPi.Player.vars.contentType == "episode") properties = MCPi.json.const.props.episode;
+					if (Clue.Player.vars.contentType == "movie") properties = Clue.json.const.props.movie;
+						else if (Clue.Player.vars.contentType == "episode") properties = Clue.json.const.props.episode;
 				}
 
-				MCPi.json.call("Player.GetItem", {"playerid":MCPi.Player.id, "properties":properties}, reference);
+				Clue.json.call("Player.GetItem", {"playerid":Clue.Player.id, "properties":properties}, reference);
 			}
 			else
 			{
@@ -211,37 +211,37 @@
 					var text, item = output.result.item;
 
 					//get file reference of the playing item
-					MCPi.Player.data.reference = item.file;
+					Clue.Player.data.reference = item.file;
 
 					//analyze and define the content of thumbnail
-					if (item.thumbnail != null && item.thumbnail != "" && item.thumbnail.indexOf("Default") < 0) MCPi.Player.data.thumbnail = MCPi.libs.formatAssetURL(item.thumbnail);
-						else MCPi.Player.data.thumbnail = null;
+					if (item.thumbnail != null && item.thumbnail != "" && item.thumbnail.indexOf("Default") < 0) Clue.Player.data.thumbnail = Clue.libs.formatAssetURL(item.thumbnail);
+						else Clue.Player.data.thumbnail = null;
 
-					if (MCPi.Player.id == 0)			//set audio content
+					if (Clue.Player.id == 0)			//set audio content
 					{
-						if (MCPi.Player.data.thumbnail == null) MCPi.Player.data.thumbnail = "/resources/images/album.png";
+						if (Clue.Player.data.thumbnail == null) Clue.Player.data.thumbnail = "/resources/images/album.png";
 
-						if (item.title != null && item.title != "") MCPi.Player.data.title = item.title;
-							else MCPi.Player.data.title = item.label;
+						if (item.title != null && item.title != "") Clue.Player.data.title = item.title;
+							else Clue.Player.data.title = item.label;
 
 						text = [];
 						if (item.artist != null && item.artist != "") text[text.length] = "<b>" + item.artist + "</b>";
 						if (item.album != null && item.album != "") text[text.length] = item.album;
 						if (item.year != null && item.year != "") text[text.length] = item.year;
 
-						if (text.length > 0) MCPi.Player.data.details = text.join(" &bull; ");
-							else MCPi.Player.data.details = null;
+						if (text.length > 0) Clue.Player.data.details = text.join(" &bull; ");
+							else Clue.Player.data.details = null;
 
-						MCPi.Player.vars.contentType = item.type;
+						Clue.Player.vars.contentType = item.type;
 					}
-					else if (MCPi.Player.id == 1)	//set video content
+					else if (Clue.Player.id == 1)	//set video content
 					{
-						if (MCPi.Player.data.thumbnail == null) MCPi.Player.data.thumbnail = "/resources/images/video.png";
+						if (Clue.Player.data.thumbnail == null) Clue.Player.data.thumbnail = "/resources/images/video.png";
 
-						if (MCPi.Player.vars.contentType == "movie")
+						if (Clue.Player.vars.contentType == "movie")
 						{
-							if (item.title != null && item.title != "") MCPi.Player.data.title = item.title;
-								else MCPi.Player.data.title = item.label;
+							if (item.title != null && item.title != "") Clue.Player.data.title = item.title;
+								else Clue.Player.data.title = item.label;
 
 							text = [];
 							if (item.genre != null && item.genre.length > 3) item.genre.splice(3);
@@ -249,13 +249,13 @@
 							if (item.year != null && item.year != "") text[text.length] = item.year;
 							if (item.rating != null && item.rating != "") text[text.length] = item.rating.toFixed(1);
 
-							if (text.length > 0) MCPi.Player.data.details = text.join(" &bull; ");
-								else MCPi.Player.data.details = null;
+							if (text.length > 0) Clue.Player.data.details = text.join(" &bull; ");
+								else Clue.Player.data.details = null;
 						}
-						else if (MCPi.Player.vars.contentType == "episode")
+						else if (Clue.Player.vars.contentType == "episode")
 						{
-							if (item.title != null && item.title != "") MCPi.Player.data.title = item.title;
-								else MCPi.Player.data.title = item.label;
+							if (item.title != null && item.title != "") Clue.Player.data.title = item.title;
+								else Clue.Player.data.title = item.label;
 
 							text = [];
 							if (item.showtitle != null && item.showtitle != "") text[text.length] = "<b>" + item.showtitle + "</b>";
@@ -263,24 +263,24 @@
 							if (item.episode != null && item.episode != "") text[text.length] = "Episode " + item.episode;
 							if (item.rating != null && item.rating != "")text[text.length] = item.rating.toFixed(1);
 
-							if (text.length > 0) MCPi.Player.data.details = text.join(" &bull; ");
-								else MCPi.Player.data.details = null;
+							if (text.length > 0) Clue.Player.data.details = text.join(" &bull; ");
+								else Clue.Player.data.details = null;
 						}
-						else if (MCPi.Player.vars.contentType == null)
+						else if (Clue.Player.vars.contentType == null)
 						{
-							if (item.label != null && item.label != "") MCPi.Player.data.title = item.label;
-								else MCPi.Player.data.title = null;
+							if (item.label != null && item.label != "") Clue.Player.data.title = item.label;
+								else Clue.Player.data.title = null;
 
-							MCPi.Player.data.details = null;
-							MCPi.Player.vars.contentType = item.type;
-							MCPi.Player.getPlayingItemDetails(input, null, chain);
+							Clue.Player.data.details = null;
+							Clue.Player.vars.contentType = item.type;
+							Clue.Player.getPlayingItemDetails(input, null, chain);
 						}
 					}
 
 					//allow screen details to become visible and display them
-					MCPi.Player.vars.allowData = true;
+					Clue.Player.vars.allowData = true;
 				}
-				else MCPi.Player.vars.allowData = false;
+				else Clue.Player.vars.allowData = false;
 			}
 		},
 
@@ -296,14 +296,14 @@
 			if(output == null)
 			{
 				console.log("Player.setPlay");
-				var reference = {"input":input, "callback":MCPi.Player.setPlay, "chain":chain};
+				var reference = {"input":input, "callback":Clue.Player.setPlay, "chain":chain};
 
-				MCPi.json.call("Player.PlayPause", {"playerid":MCPi.Player.id}, reference);
+				Clue.json.call("Player.PlayPause", {"playerid":Clue.Player.id}, reference);
 			}
 			else
 			{
 				console.log("Player.setPlay-Callback");
-				if (output && output.result != null) MCPi.Player.props.speed = output.result.speed;
+				if (output && output.result != null) Clue.Player.props.speed = output.result.speed;
 			}
 		},
 
@@ -319,16 +319,16 @@
 			if(output == null)
 			{
 				console.log("Player.setStop");
-				var reference = {"input":input, "callback":MCPi.Player.setStop ,"chain":chain};
+				var reference = {"input":input, "callback":Clue.Player.setStop ,"chain":chain};
 
-				MCPi.json.call("Player.Stop", {"playerid":MCPi.Player.id}, reference);
+				Clue.json.call("Player.Stop", {"playerid":Clue.Player.id}, reference);
 			}
 			else
 			{
 				if (output != null && output.result == "OK")
 				{
 					console.log("Player.setStop-Callback");
-					MCPi.Player.reset();
+					Clue.Player.reset();
 				}
 			}
 		},
@@ -347,14 +347,14 @@
 				if(input == null) input = "increment";
 
 				console.log("Player.setFastPlayingMode");
-				var reference = {"input":input, "callback":MCPi.Player.setFastPlayingMode, "chain":chain};
+				var reference = {"input":input, "callback":Clue.Player.setFastPlayingMode, "chain":chain};
 
-				MCPi.json.call("Player.SetSpeed", {"playerid":MCPi.Player.id, "speed":input}, reference);
+				Clue.json.call("Player.SetSpeed", {"playerid":Clue.Player.id, "speed":input}, reference);
 			}
 			else
 			{
 				console.log("Player.setFastPlayingMode-Callback");
-				if (output && output.result != null) MCPi.Player.props.speed = output.result.speed;
+				if (output && output.result != null) Clue.Player.props.speed = output.result.speed;
 			}
 		},
 
@@ -368,7 +368,7 @@
 		setFastForward: function (input, output, chain)
 		{
 			console.log("Player.setFastForward");
-			MCPi.Player.setFastPlayingMode("increment", output, chain);
+			Clue.Player.setFastPlayingMode("increment", output, chain);
 		},
 
 		/**
@@ -381,7 +381,7 @@
 		setFastRewind: function (input, output, chain)
 		{
 			console.log("Player.setFastRewind");
-			MCPi.Player.setFastPlayingMode("decrement", output, chain);
+			Clue.Player.setFastPlayingMode("decrement", output, chain);
 		},
 
 		/**
@@ -400,7 +400,7 @@
 				console.log("Player.setPlayingMode");
 				var reference = {"input":input, "chain":chain};
 
-				MCPi.json.call("Player.GoTo", {"playerid":MCPi.Player.id, "to":input}, reference);
+				Clue.json.call("Player.GoTo", {"playerid":Clue.Player.id, "to":input}, reference);
 			}
 		},
 
@@ -414,7 +414,7 @@
 		setForward: function (input, output, chain)
 		{
 			console.log("Player.setForward");
-			MCPi.Player.setPlayingMode("next", output, chain);
+			Clue.Player.setPlayingMode("next", output, chain);
 		},
 
 		/**
@@ -427,7 +427,7 @@
 		setRewind: function (input, output, chain)
 		{
 			console.log("Player.setRewind");
-			MCPi.Player.setPlayingMode("previous", output, chain);
+			Clue.Player.setPlayingMode("previous", output, chain);
 		},
 
 		/**
@@ -444,16 +444,16 @@
 				if(input == null) input = true;
 
 				console.log("Player.setPartyMode");
-				var reference = {"input":input, "callback":MCPi.Player.setPartyMode, "chain":chain};
+				var reference = {"input":input, "callback":Clue.Player.setPartyMode, "chain":chain};
 
-				MCPi.json.call("Player.SetPartymode", {"playerid":MCPi.Player.id, "partymode":input}, reference);
+				Clue.json.call("Player.SetPartymode", {"playerid":Clue.Player.id, "partymode":input}, reference);
 			}
 			else
 			{
 				if (output != null && output.result == "OK")
 				{
 					console.log("Player.setPartyMode-Callback");
-					MCPi.Player.props.partymode = input;
+					Clue.Player.props.partymode = input;
 				}
 			}
 		},
@@ -471,12 +471,12 @@
 			{
 				if(input == null) input = "toggle";
 
-				if(MCPi.Player.props.mute != input)
+				if(Clue.Player.props.mute != input)
 				{
 					console.log("Player.setMute");
-					var reference = {"input":input, "callback":MCPi.Player.setMute, "chain":chain};
+					var reference = {"input":input, "callback":Clue.Player.setMute, "chain":chain};
 
-					MCPi.json.call("Application.SetMute", {"mute":input}, reference);
+					Clue.json.call("Application.SetMute", {"mute":input}, reference);
 				}
 			}
 			else
@@ -484,7 +484,7 @@
 				if (output != null && output.result != null)
 				{
 					console.log("Player.setMute-Callback");
-					MCPi.Player.props.mute = output.result;
+					Clue.Player.props.mute = output.result;
 				}
 			}
 		},
@@ -503,9 +503,9 @@
 				if(input == null) input = "increment";
 
 				console.log("Player.setVolume");
-				var reference = {"input":input, "callback":MCPi.Player.setVolume, "chain":chain};
+				var reference = {"input":input, "callback":Clue.Player.setVolume, "chain":chain};
 
-				MCPi.json.call("Application.SetVolume", {"volume":input}, reference);
+				Clue.json.call("Application.SetVolume", {"volume":input}, reference);
 			}
 			else
 			{
@@ -513,10 +513,10 @@
 				{
 					console.log("Player.setVolume-Callback");
 
-					MCPi.Player.props.volume = output.result;
-					MCPi.Player.props.mute = false;
+					Clue.Player.props.volume = output.result;
+					Clue.Player.props.mute = false;
 				}
-                else MCPi.Player.props.volume = -1;
+                else Clue.Player.props.volume = -1;
 			}
 		},
 
@@ -530,7 +530,7 @@
 		setIncreaseVolume: function(input, output, chain)
 		{
 			console.log("Player.setIncreaseVolume");
-			MCPi.Player.setVolume("increment", null, chain);
+			Clue.Player.setVolume("increment", null, chain);
 		},
 
 		/**
@@ -543,7 +543,7 @@
 		setDecreaseVolume: function(input, output, chain)
 		{
 			console.log("Player.setDecreaseVolume");
-			MCPi.Player.setVolume("decrement", null, chain);
+			Clue.Player.setVolume("decrement", null, chain);
 		},
 
 		/**
@@ -559,7 +559,7 @@
 			if (typeof input === 'string')
 			{
 				mediaId = parseInt(input);
-				mediaType = MCPi.Player.vars.contentType;
+				mediaType = Clue.Player.vars.contentType;
 			}
 			else
 			{
@@ -570,7 +570,7 @@
 					if (typeof input.mediaid === 'string') mediaId = parseInt(input.mediaid);
 						else mediaId = input.mediaid;
 
-					if(mediaType == null) mediaType = MCPi.Player.vars.contentType;
+					if(mediaType == null) mediaType = Clue.Player.vars.contentType;
 				}
 				else if(input.songid != null)
 				{
@@ -612,16 +612,16 @@
 		{
 			if(output == null)
 			{
-				input = MCPi.Player.getMediaStructure(input);
+				input = Clue.Player.getMediaStructure(input);
 				console.log("Player.setOpen");
 
-				var parameters, reference = {"input":input, "callback":MCPi.Player.setOpenMedia, "chain":chain};
+				var parameters, reference = {"input":input, "callback":Clue.Player.setOpenMedia, "chain":chain};
 
 				if(input.mediatype == "song") parameters ={"item":{"songid":input.mediaid}};
 					else if(input.mediatype == "movie") parameters = {"item":{"movieid":input.mediaid}};
 						else if(input.mediatype == "episode") parameters = {"item":{"episodeid":input.mediaid}};
 
-				MCPi.json.call("Player.Open", parameters, reference);
+				Clue.json.call("Player.Open", parameters, reference);
 			}
 			else
 			{
@@ -633,7 +633,7 @@
 		}
 	};
 
-	MCPi.Player.GUI =
+	Clue.Player.GUI =
 	{
 		/**
 		 * Show the NowPlaying panel based on the user action performed n the corresponding button on the
@@ -647,7 +647,7 @@
 			console.log("Player.GUI.show");
 			$('#nowPlayingButton span').removeClass("text-primary");
 
-			MCPi.Player.getProperties(null, null, {"nextcall":MCPi.Player.getPlayingItemDetails, "chain":{"nextcall":MCPi.Player.GUI.display}});
+			Clue.Player.getProperties(null, null, {"nextcall":Clue.Player.getPlayingItemDetails, "chain":{"nextcall":Clue.Player.GUI.display}});
 		},
 
 		/**
@@ -673,7 +673,7 @@
 		{
 			console.log("Player.GUI.display");
 
-			if(MCPi.Player.vars.allowData)
+			if(Clue.Player.vars.allowData)
 			{
 				$('#nowPlayingData').removeClass("hide");
 				$('#nowPlayingData').addClass("show");
@@ -682,16 +682,16 @@
 				$('#nowPlayingCtrl').removeClass("hide");
 				$('#nowPlayingCtrl').addClass("show");
 
-				if(MCPi.Player.data.title != null) $('#nowPlayingItemTitle').html(MCPi.Player.data.title);
+				if(Clue.Player.data.title != null) $('#nowPlayingItemTitle').html(Clue.Player.data.title);
 					else $('#nowPlayingItemTitle').html("&nbsp;");
 
-				if(MCPi.Player.data.details != null) $('#nowPlayingItemDetails').html(MCPi.Player.data.details);
+				if(Clue.Player.data.details != null) $('#nowPlayingItemDetails').html(Clue.Player.data.details);
 					else $('#nowPlayingItemDetails').html("&nbsp;");
 
-				$('#nowPlayingItemProgress').css('width', MCPi.Player.props.percentage + '%').attr("aria-valuenow", MCPi.Player.props.percentage);
-				$('#nowPlayingItemProgress').html(MCPi.Player.props.percentage + "%");
+				$('#nowPlayingItemProgress').css('width', Clue.Player.props.percentage + '%').attr("aria-valuenow", Clue.Player.props.percentage);
+				$('#nowPlayingItemProgress').html(Clue.Player.props.percentage + "%");
 
-				$('#nowPlayingItemFanart').attr("src", MCPi.Player.data.thumbnail);
+				$('#nowPlayingItemFanart').attr("src", Clue.Player.data.thumbnail);
 			}
 			else
 			{
@@ -708,11 +708,11 @@
 			}
 
 			var play = $('#nowPlayingPlay');
-			if (MCPi.Player.props.speed <= 0 || MCPi.Player.props.speed > 1)
+			if (Clue.Player.props.speed <= 0 || Clue.Player.props.speed > 1)
 			{
 				play.html('<span class="fa fa-play" aria-hidden="true"></span>');
 			}
-			else if(MCPi.Player.props.speed == 1)
+			else if(Clue.Player.props.speed == 1)
 			{
 				play.html('<span class="fa fa-pause" aria-hidden="true"></span>');
 			}
@@ -731,7 +731,7 @@
 			var id = obj.attr('id');
 
 			console.log("Player.GUI.onClick(#" + id + ")");
-            MCPi.Player.GUI.call(id);
+            Clue.Player.GUI.call(id);
 		},
 
 		/**
@@ -757,86 +757,86 @@
 				case 'nowPlayingRewind':
 					runner = function ()
 					{
-						MCPi.Player.setRewind();
+						Clue.Player.setRewind();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getPlayingItemDetails();
-						if(MCPi.Player.props.percentage < 1) MCPi.RemoteControl.GUI.vars.lockingCounter = 3;
+						Clue.Player.getPlayingItemDetails();
+						if(Clue.Player.props.percentage < 1) Clue.RemoteControl.GUI.vars.lockingCounter = 3;
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("title", MCPi.Player.data.title);
+						return Clue.libs.getHashcode("title", Clue.Player.data.title);
 					};
 					break;
 				case 'nowPlayingFastRewind':
 					runner = function ()
 					{
-						MCPi.Player.setFastRewind();
+						Clue.Player.setFastRewind();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getProperties();
+						Clue.Player.getProperties();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+						return Clue.libs.getHashcode("speed", Clue.Player.props.speed);
 					};
 					break;
 				case 'nowPlayingStop':
 					runner = function ()
 					{
-						MCPi.Player.setStop();
+						Clue.Player.setStop();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getProperties();
+						Clue.Player.getProperties();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+						return Clue.libs.getHashcode("speed", Clue.Player.props.speed);
 					};
 					break;
 				case 'nowPlayingPlay':
 					runner = function ()
 					{
-						MCPi.Player.setPlay();
+						Clue.Player.setPlay();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getProperties();
+						Clue.Player.getProperties();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+						return Clue.libs.getHashcode("speed", Clue.Player.props.speed);
 					};
 					break;
 				case 'nowPlayingFastForward':
 					runner = function ()
 					{
-						MCPi.Player.setFastForward();
+						Clue.Player.setFastForward();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getProperties();
+						Clue.Player.getProperties();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("speed", MCPi.Player.props.speed);
+						return Clue.libs.getHashcode("speed", Clue.Player.props.speed);
 					};
 					break;
 				case 'nowPlayingForward':
 					runner = function ()
 					{
-						MCPi.Player.setForward();
+						Clue.Player.setForward();
 					};
 					checker = function ()
 					{
-						MCPi.Player.getPlayingItemDetails();
+						Clue.Player.getPlayingItemDetails();
 					};
 					pointer = function ()
 					{
-						return MCPi.libs.getHashcode("title", MCPi.Player.data.title);
+						return Clue.libs.getHashcode("title", Clue.Player.data.title);
 					};
 					break;
 			}
@@ -851,53 +851,53 @@
 		 */
 		call: function(eid)
 		{
-			var run = MCPi.Player.GUI.getCallerData(eid);
+			var run = Clue.Player.GUI.getCallerData(eid);
 
-			if(!MCPi.RemoteControl.GUI.vars.lockingFlag)
+			if(!Clue.RemoteControl.GUI.vars.lockingFlag)
             {
                 console.log("Player.GUI.call(" + eid + ")");
 
 				$('#' + eid).addClass("active");
-				MCPi.GUI.runWaitOn();
+				Clue.GUI.runWaitOn();
 
-                MCPi.RemoteControl.GUI.vars.newPropHash = run.pointer();
-				MCPi.RemoteControl.GUI.vars.oldPropHash = MCPi.RemoteControl.GUI.vars.newPropHash;
-				MCPi.RemoteControl.GUI.vars.lockingFlag = true;
-				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
+                Clue.RemoteControl.GUI.vars.newPropHash = run.pointer();
+				Clue.RemoteControl.GUI.vars.oldPropHash = Clue.RemoteControl.GUI.vars.newPropHash;
+				Clue.RemoteControl.GUI.vars.lockingFlag = true;
+				Clue.RemoteControl.GUI.vars.lockingCounter = 0;
 
 				run.runner();
-				if(!MCPi.GUI.vars.syncAction) MCPi.RemoteControl.GUI.vars.lockingCounter = 3;
+				if(!Clue.GUI.vars.syncAction) Clue.RemoteControl.GUI.vars.lockingCounter = 3;
 			}
 
-			if((MCPi.RemoteControl.GUI.vars.oldPropHash == MCPi.RemoteControl.GUI.vars.newPropHash) && MCPi.RemoteControl.GUI.vars.lockingCounter < 3)
+			if((Clue.RemoteControl.GUI.vars.oldPropHash == Clue.RemoteControl.GUI.vars.newPropHash) && Clue.RemoteControl.GUI.vars.lockingCounter < 3)
 			{
 				console.log("Player.GUI.call-Timercall");
 				run.checker();
 
 				setTimeout(function()
 				{
-					MCPi.Player.GUI.call(eid);
+					Clue.Player.GUI.call(eid);
 				}, 250);
 
-				MCPi.RemoteControl.GUI.vars.lockingCounter++;
-				MCPi.RemoteControl.GUI.vars.newPropHash = run.pointer();
+				Clue.RemoteControl.GUI.vars.lockingCounter++;
+				Clue.RemoteControl.GUI.vars.newPropHash = run.pointer();
 			}
 			else
 			{
-				MCPi.RemoteControl.GUI.vars.oldPropHash = null;
-				MCPi.RemoteControl.GUI.vars.newPropHash = null;
-				MCPi.RemoteControl.GUI.vars.lockingFlag = false;
-				MCPi.RemoteControl.GUI.vars.lockingCounter = 0;
+				Clue.RemoteControl.GUI.vars.oldPropHash = null;
+				Clue.RemoteControl.GUI.vars.newPropHash = null;
+				Clue.RemoteControl.GUI.vars.lockingFlag = false;
+				Clue.RemoteControl.GUI.vars.lockingCounter = 0;
 
-				MCPi.GUI.refresh();
+				Clue.GUI.refresh();
 
 				$('#' + eid).removeClass("active");
-				MCPi.GUI.runWaitOff();
+				Clue.GUI.runWaitOff();
 			}
 		}
 	};
 
-	MCPi.Player.Queue =
+	Clue.Player.Queue =
 	{
 		/**
 		 * This method insert on the first position in the current playlist (queue) a new media object. Just to make
@@ -911,16 +911,16 @@
 		{
 			if(output == null)
 			{
-				input = MCPi.Player.getMediaStructure(input);
+				input = Clue.Player.getMediaStructure(input);
 				console.log("Player.Queue.setInsertMedia");
 
-				var parameters, reference = {"input":input, "callback":MCPi.Player.Queue.setInsertMedia, "chain":chain};
+				var parameters, reference = {"input":input, "callback":Clue.Player.Queue.setInsertMedia, "chain":chain};
 
-				if(input.mediatype == "song") parameters ={"item":{"songid":input.mediaid}, "position":1, "playlistid":MCPi.Player.id};
-					else if(input.mediatype == "movie") parameters = {"item":{"movieid":input.mediaid}, "position":1, "playlistid":MCPi.Player.id};
-						else if(input.mediatype == "episode") parameters = {"item":{"episodeid":input.mediaid}, "position":1, "playlistid":MCPi.Player.id};
+				if(input.mediatype == "song") parameters ={"item":{"songid":input.mediaid}, "position":1, "playlistid":Clue.Player.id};
+					else if(input.mediatype == "movie") parameters = {"item":{"movieid":input.mediaid}, "position":1, "playlistid":Clue.Player.id};
+						else if(input.mediatype == "episode") parameters = {"item":{"episodeid":input.mediaid}, "position":1, "playlistid":Clue.Player.id};
 
-				MCPi.json.call("Playlist.Insert", parameters, reference);
+				Clue.json.call("Playlist.Insert", parameters, reference);
 			}
 			else
 			{
@@ -943,16 +943,16 @@
 		{
 			if(output == null)
 			{
-				input = MCPi.Player.getMediaStructure(input);
+				input = Clue.Player.getMediaStructure(input);
 				console.log("Player.Queue.setAppendMedia");
 
-				var parameters, reference = {"input":input, "callback":MCPi.Player.Queue.setAppendMedia, "chain":chain};
+				var parameters, reference = {"input":input, "callback":Clue.Player.Queue.setAppendMedia, "chain":chain};
 
-				if(input.mediatype == "song") parameters ={"item":{"songid":input.mediaid}, "playlistid":MCPi.Player.id};
-					else if(input.mediatype == "movie") parameters = {"item":{"movieid":input.mediaid}, "playlistid":MCPi.Player.id};
-						else if(input.mediatype == "episode") parameters = {"item":{"episodeid":input.mediaid}, "playlistid":MCPi.Player.id};
+				if(input.mediatype == "song") parameters ={"item":{"songid":input.mediaid}, "playlistid":Clue.Player.id};
+					else if(input.mediatype == "movie") parameters = {"item":{"movieid":input.mediaid}, "playlistid":Clue.Player.id};
+						else if(input.mediatype == "episode") parameters = {"item":{"episodeid":input.mediaid}, "playlistid":Clue.Player.id};
 
-				MCPi.json.call("Playlist.Add", parameters, reference);
+				Clue.json.call("Playlist.Add", parameters, reference);
 			}
 			else
 			{
